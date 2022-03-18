@@ -28,6 +28,8 @@ func main() {
 		Addr:    ":" + serverPort,
 		Handler: router,
 	}
+	log.Printf("Servidor corriendo en http://localhost:" + serverPort)
+	log.Printf("Starting")
 	log.Fatal(server.ListenAndServe())
 
 }
