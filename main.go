@@ -10,7 +10,7 @@ import (
 	"os"
 )
 
-const defaultPort = ":8080"
+const defaultPort = "8080"
 
 func main() {
 	database.Migrate()
@@ -22,7 +22,7 @@ func main() {
 	routes.SetUsuariosRoutes(router)
 	serverPort := os.Getenv("PORT")
 	if serverPort == "" {
-		serverPort = defaultPort
+		serverPort = ":" + defaultPort
 	}
 	server := http.Server{
 		Addr:    serverPort,
