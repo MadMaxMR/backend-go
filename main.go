@@ -28,10 +28,8 @@ func main() {
 		Addr:    ":" + serverPort,
 		Handler: router,
 	}
-
 	log.Println("Starting development server at http://localhost:8000/")
 	log.Println("Listening....\n \n \n")
-
-	log.Println(server.ListenAndServe())
+	server.ListenAndServe()
 
 }
