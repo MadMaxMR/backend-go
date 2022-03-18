@@ -1,8 +1,8 @@
 package main
 
 import (
-	"API/database"
-	"API/routes"
+	"github.com/MadMaxMR/backend-go/database"
+	"github.com/MadMaxMR/backend-go/routes"
 	"log"
 	"net/http"
 

@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"API/controllers"
+	"github.com/MadMaxMR/backend-go/controllers"
 
 	"github.com/gorilla/mux"
 )

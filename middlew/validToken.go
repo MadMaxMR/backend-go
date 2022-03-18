@@ -1,8 +1,8 @@
 package middlew
 
 import (
-	"API/auth"
-	"API/handler"
+	"github.com/MadMaxMR/backend-go/auth"
+	"github.com/MadMaxMR/backend-go/handler"
 	"log"
 	"net/http"
 )

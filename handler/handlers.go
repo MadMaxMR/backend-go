@@ -1,8 +1,8 @@
 package handler
 
 import (
-	"API/models"
 	"encoding/json"
+	"github.com/MadMaxMR/backend-go/models"
 	"log"
 	"net/http"
 	"strconv"

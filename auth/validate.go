@@ -1,11 +1,11 @@
 package auth
 
 import (
-	"API/modelos"
-	"API/models"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/MadMaxMR/backend-go/modelos"
+	"github.com/MadMaxMR/backend-go/models"
 	"io/ioutil"
 	"net/http"
 )

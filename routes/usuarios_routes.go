@@ -1,8 +1,8 @@
 package routes
 
 import (
-	"API/controllers"
-	"API/middlew"
+	"github.com/MadMaxMR/backend-go/controllers"
+	"github.com/MadMaxMR/backend-go/middlew"
 
 	"github.com/gorilla/mux"
 )

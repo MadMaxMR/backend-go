@@ -1,8 +1,8 @@
 package database
 
 import (
-	"API/auth"
 	"errors"
+	"github.com/MadMaxMR/backend-go/auth"
 	"net/http"
 )
 

@@ -1,12 +1,12 @@
 package controllers
 
 import (
-	"API/auth"
-	"API/database"
-	"API/handler"
-	"API/modelos"
-	"API/models"
 	"errors"
+	"github.com/MadMaxMR/backend-go/auth"
+	"github.com/MadMaxMR/backend-go/database"
+	"github.com/MadMaxMR/backend-go/handler"
+	"github.com/MadMaxMR/backend-go/modelos"
+	"github.com/MadMaxMR/backend-go/models"
 	"io"
 	"log"
 	"net/http"

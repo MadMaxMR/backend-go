@@ -1,10 +1,10 @@
 package controllers
 
 import (
-	"API/auth"
-	"API/database"
-	"API/handler"
-	"API/models"
+	"github.com/MadMaxMR/backend-go/auth"
+	"github.com/MadMaxMR/backend-go/database"
+	"github.com/MadMaxMR/backend-go/handler"
+	"github.com/MadMaxMR/backend-go/models"
 	"net/http"
 
 	"github.com/gorilla/mux"

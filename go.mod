@@ -1,4 +1,4 @@
-module API
+module github.com/MadMaxMR/backend-go
 
 go 1.17
 

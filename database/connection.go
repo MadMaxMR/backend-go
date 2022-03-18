@@ -3,7 +3,7 @@ package database
 import (
 	"log"
 
-	"API/modelos"
+	"github.com/MadMaxMR/backend-go/modelos"
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/lib/pq"
