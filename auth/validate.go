@@ -71,7 +71,7 @@ func ValidateUsuario(usuario *modelos.Usuarios) error {
 		return errors.New("Field 'dni' must be 8 digits")
 	}
 	if usuario.Direccion  == "" {
-		return errors.New("Required field 'universidad'")
+		return errors.New("Required field 'Dirección'")
 	}
 	if usuario.Celular == 0 {
 		return errors.New("Required field 'celular'")
