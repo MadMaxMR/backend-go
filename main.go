@@ -22,10 +22,10 @@ func main() {
 	routes.SetUsuariosRoutes(router)
 	serverPort := os.Getenv("PORT")
 	if serverPort == "" {
-		serverPort = ":" + defaultPort
+		serverPort = defaultPort
 	}
 	server := http.Server{
-		Addr:    serverPort,
+		Addr:    ":" + serverPort,
 		Handler: cors.AllowAll().Handler(router),
 	}
 
