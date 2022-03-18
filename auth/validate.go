@@ -52,7 +52,7 @@ func ValidateTema(tema *models.Temas) error {
 }
 func ValidateUsuario(usuario *modelos.Usuarios) error {
 	fmt.Printf("%+v\n", usuario)
-	/*if usuario.Nombres == "" {
+	if usuario.Nombres == "" {
 		return errors.New("Required field 'nombres'")
 	}
 	if usuario.Apellidos == "" {
@@ -70,7 +70,7 @@ func ValidateUsuario(usuario *modelos.Usuarios) error {
 	if usuario.Dni > 100000000 || usuario.Dni < 10000000 {
 		return errors.New("Field 'dni' must be 8 digits")
 	}
-	if usuario.Universidad == "" {
+	if usuario.Direccion  == "" {
 		return errors.New("Required field 'universidad'")
 	}
 	if usuario.Celular == 0 {
@@ -78,7 +78,7 @@ func ValidateUsuario(usuario *modelos.Usuarios) error {
 	}
 	if usuario.Celular > 1000000000 || usuario.Celular < 100000000 {
 		return errors.New("Field 'celular' must be 9 digits")
-	}*/
+	}
 	return nil
 }
 
