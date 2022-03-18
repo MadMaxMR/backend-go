@@ -4,7 +4,7 @@ import (
 	"github.com/MadMaxMR/backend-go/database"
 	"github.com/MadMaxMR/backend-go/routes"
 	"github.com/gorilla/mux"
-	//"github.com/rs/cors"
+	"github.com/rs/cors"
 	"log"
 	"net/http"
 	"os"
