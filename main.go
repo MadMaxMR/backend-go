@@ -4,7 +4,7 @@ import (
 	"github.com/MadMaxMR/backend-go/database"
 	"github.com/MadMaxMR/backend-go/routes"
 	"github.com/gorilla/mux"
-	"github.com/rs/cors"
+	//"github.com/rs/cors"
 	"log"
 	"net/http"
 	"os"
@@ -26,7 +26,7 @@ func main() {
 	}
 	server := http.Server{
 		Addr:    ":" + serverPort,
-		Handler: cors.AllowAll().Handler(router),
+		Handler: router,
 	}
 
 	log.Println("Starting development server at http://localhost:8000/")
