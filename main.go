@@ -13,6 +13,7 @@ import (
 const defaultPort = "8080"
 
 func main() {
+	serverPort := os.Getenv("PORT")
 	database.Migrate()
 
 	router := mux.NewRouter()
@@ -20,7 +21,6 @@ func main() {
 	routes.SetCursosRoutes(router)
 	routes.SetTemasRoutes(router)
 	routes.SetUsuariosRoutes(router)
-	serverPort := os.Getenv("PORT")
 	if serverPort == "" {
 		serverPort = defaultPort
 	}
@@ -29,7 +29,5 @@ func main() {
 		Handler: router,
 	}
 	log.Fatal(server.ListenAndServe())
-	log.Println("Starting development server at http://localhost:8080/")
-	log.Println("Listening....\n \n \n")
 
 }
