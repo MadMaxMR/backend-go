@@ -1,6 +1,9 @@
 package modelos
 
-import "gorm.io/datatypes"
+import (
+	"gorm.io/datatypes"
+	"time"
+)
 
 type Usuarios struct {
 	//Id_Perfil        uint           `json:"id_perfil" gorm:"type:int" REFERENCES perfil_usuarios(id)"`
