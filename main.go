@@ -28,7 +28,7 @@ func main() {
 		Addr:    ":" + serverPort,
 		Handler: router,
 	}
-	server.ListenAndServe()
+	log.Fatal(server.ListenAndServe())
 	log.Println("Starting development server at http://localhost:8080/")
 	log.Println("Listening....\n \n \n")
 
