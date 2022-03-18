@@ -20,7 +20,7 @@ func main() {
 	routes.SetUsuariosRoutes(router)
 
 	server := http.Server{
-		Addr:    ":8000",
+		Addr:    ":8080",
 		Handler: cors.AllowAll().Handler(router),
 	}
 
