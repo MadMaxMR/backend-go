@@ -3,12 +3,14 @@ package main
 import (
 	"github.com/MadMaxMR/backend-go/database"
 	"github.com/MadMaxMR/backend-go/routes"
-	"log"
-	"net/http"
-
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
+	"log"
+	"net/http"
+	"os"
 )
+
+const defaultPort = ":8080"
 
 func main() {
 	database.Migrate()
@@ -18,9 +20,12 @@ func main() {
 	routes.SetCursosRoutes(router)
 	routes.SetTemasRoutes(router)
 	routes.SetUsuariosRoutes(router)
-
+	serverPort := os.Getenv("PORT")
+	if serverPort == "" {
+		serverPort = defaultPort
+	}
 	server := http.Server{
-		Addr:    ":8080",
+		Addr:    serverPort,
 		Handler: cors.AllowAll().Handler(router),
 	}
 
