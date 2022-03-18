@@ -13,7 +13,7 @@ import (
 const defaultPort = "8080"
 
 func main() {
-	serverPort := os.Getenv("PORT")
+	//serverPort := os.Getenv("PORT")
 	database.Migrate()
 
 	router := mux.NewRouter()
@@ -22,7 +22,7 @@ func main() {
 	routes.SetTemasRoutes(router)
 	routes.SetUsuariosRoutes(router)
 	if serverPort == "" {
-		serverPort = defaultPort
+		serverPort := defaultPort
 	}
 	server := http.Server{
 		Addr:    ":" + serverPort,
