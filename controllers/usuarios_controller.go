@@ -6,7 +6,6 @@ import (
 	"github.com/MadMaxMR/backend-go/database"
 	"github.com/MadMaxMR/backend-go/handler"
 	"github.com/MadMaxMR/backend-go/modelos"
-	"github.com/MadMaxMR/backend-go/models"
 	"io"
 	"log"
 	"net/http"
@@ -30,7 +29,7 @@ func GetAllUsuarios(w http.ResponseWriter, req *http.Request) {
 }
 
 func GetUsuario(w http.ResponseWriter, req *http.Request) {
-	usuario := models.Usuarios{}
+	usuario := modelos.Usuarios{}
 	id := mux.Vars(req)["id"]
 
 	user, err := database.Get(&usuario, id)
@@ -63,7 +62,7 @@ func SaveUsuario(w http.ResponseWriter, req *http.Request) {
 }
 
 func DeleteUsuario(w http.ResponseWriter, req *http.Request) {
-	usuario := models.Usuarios{}
+	usuario := modelos.Usuarios{}
 	id := mux.Vars(req)["id"]
 	message, err := database.Delete(&usuario, id)
 	if err != nil {
@@ -74,7 +73,7 @@ func DeleteUsuario(w http.ResponseWriter, req *http.Request) {
 }
 
 func UpdateUsuario(w http.ResponseWriter, req *http.Request) {
-	usuario := models.Usuarios{}
+	usuario := modelos.Usuarios{}
 	id := mux.Vars(req)["id"]
 	modelo, err := database.Update(req, &usuario, id)
 	if err != nil {
@@ -85,7 +84,7 @@ func UpdateUsuario(w http.ResponseWriter, req *http.Request) {
 }
 
 func VerPerfil(w http.ResponseWriter, req *http.Request) {
-	usuario := models.Usuarios{}
+	usuario := modelos.Usuarios{}
 	id := mux.Vars(req)["id"]
 	user, err := database.Get(&usuario, id)
 	if err != nil {
@@ -96,7 +95,7 @@ func VerPerfil(w http.ResponseWriter, req *http.Request) {
 }
 
 func Login(w http.ResponseWriter, req *http.Request) {
-	usuario := models.Usuarios{}
+	usuario := modelos.Usuarios{}
 	err := auth.ValidateBody(req, &usuario)
 	if err != nil {
 		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
@@ -124,7 +123,7 @@ func Login(w http.ResponseWriter, req *http.Request) {
 
 func SignIn(email string, password string) (string, error, uint) {
 	var err error
-	usuario := models.Usuarios{}
+	usuario := modelos.Usuarios{}
 	db := database.GetConnection()
 	defer db.Close()
 
@@ -147,7 +146,7 @@ func SignIn(email string, password string) (string, error, uint) {
 }
 
 func UpdateAvatar(w http.ResponseWriter, req *http.Request) {
-	usuario := models.Usuarios{}
+	usuario := modelos.Usuarios{}
 
 	db := database.GetConnection()
 	defer db.Close()
@@ -185,7 +184,7 @@ func UpdateAvatar(w http.ResponseWriter, req *http.Request) {
 }
 
 func GetAvatar(w http.ResponseWriter, req *http.Request) {
-	usuario := models.Usuarios{}
+	usuario := modelos.Usuarios{}
 	id := mux.Vars(req)["id"]
 	_, err := database.Get(&usuario, id)
 	if err != nil {
