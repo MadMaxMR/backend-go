@@ -82,7 +82,7 @@ func ValidateUsuario(usuario *modelos.Usuarios) error {
 	return nil
 }
 
-func ValidateLogin(usuario *models.Usuarios) error {
+func ValidateLogin(usuario *modelos.Usuarios) error {
 	if usuario.Email == "" {
 		return errors.New("Required field 'email'")
 	}
