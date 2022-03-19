@@ -3,6 +3,7 @@ package modelos
 import (
 	"gorm.io/datatypes"
 	"time"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type Usuarios struct {
