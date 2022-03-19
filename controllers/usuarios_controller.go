@@ -52,7 +52,7 @@ func SaveUsuario(w http.ResponseWriter, req *http.Request) {
 		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
 		return
 	}
-	usuario.Password = models.BeforeSave(usuario.Password)
+	usuario.Password = modelos.BeforeSave(usuario.Password)
 	modelo, err := database.Create(&usuario)
 	if err != nil {
 		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
@@ -133,7 +133,7 @@ func SignIn(email string, password string) (string, error, uint) {
 		err = errors.New("email incorrecto")
 		return "", err, 0
 	}
-	err = models.VerifyPassword(usuario.Password, password)
+	err = modelos.VerifyPassword(usuario.Password, password)
 	if err != nil && err == bcrypt.ErrMismatchedHashAndPassword {
 		err = errors.New("contraseña incorrecta")
 		return "", err, 0
@@ -175,7 +175,7 @@ func UpdateAvatar(w http.ResponseWriter, req *http.Request) {
 		}
 		defer f.Close()
 
-		usuario.Imagen = string(id) + "." + extension
+		usuario.Image = string(id) + "." + extension
 		db.Save(&usuario)
 		handler.SendSuccess(w, req, http.StatusOK, usuario)
 	} else {
@@ -191,7 +191,7 @@ func GetAvatar(w http.ResponseWriter, req *http.Request) {
 		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
 		return
 	}
-	OpenFile, err := os.Open("media/usuarios/" + usuario.Imagen)
+	OpenFile, err := os.Open("media/usuarios/" + usuario.Image)
 	if err != nil {
 		handler.SendFail(w, req, http.StatusBadRequest, "Imagen no encontrada -"+err.Error())
 		return
