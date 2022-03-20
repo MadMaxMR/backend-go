@@ -51,7 +51,7 @@ func ValidateTema(tema *models.Temas) error {
 	return nil
 }
 func ValidateUsuario(usuario *modelos.Usuarios) error {
-	fmt.Printf("%+v\n", usuario)
+
 	if usuario.Nombres == "" {
 		return errors.New("Required field 'nombres'")
 	}
