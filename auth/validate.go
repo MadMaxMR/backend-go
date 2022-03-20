@@ -3,7 +3,6 @@ package auth
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/MadMaxMR/backend-go/modelos"
 	"github.com/MadMaxMR/backend-go/models"
 	"io/ioutil"
