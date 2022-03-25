@@ -115,7 +115,7 @@ func Login(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	jwtKey, err, valid_id := SignIn(usuario.Email, usuario.Password)
+	jwtKey, valid_id, err := SignIn(usuario.Email, usuario.Password)
 
 	if err != nil {
 		//log.Fatal(err)
