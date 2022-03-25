@@ -86,6 +86,15 @@ func UpdateUsuario(w http.ResponseWriter, req *http.Request) {
 func VerPerfil(w http.ResponseWriter, req *http.Request) {
 	usuario := modelos.Usuarios{}
 	id := mux.Vars(req)["id"]
+	_, _, tid, err := auth.ValidateToken(req.Header.Get("Authorization"))
+	if err != nil {
+		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
+		return
+	}
+	if tid != id {
+		handler.SendFail(w, req, http.StatusBadRequest, "Unauthorized")
+		return
+	}
 	user, err := database.Get(&usuario, id)
 	if err != nil {
 		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
@@ -121,7 +130,7 @@ func Login(w http.ResponseWriter, req *http.Request) {
 	handler.SendSuccess(w, req, http.StatusOK, data)
 }
 
-func SignIn(email string, password string) (string, error, uint) {
+func SignIn(email string, password string) (string, uint, error) {
 	var err error
 	usuario := modelos.Usuarios{}
 	db := database.GetConnection()
@@ -131,18 +140,18 @@ func SignIn(email string, password string) (string, error, uint) {
 
 	if err != nil {
 		err = errors.New("email incorrecto")
-		return "", err, 0
+		return "", 0, err
 	}
 	err = modelos.VerifyPassword(usuario.Password, password)
 	if err != nil && err == bcrypt.ErrMismatchedHashAndPassword {
 		err = errors.New("contraseña incorrecta")
-		return "", err, 0
+		return "", 0, err
 	}
 	Last_Login := time.Now()
 	db.Model(&usuario).Update("last_login", Last_Login)
 
 	jwtKey, err := auth.CreateToken(usuario.ID)
-	return jwtKey, err, usuario.ID
+	return jwtKey, usuario.ID, err
 }
 
 func UpdateAvatar(w http.ResponseWriter, req *http.Request) {
