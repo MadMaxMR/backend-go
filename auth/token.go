@@ -2,6 +2,9 @@ package auth
 
 import (
 	"errors"
+	"fmt"
+	"github.com/MadMaxMR/backend-go/models"
+	"strconv"
 	"strings"
 	"time"
 
@@ -12,13 +15,6 @@ import (
 type Token struct {
 	Id_Usuario uint   `json:"id" `
 	Token      string `json:"token"`
-}
-
-/*Claim es la estructura para procesar el JWT */
-type Claim struct {
-	Id_Usuario uint `json:"id"`
-	authorized bool `json:"authorized"`
-	jwt.StandardClaims
 }
 
 var IDUsuario uint
@@ -35,9 +31,9 @@ func CreateToken(id_usuario uint) (string, error) {
 	return tokenStr, err
 }
 
-func ValidateToken(tk string) (*Claim, bool, string, error) {
+func ValidateToken(tk string) (*models.Claim, bool, string, error) {
 	miClave := []byte("SECRET")
-	claims := &Claim{}
+	claims := &models.Claim{}
 
 	splitToken := strings.Split(tk, "Bearer")
 	if len(splitToken) != 2 {
@@ -45,16 +41,18 @@ func ValidateToken(tk string) (*Claim, bool, string, error) {
 	}
 	tk = strings.TrimSpace(splitToken[1])
 
-	tkn, err := jwt.ParseWithClaims(tk, claims, func(token *jwt.Token) (interface{}, error) {
+	tkn, err := jwt.Parse(tk, func(token *jwt.Token) (interface{}, error) {
 		return miClave, nil
 	})
-	if err == nil {
-		IDUsuario = claims.Id_Usuario
-		Authorized = claims.authorized
+	if err != nil {
+		return claims, false, string(""), err
+	}
+	claim, ok := tkn.Claims.(jwt.MapClaims)
+	if ok && tkn.Valid {
+		claims.Id_Usuario = strconv.FormatUint(uint64(uint(claim["user_id"].(float64))), 10)
+		claims.Authorized = claim["authorized"].(bool)
 		return claims, true, string(IDUsuario), nil
 	}
-	if !tkn.Valid {
-		return claims, false, string(""), errors.New("token invalido")
-	}
-	return claims, false, string(""), err
+	return claims, false, string(""), errors.New("token invalido")
+
 }

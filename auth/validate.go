@@ -26,67 +26,67 @@ func ValidateBody(req *http.Request, modelo interface{}) error {
 func ValidateCurso(curso *models.Cursos) error {
 
 	if curso.Nombre == "" {
-		return errors.New("Required field 'nombre'")
+		return errors.New("required field 'nombre'")
 	}
 	if curso.Description == "" {
-		return errors.New("Required field 'description'")
+		return errors.New("required field 'description'")
 	}
 	if curso.Image == "" {
-		return errors.New("Required field 'image'")
+		return errors.New("required field 'image'")
 	}
 	return nil
 }
 
 func ValidateTema(tema *models.Temas) error {
 	if tema.Title == "" {
-		return errors.New("Required field 'Title'")
+		return errors.New("required field 'Title'")
 	}
 	if tema.Description == "" {
-		return errors.New("Required field 'Description'")
+		return errors.New("required field 'Description'")
 	}
 	if tema.CursosID == 0 {
-		return errors.New("Required field 'CursoID'")
+		return errors.New("required field 'CursoID'")
 	}
 	return nil
 }
 func ValidateUsuario(usuario *modelos.Usuarios) error {
 
 	if usuario.Nombres == "" {
-		return errors.New("Required field 'nombres'")
+		return errors.New("required field 'nombres'")
 	}
 	if usuario.Apellidos == "" {
-		return errors.New("Required field 'apellidos'")
+		return errors.New("required field 'apellidos'")
 	}
 	if usuario.Email == "" {
-		return errors.New("Required field 'email'")
+		return errors.New("required field 'email'")
 	}
 	if usuario.Password == "" {
-		return errors.New("Required field 'password'")
+		return errors.New("required field 'password'")
 	}
 	if usuario.Dni == 0 {
-		return errors.New("Required field 'dni'")
+		return errors.New("required field 'dni'")
 	}
 	if usuario.Dni > 100000000 || usuario.Dni < 10000000 {
-		return errors.New("Field 'dni' must be 8 digits")
+		return errors.New("field 'dni' must be 8 digits")
 	}
-	if usuario.Direccion  == "" {
-		return errors.New("Required field 'Dirección'")
+	if usuario.Direccion == "" {
+		return errors.New("required field 'Dirección'")
 	}
 	if usuario.Celular == 0 {
-		return errors.New("Required field 'celular'")
+		return errors.New("required field 'celular'")
 	}
 	if usuario.Celular > 1000000000 || usuario.Celular < 100000000 {
-		return errors.New("Field 'celular' must be 9 digits")
+		return errors.New("field 'celular' must be 9 digits")
 	}
 	return nil
 }
 
 func ValidateLogin(usuario *modelos.Usuarios) error {
 	if usuario.Email == "" {
-		return errors.New("Required field 'email'")
+		return errors.New("required field 'email'")
 	}
 	if usuario.Password == "" {
-		return errors.New("Required field 'password'")
+		return errors.New("required field 'password'")
 	}
 	return nil
 }

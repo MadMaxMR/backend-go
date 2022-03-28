@@ -86,12 +86,12 @@ func UpdateUsuario(w http.ResponseWriter, req *http.Request) {
 func VerPerfil(w http.ResponseWriter, req *http.Request) {
 	usuario := modelos.Usuarios{}
 	id := mux.Vars(req)["id"]
-	_, _, tid, err := auth.ValidateToken(req.Header.Get("Authorization"))
+	tk, _, _, err := auth.ValidateToken(req.Header.Get("Authorization"))
 	if err != nil {
 		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
 		return
 	}
-	if tid != id {
+	if tk.Id_Usuario != id {
 		handler.SendFail(w, req, http.StatusBadRequest, "Unauthorized")
 		return
 	}
