@@ -2,7 +2,6 @@ package auth
 
 import (
 	"errors"
-	"fmt"
 	"github.com/MadMaxMR/backend-go/models"
 	"strconv"
 	"strings"
