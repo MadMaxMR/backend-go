@@ -2,7 +2,6 @@ package auth
 
 import (
 	"errors"
-	"github.com/MadMaxMR/backend-go/models"
 	"strconv"
 	"strings"
 	"time"
@@ -14,6 +13,11 @@ import (
 type Token struct {
 	Id_Usuario uint   `json:"id" `
 	Token      string `json:"token"`
+}
+type Claim struct {
+	Id_Usuario string `json:"id"`
+	Authorized bool   `json:"authorized"`
+	jwt.StandardClaims
 }
 
 var IDUsuario uint
@@ -30,9 +34,9 @@ func CreateToken(id_usuario uint) (string, error) {
 	return tokenStr, err
 }
 
-func ValidateToken(tk string) (*models.Claim, bool, string, error) {
+func ValidateToken(tk string) (*Claim, bool, string, error) {
 	miClave := []byte("SECRET")
-	claims := &models.Claim{}
+	claims := &Claim{}
 
 	splitToken := strings.Split(tk, "Bearer")
 	if len(splitToken) != 2 {
