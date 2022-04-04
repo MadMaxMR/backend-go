@@ -81,6 +81,19 @@ func ValidateUsuario(usuario *modelos.Usuarios) error {
 	return nil
 }
 
+func ValidateStudent(estudiante *modelos.Estudiantes) error {
+	if estudiante.Uni_Pref == "" {
+		return errors.New("required field 'uni_pref'")
+	}
+	if estudiante.Carr_Pref == "" {
+		return errors.New("required field 'carr_pref'")
+	}
+	if estudiante.Nick == "" {
+		return errors.New("required field 'nick'")
+	}
+	return nil
+}
+
 func ValidateLogin(usuario *modelos.Usuarios) error {
 	if usuario.Email == "" {
 		return errors.New("required field 'email'")

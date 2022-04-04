@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"errors"
+	"fmt"
 	"github.com/MadMaxMR/backend-go/auth"
 	"github.com/MadMaxMR/backend-go/database"
 	"github.com/MadMaxMR/backend-go/handler"
@@ -58,6 +59,7 @@ func SaveUsuario(w http.ResponseWriter, req *http.Request) {
 		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
 		return
 	}
+	fmt.Println(usuario.ID)
 	handler.SendSuccess(w, req, http.StatusOK, modelo)
 }
 
@@ -75,6 +77,14 @@ func DeleteUsuario(w http.ResponseWriter, req *http.Request) {
 func UpdateUsuario(w http.ResponseWriter, req *http.Request) {
 	usuario := modelos.Usuarios{}
 	id := mux.Vars(req)["id"]
+	err := auth.ValidateBody(req, &usuario)
+	if err != nil {
+		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
+		return
+	}
+	if usuario.Password != "" {
+		usuario.Password = modelos.BeforeSave(usuario.Password)
+	}
 	modelo, err := database.Update(req, &usuario, id)
 	if err != nil {
 		handler.SendFail(w, req, http.StatusBadRequest, err.Error())

@@ -13,7 +13,7 @@ func SetUsuariosRoutes(router *mux.Router) {
 	subRoute.HandleFunc("/usuarios/", controllers.GetAllUsuarios).Methods("GET")
 	subRoute.HandleFunc("/usuarios/", controllers.SaveUsuario).Methods("POST")
 	subRoute.HandleFunc("/usuarios/{id}", controllers.GetUsuario).Methods("GET")
-	subRoute.HandleFunc("/usuarios/{id}", controllers.UpdateUsuario).Methods("PUT")
+	subRoute.HandleFunc("/usuarios/{id}", middlew.UserExist(controllers.UpdateUsuario)).Methods("PUT")
 	subRoute.HandleFunc("/usuarios/{id}", controllers.DeleteUsuario).Methods("DELETE")
 	subRoute.HandleFunc("/login/", controllers.Login).Methods("POST")
 
