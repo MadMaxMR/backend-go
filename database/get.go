@@ -2,6 +2,7 @@ package database
 
 import (
 	"errors"
+	"fmt"
 	"strconv"
 )
 
@@ -37,6 +38,26 @@ func Get(modelo interface{}, id string) (mod interface{}, err error) {
 	idInt, _ := strconv.Atoi(id)
 	result := db.Find(modelo, idInt)
 	if result.RowsAffected != 0 {
+		return modelo, nil
+	} else {
+		return nil, errors.New("No se encontro datos con el ID: " + id)
+	}
+}
+
+/*GetRelation Obtiene el primer valor del modelo que se quiere llamar y como segundo parametro el modelo que queremos asociar*/
+func GetRelation(modelo, modelo1 interface{}, id string) (mod interface{}, err error) {
+	db := GetConnection()
+	defer db.Close()
+	idInt, _ := strconv.Atoi(id)
+	result := db.Where("usuarios_id = ?", idInt).Related(modelo1).Find(modelo)
+	fmt.Println("valor del result :", result)
+	fmt.Println(modelo)
+
+	if result.RowsAffected != 0 {
+		err := db.Model(modelo).Related(modelo1).Find(modelo).Error
+		if err != nil {
+			return nil, err
+		}
 		return modelo, nil
 	} else {
 		return nil, errors.New("No se encontro datos con el ID: " + id)

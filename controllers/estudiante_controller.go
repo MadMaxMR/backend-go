@@ -19,15 +19,27 @@ import (
 )
 
 func GetStudent(w http.ResponseWriter, req *http.Request) {
+	usuario := modelos.Usuarios{}
 	student := modelos.Estudiantes{}
 	id := mux.Vars(req)["id"]
+	/*db := database.GetConnection()
+	defer db.Close()
+	db.Where("usuario_id = ?", id).First(&student)
+	fmt.Println(student)
+	err := db.Model(&student).Related(&student.Usuarios).Find(&student).Error
+	if err != nil {
+		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
+		return
+	}
+	handler.SendSuccess(w, req, http.StatusOK, student)*/
 
-	user, err := database.Get(&student, id)
+	user, err := database.GetRelation(&student, &usuario, id)
 	if err != nil {
 		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
 		return
 	}
 	handler.SendSuccess(w, req, http.StatusOK, user)
+
 }
 
 func GetAllStudent(w http.ResponseWriter, r *http.Request) {
