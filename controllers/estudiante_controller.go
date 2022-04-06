@@ -2,7 +2,7 @@ package controllers
 
 import (
 	//"errors"
-	//"fmt"
+	"fmt"
 	"github.com/MadMaxMR/backend-go/auth"
 	"github.com/MadMaxMR/backend-go/database"
 	"github.com/MadMaxMR/backend-go/handler"
@@ -19,44 +19,39 @@ import (
 )
 
 func GetStudent(w http.ResponseWriter, req *http.Request) {
-	usuario := modelos.Usuarios{}
+
 	student := modelos.Estudiantes{}
 	id := mux.Vars(req)["id"]
-	/*db := database.GetConnection()
+	db := database.GetConnection()
 	defer db.Close()
-	db.Where("usuario_id = ?", id).First(&student)
-	fmt.Println(student)
+	db.Where("usuarios_id = ?", id).First(&student)
+
 	err := db.Model(&student).Related(&student.Usuarios).Find(&student).Error
 	if err != nil {
 		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
 		return
 	}
-	handler.SendSuccess(w, req, http.StatusOK, student)*/
-
-	user, err := database.GetRelation(&student, &usuario, id)
-	if err != nil {
-		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
-		return
-	}
-	handler.SendSuccess(w, req, http.StatusOK, user)
-
+	handler.SendSuccess(w, req, http.StatusOK, student)
 }
 
 func GetAllStudent(w http.ResponseWriter, r *http.Request) {
-	students := []modelos.Estudiantes{}
+	students := []modelos.Estudiante{}
+	db := database.GetConnection()
+	defer db.Close()
 	page := r.URL.Query().Get("page")
-	user, err := database.GetAll(&students, page)
+	modelo, err := database.GetAll(&students, page)
 	if err != nil {
 		handler.SendFail(w, r, http.StatusBadRequest, err.Error())
 		return
 	}
-	handler.SendSuccess(w, r, http.StatusOK, user)
+	handler.SendSuccess(w, r, http.StatusOK, modelo)
 }
 
 func SaveStudent(w http.ResponseWriter, r *http.Request) {
-	student := modelos.Estudiantes{}
+	student := modelos.Estudiante{}
 	usuario := modelos.Usuarios{}
-	err1, err2 := auth.ValidateBody(r, &student), auth.ValidateBody(r, &usuario)
+	err1 := auth.ValidateBody(r, &student)
+	err2 := auth.ValidateBody(r, &usuario)
 	if err1 != nil || err2 != nil {
 		if err1 != nil {
 			handler.SendFail(w, r, http.StatusBadRequest, err1.Error())
@@ -68,13 +63,21 @@ func SaveStudent(w http.ResponseWriter, r *http.Request) {
 	}
 	err1, err2 = auth.ValidateStudent(&student), auth.ValidateUsuario(&usuario)
 	if err1 != nil || err2 != nil {
-		if err1 != nil {
-			handler.SendFail(w, r, http.StatusBadRequest, err1.Error())
+		if err2 != nil {
+			handler.SendFail(w, r, http.StatusBadRequest, err2.Error())
 			return
 		} else {
-			handler.SendFail(w, r, http.StatusBadRequest, err2.Error())
+			handler.SendFail(w, r, http.StatusBadRequest, err1.Error())
 			return
 		}
 	}
 	usuario.Password = modelos.BeforeSave(usuario.Password)
+
+	modelo, err := database.Create(&usuario)
+	if err != nil {
+		handler.SendFail(w, r, http.StatusBadRequest, err.Error())
+		return
+	}
+	fmt.Println(modelo)
+
 }

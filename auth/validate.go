@@ -81,7 +81,7 @@ func ValidateUsuario(usuario *modelos.Usuarios) error {
 	return nil
 }
 
-func ValidateStudent(estudiante *modelos.Estudiantes) error {
+func ValidateStudent(estudiante *modelos.Estudiante) error {
 	if estudiante.Uni_Pref == "" {
 		return errors.New("required field 'uni_pref'")
 	}
@@ -90,6 +90,9 @@ func ValidateStudent(estudiante *modelos.Estudiantes) error {
 	}
 	if estudiante.Nick == "" {
 		return errors.New("required field 'nick'")
+	}
+	if estudiante.UsuariosId == 0 {
+		return errors.New("required field 'usuarios_id'")
 	}
 	return nil
 }
