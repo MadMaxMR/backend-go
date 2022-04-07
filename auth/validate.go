@@ -7,19 +7,32 @@ import (
 	"github.com/MadMaxMR/backend-go/models"
 	"io/ioutil"
 	"net/http"
+	"fmt"
 )
 
 func ValidateBody(req *http.Request, modelo interface{}) error {
-
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
-		return errors.New("error al leer los datos del body")
+		fmt.Println("ValidateBOdy ReadAll")
+		return err
 	}
 	err = json.Unmarshal(body, modelo)
-
 	if err != nil {
-		return errors.New("error al guardar los datos del body")
+		fmt.Println("ValidateBOdy Unmarshal")
+		return err
 	}
+
+	return nil
+}
+
+func ValidateBody2(req *http.Request, modelo interface{}) error {
+	err := json.NewDecoder(req.Body).Decode(modelo)
+	if err != nil {
+		fmt.Println("ValidateBOdy2 NewDecoder")
+		return err
+	}
+	req.Close = true
+	defer req.Body.Close()
 	return nil
 }
 

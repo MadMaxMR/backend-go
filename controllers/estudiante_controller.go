@@ -50,26 +50,21 @@ func GetAllStudent(w http.ResponseWriter, r *http.Request) {
 func SaveStudent(w http.ResponseWriter, r *http.Request) {
 	student := modelos.Estudiante{}
 	usuario := modelos.Usuarios{}
-	err1 := auth.ValidateBody(r, &student)
-	err2 := auth.ValidateBody(r, &usuario)
-	if err1 != nil || err2 != nil {
-		if err1 != nil {
-			handler.SendFail(w, r, http.StatusBadRequest, err1.Error())
-			return
-		} else {
-			handler.SendFail(w, r, http.StatusBadRequest, err2.Error())
-			return
-		}
+	err1 := auth.ValidateBody2(r, &usuario)
+	err2 := auth.ValidateBody(r, &student)
+	if err2 != nil {
+		handler.SendFail(w, r, http.StatusBadRequest, err2.Error())
+		return
 	}
-	err1, err2 = auth.ValidateStudent(&student), auth.ValidateUsuario(&usuario)
-	if err1 != nil || err2 != nil {
-		if err2 != nil {
-			handler.SendFail(w, r, http.StatusBadRequest, err2.Error())
-			return
-		} else {
-			handler.SendFail(w, r, http.StatusBadRequest, err1.Error())
-			return
-		}
+	if err1 != nil {
+		handler.SendFail(w, r, http.StatusBadRequest, err1.Error())
+		return
+	}
+
+	err1 = auth.ValidateUsuario(&usuario)
+	if err1 != nil {
+		handler.SendFail(w, r, http.StatusBadRequest, err1.Error())
+		return
 	}
 	usuario.Password = modelos.BeforeSave(usuario.Password)
 
@@ -78,6 +73,16 @@ func SaveStudent(w http.ResponseWriter, r *http.Request) {
 		handler.SendFail(w, r, http.StatusBadRequest, err.Error())
 		return
 	}
-	fmt.Println(modelo)
+
+	valu := modelo.(*modelos.Usuarios)
+	fmt.Println(valu.ID)
+
+
+
+	err2 = auth.ValidateStudent(&student)
+	if err2 != nil {
+		handler.SendFail(w, r, http.StatusBadRequest, err2.Error())
+		return
+	}
 
 }
