@@ -3,6 +3,7 @@ package modelos
 type Estudiantes struct {
 	ID        uint   `json:"id" gorm:"primary_key;auto_increment"`
 	Uni_Pref  string `json:"uni_pref" gorm:"type:varchar(250) REFERENCES universidads(codigo_uni) "`
+	Area_Pref string `json:"area_pref" gorm:"type:varchar(250) REFERENCES areas(codigo_area) "`
 	Carr_Pref string `json:"carr_pref" gorm:"type:varchar(250);not null"`
 	Nick      string `json:"nick" gorm:"type:varchar(250);not null"`
 	//Colegio_Proc string   `json:"colegio_proc" gorm:"type:varchar(250)"`

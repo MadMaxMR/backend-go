@@ -56,13 +56,11 @@ func SaveStudent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err1 = auth.ValidateUsuario(&usuario)
+	err1, err2 := auth.ValidateUsuario(&usuario), auth.ValidateStudent(&student)
 	if err1 != nil {
 		handler.SendFail(w, r, http.StatusBadRequest, err1.Error())
 		return
 	}
-
-	err2 := auth.ValidateStudent(&student)
 	if err2 != nil {
 		handler.SendFail(w, r, http.StatusBadRequest, err2.Error())
 		return

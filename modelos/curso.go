@@ -6,5 +6,5 @@ type Cursos struct {
 	Descripcion  string `json:"descripcion" gorm:"type:varchar(250);not null"`
 	Estado       string `json:"estado" gorm:"type:varchar(250)"`
 	Nombre_Curso string `json:"nombre_curso" gorm:"type:varchar(250);not null"`
-	Id_Area      uint   `json:"ud_area" sql:"type:int REFERENCES areas(id) "`
+	Cod_Area     string `json:"ud_area" sql:"type:varchar(250) REFERENCES areas(codigo_area) "`
 }
