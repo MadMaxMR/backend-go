@@ -2,13 +2,11 @@ package database
 
 import (
 	"errors"
+	//"fmt"
 	"strconv"
 )
 
 func GetAll(modelo interface{}, page string) (mod interface{}, err error) {
-	type model struct {
-		modelo struct{}
-	}
 	db := GetConnection()
 	defer db.Close()
 	pageInt, _ := strconv.Atoi(page)
@@ -35,9 +33,6 @@ func GetAll(modelo interface{}, page string) (mod interface{}, err error) {
 }
 
 func Get(modelo interface{}, id string) (mod interface{}, err error) {
-	type model struct {
-		modelo struct{}
-	}
 	db := GetConnection()
 	defer db.Close()
 	idInt, _ := strconv.Atoi(id)

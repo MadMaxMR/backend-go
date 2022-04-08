@@ -7,18 +7,39 @@ import (
 	"github.com/MadMaxMR/backend-go/models"
 	"io/ioutil"
 	"net/http"
+	"fmt"
 )
 
 func ValidateBody(req *http.Request, modelo interface{}) error {
-
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
-		return errors.New("error al leer los datos del body")
+		fmt.Println("ValidateBOdy ReadAll")
+		return err
 	}
 	err = json.Unmarshal(body, modelo)
-
 	if err != nil {
-		return errors.New("error al guardar los datos del body")
+		fmt.Println("ValidateBOdy Unmarshal")
+		return err
+	}
+
+	return nil
+}
+
+func ValidateBody2(req *http.Request, modelo1,modelo2 interface{}) error {
+	body, err := ioutil.ReadAll(req.Body)
+	if err != nil {
+		fmt.Println("ValidateBOdy ReadAll")
+		return err
+	}
+	err = json.Unmarshal(body, modelo1)
+	if err != nil {
+		fmt.Println("ValidateBOdy1 Unmarshal")
+		return err
+	}
+	err = json.Unmarshal(body, modelo2)
+	if err != nil {
+		fmt.Println("ValidateBody2 Unmarshal")
+		return err
 	}
 	return nil
 }
@@ -77,6 +98,19 @@ func ValidateUsuario(usuario *modelos.Usuarios) error {
 	}
 	if usuario.Celular > 1000000000 || usuario.Celular < 100000000 {
 		return errors.New("field 'celular' must be 9 digits")
+	}
+	return nil
+}
+
+func ValidateStudent(estudiante *modelos.Estudiante) error {
+	if estudiante.Uni_Pref == "" {
+		return errors.New("required field 'uni_pref'")
+	}
+	if estudiante.Carr_Pref == "" {
+		return errors.New("required field 'carr_pref'")
+	}
+	if estudiante.Nick == "" {
+		return errors.New("required field 'nick'")
 	}
 	return nil
 }

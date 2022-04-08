@@ -5,9 +5,7 @@ import (
 )
 
 func Delete(modelo interface{}, id string) (message string, err error) {
-	type model struct {
-		modelo interface{}
-	}
+
 	db := GetConnection()
 	defer db.Close()
 	result := db.Find(modelo, id)

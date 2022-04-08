@@ -69,6 +69,11 @@ func DeleteCurso(w http.ResponseWriter, req *http.Request) {
 func UpdateCurso(w http.ResponseWriter, req *http.Request) {
 	curso := models.Cursos{}
 	id := mux.Vars(req)["id"]
+	err := auth.ValidateBody(req, &curso)
+	if err != nil {
+		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
+		return
+	}
 	modelo, err := database.Update(req, &curso, id)
 	if err != nil {
 		handler.SendFail(w, req, http.StatusBadRequest, err.Error())

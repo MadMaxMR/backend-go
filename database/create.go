@@ -5,9 +5,6 @@ import (
 )
 
 func Create(modelo interface{}) (mod interface{}, err error) {
-	type model struct {
-		modelo struct{}
-	}
 	db := GetConnection()
 	defer db.Close()
 	err = db.Create(modelo).Error
