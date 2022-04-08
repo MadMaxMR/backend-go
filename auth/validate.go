@@ -25,14 +25,22 @@ func ValidateBody(req *http.Request, modelo interface{}) error {
 	return nil
 }
 
-func ValidateBody2(req *http.Request, modelo interface{}) error {
-	err := json.NewDecoder(req.Body).Decode(modelo)
+func ValidateBody2(req *http.Request, modelo1,modelo2 interface{}) error {
+	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
-		fmt.Println("ValidateBOdy2 NewDecoder")
+		fmt.Println("ValidateBOdy ReadAll")
 		return err
 	}
-	req.Close = true
-	defer req.Body.Close()
+	err = json.Unmarshal(body, modelo1)
+	if err != nil {
+		fmt.Println("ValidateBOdy1 Unmarshal")
+		return err
+	}
+	err = json.Unmarshal(body, modelo2)
+	if err != nil {
+		fmt.Println("ValidateBody2 Unmarshal")
+		return err
+	}
 	return nil
 }
 
@@ -103,9 +111,6 @@ func ValidateStudent(estudiante *modelos.Estudiante) error {
 	}
 	if estudiante.Nick == "" {
 		return errors.New("required field 'nick'")
-	}
-	if estudiante.UsuariosId == 0 {
-		return errors.New("required field 'usuarios_id'")
 	}
 	return nil
 }

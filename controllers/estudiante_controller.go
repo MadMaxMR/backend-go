@@ -50,12 +50,7 @@ func GetAllStudent(w http.ResponseWriter, r *http.Request) {
 func SaveStudent(w http.ResponseWriter, r *http.Request) {
 	student := modelos.Estudiante{}
 	usuario := modelos.Usuarios{}
-	err1 := auth.ValidateBody2(r, &usuario)
-	err2 := auth.ValidateBody(r, &student)
-	if err2 != nil {
-		handler.SendFail(w, r, http.StatusBadRequest, err2.Error())
-		return
-	}
+	err1 := auth.ValidateBody2(r, &usuario,&student)
 	if err1 != nil {
 		handler.SendFail(w, r, http.StatusBadRequest, err1.Error())
 		return
@@ -66,8 +61,14 @@ func SaveStudent(w http.ResponseWriter, r *http.Request) {
 		handler.SendFail(w, r, http.StatusBadRequest, err1.Error())
 		return
 	}
-	usuario.Password = modelos.BeforeSave(usuario.Password)
 
+	err2 := auth.ValidateStudent(&student)
+	if err2 != nil {
+		handler.SendFail(w, r, http.StatusBadRequest, err2.Error())
+		return
+	}
+
+	usuario.Password = modelos.BeforeSave(usuario.Password)
 	modelo, err := database.Create(&usuario)
 	if err != nil {
 		handler.SendFail(w, r, http.StatusBadRequest, err.Error())
@@ -75,14 +76,10 @@ func SaveStudent(w http.ResponseWriter, r *http.Request) {
 	}
 
 	valu := modelo.(*modelos.Usuarios)
-	fmt.Println(valu.ID)
-
-
-
-	err2 = auth.ValidateStudent(&student)
-	if err2 != nil {
-		handler.SendFail(w, r, http.StatusBadRequest, err2.Error())
-		return
+	student.UsuariosId=valu.ID
+	estudiante, err := database.Create(&student)
+	if err != nil {
+		handler.SendFail(w,r, http.StatusBadRequest, err.Error())
 	}
-
+	handler.SendSuccess(w, r, http.StatusOK, estudiante)
 }
