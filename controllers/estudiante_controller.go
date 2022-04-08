@@ -2,7 +2,7 @@ package controllers
 
 import (
 	//"errors"
-	"fmt"
+	//"fmt"
 	"github.com/MadMaxMR/backend-go/auth"
 	"github.com/MadMaxMR/backend-go/database"
 	"github.com/MadMaxMR/backend-go/handler"
@@ -50,7 +50,7 @@ func GetAllStudent(w http.ResponseWriter, r *http.Request) {
 func SaveStudent(w http.ResponseWriter, r *http.Request) {
 	student := modelos.Estudiante{}
 	usuario := modelos.Usuarios{}
-	err1 := auth.ValidateBody2(r, &usuario,&student)
+	err1 := auth.ValidateBody2(r, &usuario, &student)
 	if err1 != nil {
 		handler.SendFail(w, r, http.StatusBadRequest, err1.Error())
 		return
@@ -76,10 +76,10 @@ func SaveStudent(w http.ResponseWriter, r *http.Request) {
 	}
 
 	valu := modelo.(*modelos.Usuarios)
-	student.UsuariosId=valu.ID
+	student.UsuariosId = valu.ID
 	estudiante, err := database.Create(&student)
 	if err != nil {
-		handler.SendFail(w,r, http.StatusBadRequest, err.Error())
+		handler.SendFail(w, r, http.StatusBadRequest, err.Error())
 	}
 	handler.SendSuccess(w, r, http.StatusOK, estudiante)
 }
