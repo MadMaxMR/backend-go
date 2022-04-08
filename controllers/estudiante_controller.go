@@ -2,7 +2,7 @@ package controllers
 
 import (
 	//"errors"
-	"fmt"
+	//"fmt"
 	"github.com/MadMaxMR/backend-go/auth"
 	"github.com/MadMaxMR/backend-go/database"
 	"github.com/MadMaxMR/backend-go/handler"
