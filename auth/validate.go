@@ -3,11 +3,11 @@ package auth
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/MadMaxMR/backend-go/modelos"
 	"github.com/MadMaxMR/backend-go/models"
 	"io/ioutil"
 	"net/http"
-	"fmt"
 )
 
 func ValidateBody(req *http.Request, modelo interface{}) error {
@@ -25,7 +25,7 @@ func ValidateBody(req *http.Request, modelo interface{}) error {
 	return nil
 }
 
-func ValidateBody2(req *http.Request, modelo1,modelo2 interface{}) error {
+func ValidateBody2(req *http.Request, modelo1, modelo2 interface{}) error {
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
 		fmt.Println("ValidateBOdy ReadAll")
@@ -44,12 +44,15 @@ func ValidateBody2(req *http.Request, modelo1,modelo2 interface{}) error {
 	return nil
 }
 
-func ValidateCurso(curso *models.Cursos) error {
+func ValidateCurso(curso *modelos.Cursos) error {
 
-	if curso.Nombre == "" {
+	if curso.Nombre_Curso == "" {
 		return errors.New("required field 'nombre'")
 	}
-	if curso.Description == "" {
+	if curso.Id_Profesor == 0 {
+		return errors.New("required field 'id_profesor'")
+	}
+	if curso.Cod_Area == "" {
 		return errors.New("required field 'description'")
 	}
 	if curso.Image == "" {

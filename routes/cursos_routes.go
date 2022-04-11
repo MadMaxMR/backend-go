@@ -18,4 +18,5 @@ func SetCursosRoutes(router *mux.Router) {
 	subRoute.HandleFunc("/cursos/image/{id}", controllers.UploadImage).Methods("POST")
 	subRoute.HandleFunc("/cursos/image/{id}", controllers.GetImage).Methods("GET")
 
+	subRoute.HandleFunc("/cursos/area/{id}", controllers.GetCursoByArea).Methods("GET")
 }
