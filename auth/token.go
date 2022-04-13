@@ -34,6 +34,17 @@ func CreateToken(id_usuario uint) (string, error) {
 	return tokenStr, err
 }
 
+func CreateTokenReset(email string, id uint) (string, error) {
+	claims := jwt.MapClaims{}
+	claims["id"] = id
+	claims["email"] = email
+	claims["exp"] = time.Now().Add(time.Second * 300).Unix()
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+	tokenStr, err := token.SignedString([]byte("SECRET"))
+	return tokenStr, err
+}
+
 func ValidateToken(tk string) (*Claim, bool, string, error) {
 	miClave := []byte("SECRET")
 	claims := &Claim{}
@@ -58,4 +69,19 @@ func ValidateToken(tk string) (*Claim, bool, string, error) {
 	}
 	return claims, false, string(""), errors.New("token invalido")
 
+}
+
+func ValidateTokenReset(tk string) (string, error) {
+	miClave := []byte("SECRET")
+	tkn, err := jwt.Parse(tk, func(token *jwt.Token) (interface{}, error) {
+		return miClave, nil
+	})
+	if err != nil {
+		return "", err
+	}
+	claim, ok := tkn.Claims.(jwt.MapClaims)
+	if ok && tkn.Valid {
+		return string(claim["email"].(string)), nil
+	}
+	return "", errors.New("Token invalido")
 }

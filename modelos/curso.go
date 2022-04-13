@@ -9,3 +9,8 @@ type Cursos struct {
 	Cod_Area     string `json:"ud_area" sql:"type:varchar(250) REFERENCES areas(id) "`
 	Image        string `json:"imagen" gorm:"type:varchar(250);default:'default.jpg'"`
 }
+
+type CursosArea struct {
+	ID     uint   `json:"id" gorm:"primary_key;auto_increment"`
+	Cursos Cursos `json:"cursos" gorm:"foreignkey:Cod_Area"`
+}

@@ -18,6 +18,7 @@ func main() {
 
 	router := mux.NewRouter()
 
+	routes.ResetPasswordRoutes(router)
 	routes.SetUniRoutes(router)
 	routes.SetAreasRoutes(router)
 	routes.SetCarrerasRoutes(router)
