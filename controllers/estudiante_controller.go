@@ -24,9 +24,13 @@ func GetStudent(w http.ResponseWriter, req *http.Request) {
 	id := mux.Vars(req)["id"]
 	db := database.GetConnection()
 	defer db.Close()
-	db.Where("usuarios_id = ?", id).First(&student)
+	err := db.Where("usuarios_id = ?", id).First(&student).Error
+	if err != nil {
+		handler.SendFail(w, req, http.StatusBadRequest, "No se encontro el estudiante")
+		return
+	}
 
-	err := db.Model(&student).Related(&student.Usuarios).Find(&student).Error
+	err = db.Debug().Model(&student).Related(&student.Usuarios).Find(&student).Error
 	if err != nil {
 		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
 		return

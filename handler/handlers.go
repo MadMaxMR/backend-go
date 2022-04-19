@@ -12,7 +12,7 @@ func SendSuccess(w http.ResponseWriter, req *http.Request, status int, model int
 	var data models.Data
 	data.Success = true
 	data.Data = model
-	json, _ := json.Marshal(data)
+	json, _ := json.Marshal(model)
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Content-Length", strconv.Itoa(len(json)))
 	content := w.Header().Get("Content-Length")

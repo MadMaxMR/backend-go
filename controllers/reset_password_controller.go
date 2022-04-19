@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"fmt"
+	//"fmt"
 	"github.com/MadMaxMR/backend-go/auth"
 	"github.com/MadMaxMR/backend-go/database"
 	"github.com/MadMaxMR/backend-go/handler"
@@ -10,7 +10,8 @@ import (
 )
 
 func ResetPassword(w http.ResponseWriter, req *http.Request) {
-
+	usuario := modelos.Usuarios{}
+	db := database.GetConnection()
 	tk := req.URL.Query().Get("tk")
 	ml := req.URL.Query().Get("ml")
 
@@ -19,13 +20,28 @@ func ResetPassword(w http.ResponseWriter, req *http.Request) {
 		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
 		return
 	}
-	fmt.Println("ml: " + ml)
-	fmt.Println("email: " + email)
 	if ml != email {
 		handler.SendFail(w, req, http.StatusInternalServerError, "El email no coincide con el token")
 		return
 	}
-	handler.SendSuccessMessage(w, req, http.StatusOK, "El email conincide con el token")
+
+	err = auth.ValidateBody(req, &usuario)
+	if err != nil {
+		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
+		return
+	}
+	err = auth.ValidateReset(&usuario)
+	if err != nil {
+		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
+		return
+	}
+	usuario.Password = modelos.BeforeSave(usuario.Password)
+	err = db.Model(&usuario).Where("email = ?", ml).Update("password", usuario.Password).Error
+	if err != nil {
+		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
+		return
+	}
+	handler.SendSuccessMessage(w, req, http.StatusOK, "Contraseña cambiada correctamente")
 }
 
 func RecoveryPassword(w http.ResponseWriter, req *http.Request) {
@@ -55,5 +71,3 @@ func RecoveryPassword(w http.ResponseWriter, req *http.Request) {
 	SendMail(ml, tk)
 	handler.SendSuccessMessage(w, req, http.StatusOK, "Se ha enviado un correo con el link para resetear la contraseña")
 }
-
-//func CreateTokenReset()

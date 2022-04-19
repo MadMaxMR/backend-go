@@ -128,3 +128,10 @@ func ValidateRecovery(usuario *modelos.Usuarios) error {
 	}
 	return nil
 }
+
+func ValidateReset(usuario *modelos.Usuarios) error {
+	if usuario.Password == "" {
+		return errors.New("required field 'password'")
+	}
+	return nil
+}

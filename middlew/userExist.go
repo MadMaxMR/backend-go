@@ -12,8 +12,7 @@ import (
 func UserExist(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		user := modelos.Usuarios{}
-		id := mux.Vars(req)["id"]
-		_, err := database.Get(&user, id)
+		_, err := database.Get(&user, mux.Vars(req)["id"])
 		if err != nil {
 			handler.SendFail(w, req, http.StatusBadRequest, err.Error())
 			return
