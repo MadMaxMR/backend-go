@@ -96,9 +96,6 @@ func ValidateUsuario(usuario *modelos.Usuarios) error {
 	if usuario.Direccion == "" {
 		return errors.New("required field 'Dirección'")
 	}
-	if usuario.Celular == 0 {
-		return errors.New("required field 'celular'")
-	}
 	if usuario.Celular > 1000000000 || usuario.Celular < 100000000 {
 		return errors.New("field 'celular' must be 9 digits")
 	}
