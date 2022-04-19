@@ -30,7 +30,7 @@ func GetStudent(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	err = db.Debug().Model(&student).Related(&student.Usuarios).Find(&student).Error
+	err = db.Model(&student).Related(&student.Usuarios).Find(&student).Error
 	if err != nil {
 		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
 		return
