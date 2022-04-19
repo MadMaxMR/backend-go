@@ -49,9 +49,6 @@ func ValidateCurso(curso *modelos.Cursos) error {
 	if curso.Nombre_Curso == "" {
 		return errors.New("required field 'nombre'")
 	}
-	if curso.Id_Profesor == 0 {
-		return errors.New("required field 'id_profesor'")
-	}
 	if curso.Cod_Area == "" {
 		return errors.New("required field 'description'")
 	}
