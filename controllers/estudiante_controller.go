@@ -24,7 +24,16 @@ func GetStudent(w http.ResponseWriter, req *http.Request) {
 	id := mux.Vars(req)["id"]
 	db := database.GetConnection()
 	defer db.Close()
-	err := db.Where("usuarios_id = ?", id).First(&student).Error
+	tk, _, _, err := auth.ValidateToken(req.Header.Get("Authorization"))
+	if err != nil {
+		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
+		return
+	}
+	if tk.Id_Usuario != id {
+		handler.SendFail(w, req, http.StatusBadRequest, "Unauthorized")
+		return
+	}
+	err = db.Where("usuarios_id = ?", id).First(&student).Error
 	if err != nil {
 		handler.SendFail(w, req, http.StatusBadRequest, "No se encontro el estudiante")
 		return
