@@ -35,7 +35,7 @@ func GetStudent(w http.ResponseWriter, req *http.Request) {
 	}
 	err = db.Where("usuarios_id = ?", id).First(&student).Error
 	if err != nil {
-		handler.SendFail(w, req, http.StatusBadRequest, "No se encontro el estudiante")
+		handler.SendFail(w, req, http.StatusBadRequest, "No se encontro el estudiante - "+err.Error())
 		return
 	}
 

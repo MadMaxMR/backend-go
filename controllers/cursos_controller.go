@@ -151,8 +151,8 @@ func GetCursoByArea(w http.ResponseWriter, req *http.Request) {
 	defer db.Close()
 
 	result := db.Where("cod_area = ?", id).Find(&cursos)
-	if result.Error != nil {
-		handler.SendFail(w, req, http.StatusBadRequest, result.Error.Error())
+	if result.RowsAffected == 0 {
+		handler.SendFail(w, req, http.StatusBadRequest, "No se encontró Cursos para el area : "+id)
 		return
 	}
 	handler.SendSuccess(w, req, http.StatusOK, cursos)

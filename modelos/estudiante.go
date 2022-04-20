@@ -16,6 +16,7 @@ type Estudiantes struct {
 type Estudiante struct {
 	ID         uint   `json:"id"`
 	Uni_Pref   string `json:"uni_pref"`
+	Area_Pref  string `json:"area_pref"`
 	Carr_Pref  string `json:"carr_pref"`
 	Nick       string `json:"nick"`
 	UsuariosId uint   `json:"usuarios_id"`
