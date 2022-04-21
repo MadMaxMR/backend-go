@@ -162,6 +162,8 @@ func GetCursosStudent(w http.ResponseWriter, req *http.Request) {
 	cursos := []modelos.Cursos{}
 	student := modelos.Estudiante{}
 	usuario := modelos.Usuarios{}
+	//cursoStudent := []modelos.CursosStudent{}
+
 	db := database.GetConnection()
 	defer db.Close()
 	tk, _, _, err := auth.ValidateToken(req.Header.Get("Authorization"))
@@ -173,6 +175,7 @@ func GetCursosStudent(w http.ResponseWriter, req *http.Request) {
 	db.Where("id = ?", tk.Id_Usuario).Find(&usuario)
 
 	result := db.Where("cod_area = ?", student.Area_Pref).Find(&cursos)
+	//result := db.Debug().Model(&cursos).Select("cursos.*,estudiante.Carr_Pref").Joins("left join estudiante ON cursos.Cod_Area = student.Area_Pref").Scan(&cursoStudent)
 	if result.RowsAffected == 0 {
 		handler.SendFail(w, req, http.StatusBadRequest, "No se encontró Cursos para el estudiante : "+usuario.Nombres)
 		return
