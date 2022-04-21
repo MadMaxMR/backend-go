@@ -2,7 +2,7 @@ package routes
 
 import (
 	"github.com/MadMaxMR/backend-go/controllers"
-
+	"github.com/MadMaxMR/backend-go/middlew"
 	"github.com/gorilla/mux"
 )
 
@@ -19,4 +19,5 @@ func SetCursosRoutes(router *mux.Router) {
 	subRoute.HandleFunc("/cursos/image/{id}", controllers.GetImage).Methods("GET")
 
 	subRoute.HandleFunc("/cursos/area/{id}", controllers.GetCursoByArea).Methods("GET")
+	subRoute.HandleFunc("/cursos/student/", middlew.ValidToken(controllers.GetCursosStudent)).Methods("GET")
 }

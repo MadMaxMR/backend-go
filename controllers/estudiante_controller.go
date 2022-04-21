@@ -10,6 +10,7 @@ import (
 	//"io"
 	//"log"
 	"net/http"
+	"strconv"
 	//"os"
 	//"strings"
 	//"time"
@@ -91,6 +92,8 @@ func SaveStudent(w http.ResponseWriter, r *http.Request) {
 	estudiante, err := database.Create(&student)
 	if err != nil {
 		handler.SendFail(w, r, http.StatusBadRequest, err.Error())
+		database.Delete(&usuario, strconv.Itoa(int(valu.ID)))
+		return
 	}
 	handler.SendSuccess(w, r, http.StatusOK, estudiante)
 }

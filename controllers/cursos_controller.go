@@ -157,3 +157,25 @@ func GetCursoByArea(w http.ResponseWriter, req *http.Request) {
 	}
 	handler.SendSuccess(w, req, http.StatusOK, cursos)
 }
+
+func GetCursosStudent(w http.ResponseWriter, req *http.Request) {
+	cursos := []modelos.Cursos{}
+	student := modelos.Estudiante{}
+	usuario := modelos.Usuarios{}
+	db := database.GetConnection()
+	defer db.Close()
+	tk, _, _, err := auth.ValidateToken(req.Header.Get("Authorization"))
+	if err != nil {
+		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
+		return
+	}
+	db.Where("usuarios_id = ?", tk.Id_Usuario).Find(&student)
+	db.Where("id = ?", tk.Id_Usuario).Find(&usuario)
+
+	result := db.Where("cod_area = ?", student.Area_Pref).Find(&cursos)
+	if result.RowsAffected == 0 {
+		handler.SendFail(w, req, http.StatusBadRequest, "No se encontró Cursos para el estudiante : "+usuario.Nombres)
+		return
+	}
+	handler.SendSuccess(w, req, http.StatusOK, cursos)
+}
