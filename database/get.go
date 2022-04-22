@@ -35,8 +35,7 @@ func GetAll(modelo interface{}, page string) (mod interface{}, err error) {
 func Get(modelo interface{}, id string) (mod interface{}, err error) {
 	db := GetConnection()
 	defer db.Close()
-	idInt, _ := strconv.Atoi(id)
-	result := db.Find(modelo, idInt)
+	result := db.Where("id = ?", id).First(modelo)
 	if result.RowsAffected != 0 {
 		return modelo, nil
 	} else {

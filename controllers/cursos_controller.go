@@ -4,7 +4,7 @@ import (
 	"github.com/MadMaxMR/backend-go/auth"
 	"github.com/MadMaxMR/backend-go/database"
 	"github.com/MadMaxMR/backend-go/handler"
-	"github.com/MadMaxMR/backend-go/models"
+	"github.com/MadMaxMR/backend-go/modelos"
 	"io"
 	"net/http"
 	"os"
@@ -14,7 +14,7 @@ import (
 )
 
 func GetAllCursos(w http.ResponseWriter, req *http.Request) {
-	curso := []models.Cursos{}
+	curso := []modelos.Cursos{}
 	page := req.URL.Query().Get("page")
 	modelo, err := database.GetAll(&curso, page)
 	if err != nil {
@@ -25,7 +25,7 @@ func GetAllCursos(w http.ResponseWriter, req *http.Request) {
 }
 
 func GetCurso(w http.ResponseWriter, req *http.Request) {
-	curso := models.Cursos{}
+	curso := modelos.Cursos{}
 	id := mux.Vars(req)["id"]
 	modelo, err := database.Get(&curso, id)
 	if err != nil {
@@ -36,7 +36,7 @@ func GetCurso(w http.ResponseWriter, req *http.Request) {
 }
 
 func SaveCurso(w http.ResponseWriter, req *http.Request) {
-	curso := models.Cursos{}
+	curso := modelos.Cursos{}
 	err := auth.ValidateBody(req, &curso)
 	if err != nil {
 		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
@@ -56,7 +56,7 @@ func SaveCurso(w http.ResponseWriter, req *http.Request) {
 }
 
 func DeleteCurso(w http.ResponseWriter, req *http.Request) {
-	curso := models.Cursos{}
+	curso := modelos.Cursos{}
 	id := mux.Vars(req)["id"]
 	message, err := database.Delete(&curso, id)
 	if err != nil {
@@ -67,7 +67,7 @@ func DeleteCurso(w http.ResponseWriter, req *http.Request) {
 }
 
 func UpdateCurso(w http.ResponseWriter, req *http.Request) {
-	curso := models.Cursos{}
+	curso := modelos.Cursos{}
 	id := mux.Vars(req)["id"]
 	err := auth.ValidateBody(req, &curso)
 	if err != nil {
@@ -83,7 +83,7 @@ func UpdateCurso(w http.ResponseWriter, req *http.Request) {
 }
 
 func UploadImage(w http.ResponseWriter, req *http.Request) {
-	curso := models.Cursos{}
+	curso := modelos.Cursos{}
 
 	db := database.GetConnection()
 	defer db.Close()
@@ -122,7 +122,7 @@ func UploadImage(w http.ResponseWriter, req *http.Request) {
 }
 
 func GetImage(w http.ResponseWriter, req *http.Request) {
-	curso := models.Cursos{}
+	curso := modelos.Cursos{}
 	id := mux.Vars(req)["id"]
 	_, err := database.Get(&curso, id)
 	if err != nil {
@@ -140,4 +140,45 @@ func GetImage(w http.ResponseWriter, req *http.Request) {
 		handler.SendFail(w, req, http.StatusBadRequest, "Error al copiar el archivo - "+err.Error())
 		return
 	}
+}
+
+func GetCursoByArea(w http.ResponseWriter, req *http.Request) {
+	cursos := []modelos.Cursos{}
+
+	id := mux.Vars(req)["id"]
+
+	db := database.GetConnection()
+	defer db.Close()
+
+	result := db.Where("cod_area = ?", id).Find(&cursos)
+	if result.RowsAffected == 0 {
+		handler.SendFail(w, req, http.StatusBadRequest, "No se encontró Cursos para el area : "+id)
+		return
+	}
+	handler.SendSuccess(w, req, http.StatusOK, cursos)
+}
+
+func GetCursosStudent(w http.ResponseWriter, req *http.Request) {
+	cursos := []modelos.Cursos{}
+	student := modelos.Estudiante{}
+	usuario := modelos.Usuarios{}
+	//cursoStudent := []modelos.CursosStudent{}
+
+	db := database.GetConnection()
+	defer db.Close()
+	tk, _, _, err := auth.ValidateToken(req.Header.Get("Authorization"))
+	if err != nil {
+		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
+		return
+	}
+	db.Where("usuarios_id = ?", tk.Id_Usuario).Find(&student)
+	db.Where("id = ?", tk.Id_Usuario).Find(&usuario)
+
+	result := db.Where("cod_area = ?", student.Area_Pref).Find(&cursos)
+	//result := db.Debug().Model(&cursos).Select("cursos.*,estudiante.Carr_Pref").Joins("left join estudiante ON cursos.Cod_Area = student.Area_Pref").Scan(&cursoStudent)
+	if result.RowsAffected == 0 {
+		handler.SendFail(w, req, http.StatusBadRequest, "No se encontró Cursos para el estudiante : "+usuario.Nombres)
+		return
+	}
+	handler.SendSuccess(w, req, http.StatusOK, cursos)
 }

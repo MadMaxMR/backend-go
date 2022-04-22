@@ -85,12 +85,12 @@ func UpdateUsuario(w http.ResponseWriter, req *http.Request) {
 	if usuario.Password != "" {
 		usuario.Password = modelos.BeforeSave(usuario.Password)
 	}
-	modelo, err := database.Update(req, &usuario, id)
+	_, err = database.Update(req, &usuario, id)
 	if err != nil {
 		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
 		return
 	}
-	handler.SendSuccess(w, req, http.StatusOK, modelo)
+	handler.SendSuccessMessage(w, req, http.StatusOK, "Actualización correcta")
 }
 
 func VerPerfil(w http.ResponseWriter, req *http.Request) {

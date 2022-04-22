@@ -18,6 +18,10 @@ func main() {
 
 	router := mux.NewRouter()
 
+	routes.ResetPasswordRoutes(router)
+	routes.SetUniRoutes(router)
+	routes.SetAreasRoutes(router)
+	routes.SetCarrerasRoutes(router)
 	routes.SetStudentRoutes(router)
 	routes.SetCursosRoutes(router)
 	routes.SetTemasRoutes(router)

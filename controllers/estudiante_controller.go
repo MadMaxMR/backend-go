@@ -10,6 +10,7 @@ import (
 	//"io"
 	//"log"
 	"net/http"
+	"strconv"
 	//"os"
 	//"strings"
 	//"time"
@@ -24,9 +25,22 @@ func GetStudent(w http.ResponseWriter, req *http.Request) {
 	id := mux.Vars(req)["id"]
 	db := database.GetConnection()
 	defer db.Close()
-	db.Where("usuarios_id = ?", id).First(&student)
+	tk, _, _, err := auth.ValidateToken(req.Header.Get("Authorization"))
+	if err != nil {
+		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
+		return
+	}
+	if tk.Id_Usuario != id {
+		handler.SendFail(w, req, http.StatusBadRequest, "Unauthorized")
+		return
+	}
+	err = db.Where("usuarios_id = ?", id).First(&student).Error
+	if err != nil {
+		handler.SendFail(w, req, http.StatusBadRequest, "No se encontro el estudiante - "+err.Error())
+		return
+	}
 
-	err := db.Model(&student).Related(&student.Usuarios).Find(&student).Error
+	err = db.Model(&student).Related(&student.Usuarios).Find(&student).Error
 	if err != nil {
 		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
 		return
@@ -50,19 +64,17 @@ func GetAllStudent(w http.ResponseWriter, r *http.Request) {
 func SaveStudent(w http.ResponseWriter, r *http.Request) {
 	student := modelos.Estudiante{}
 	usuario := modelos.Usuarios{}
-	err1 := auth.ValidateBody2(r, &usuario,&student)
+	err1 := auth.ValidateBody2(r, &usuario, &student)
 	if err1 != nil {
 		handler.SendFail(w, r, http.StatusBadRequest, err1.Error())
 		return
 	}
 
-	err1 = auth.ValidateUsuario(&usuario)
+	err1, err2 := auth.ValidateUsuario(&usuario), auth.ValidateStudent(&student)
 	if err1 != nil {
 		handler.SendFail(w, r, http.StatusBadRequest, err1.Error())
 		return
 	}
-
-	err2 := auth.ValidateStudent(&student)
 	if err2 != nil {
 		handler.SendFail(w, r, http.StatusBadRequest, err2.Error())
 		return
@@ -76,10 +88,12 @@ func SaveStudent(w http.ResponseWriter, r *http.Request) {
 	}
 
 	valu := modelo.(*modelos.Usuarios)
-	student.UsuariosId=valu.ID
+	student.UsuariosId = valu.ID
 	estudiante, err := database.Create(&student)
 	if err != nil {
-		handler.SendFail(w,r, http.StatusBadRequest, err.Error())
+		handler.SendFail(w, r, http.StatusBadRequest, err.Error())
+		database.Delete(&usuario, strconv.Itoa(int(valu.ID)))
+		return
 	}
 	handler.SendSuccess(w, r, http.StatusOK, estudiante)
 }

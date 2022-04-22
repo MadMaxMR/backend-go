@@ -3,11 +3,11 @@ package auth
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/MadMaxMR/backend-go/modelos"
 	"github.com/MadMaxMR/backend-go/models"
 	"io/ioutil"
 	"net/http"
-	"fmt"
 )
 
 func ValidateBody(req *http.Request, modelo interface{}) error {
@@ -25,7 +25,7 @@ func ValidateBody(req *http.Request, modelo interface{}) error {
 	return nil
 }
 
-func ValidateBody2(req *http.Request, modelo1,modelo2 interface{}) error {
+func ValidateBody2(req *http.Request, modelo1, modelo2 interface{}) error {
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
 		fmt.Println("ValidateBOdy ReadAll")
@@ -44,12 +44,12 @@ func ValidateBody2(req *http.Request, modelo1,modelo2 interface{}) error {
 	return nil
 }
 
-func ValidateCurso(curso *models.Cursos) error {
+func ValidateCurso(curso *modelos.Cursos) error {
 
-	if curso.Nombre == "" {
+	if curso.Nombre_Curso == "" {
 		return errors.New("required field 'nombre'")
 	}
-	if curso.Description == "" {
+	if curso.Cod_Area == "" {
 		return errors.New("required field 'description'")
 	}
 	if curso.Image == "" {
@@ -93,12 +93,6 @@ func ValidateUsuario(usuario *modelos.Usuarios) error {
 	if usuario.Direccion == "" {
 		return errors.New("required field 'Dirección'")
 	}
-	if usuario.Celular == 0 {
-		return errors.New("required field 'celular'")
-	}
-	if usuario.Celular > 1000000000 || usuario.Celular < 100000000 {
-		return errors.New("field 'celular' must be 9 digits")
-	}
 	return nil
 }
 
@@ -119,6 +113,20 @@ func ValidateLogin(usuario *modelos.Usuarios) error {
 	if usuario.Email == "" {
 		return errors.New("required field 'email'")
 	}
+	if usuario.Password == "" {
+		return errors.New("required field 'password'")
+	}
+	return nil
+}
+
+func ValidateRecovery(usuario *modelos.Usuarios) error {
+	if usuario.Email == "" {
+		return errors.New("required field 'email'")
+	}
+	return nil
+}
+
+func ValidateReset(usuario *modelos.Usuarios) error {
 	if usuario.Password == "" {
 		return errors.New("required field 'password'")
 	}
