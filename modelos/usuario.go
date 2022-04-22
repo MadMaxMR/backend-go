@@ -18,9 +18,9 @@ type Usuarios struct {
 	Direccion        string         `json:"direccion" gorm:"type:varchar(250);not null"`
 	Image            string         `json:"image" gorm:"type:varchar(250);default:'avatar.png'"`
 	Email            string         `json:"email" gorm:"type:varchar(250);not null;unique"`
-	//Celular          int            `json:"celular" gorm:"type:int;not null;unique"`
-	Fecha_Registro time.Time `json:"fecha_registro" gorm:"type:timestamp;default:current_timestamp"`
-	Last_Login     time.Time `json:"last_login" gorm:"type:timestamp"`
+	Celular          int            `json:"celular" gorm:"type:int;unique"`
+	Fecha_Registro   time.Time      `json:"fecha_registro" gorm:"type:timestamp;default:current_timestamp"`
+	Last_Login       time.Time      `json:"last_login" gorm:"type:timestamp"`
 }
 
 func Hash(password string) ([]byte, error) {
