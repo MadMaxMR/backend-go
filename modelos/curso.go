@@ -16,4 +16,5 @@ type CursosStudent struct {
 	Cod_Area     string `json:"cod_area"`
 	Image        string `json:"imagen"`
 	Carrera      string `json:"carrera"`
+	Universidad  string `json:"universidad"`
 }
