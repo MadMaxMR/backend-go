@@ -25,8 +25,8 @@ func url(token string, email string) string {
 }
 
 func SendMail(email string, token string) {
-	from := mail.Address{"Umachay Restablecer Contraseña", "mad.pruebas.max@gmail.com"}
-	to := mail.Address{"Correo del usuario", email}
+	from := mail.Address{Name: "Umachay restaurar contraseña", Address: "mad.pruebas.max@gmail.com"}
+	to := mail.Address{Name: "User Email", Address: email}
 	subject := "Restablecer contraseña"
 	dest := Dest{Url: url(token, email), Email: to.Address}
 

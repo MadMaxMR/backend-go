@@ -1,14 +1,15 @@
 package controllers
 
 import (
-	"github.com/MadMaxMR/backend-go/auth"
-	"github.com/MadMaxMR/backend-go/database"
-	"github.com/MadMaxMR/backend-go/handler"
-	"github.com/MadMaxMR/backend-go/modelos"
 	"io"
 	"net/http"
 	"os"
 	"strings"
+
+	"github.com/MadMaxMR/backend-go/auth"
+	"github.com/MadMaxMR/backend-go/database"
+	"github.com/MadMaxMR/backend-go/handler"
+	"github.com/MadMaxMR/backend-go/modelos"
 
 	"github.com/gorilla/mux"
 )
@@ -159,10 +160,10 @@ func GetCursoByArea(w http.ResponseWriter, req *http.Request) {
 }
 
 func GetCursosStudent(w http.ResponseWriter, req *http.Request) {
-	cursos := []modelos.Cursos{}
+	cursos := modelos.Cursos{}
 	student := modelos.Estudiante{}
 	usuario := modelos.Usuarios{}
-	//cursoStudent := []modelos.CursosStudent{}
+	cursoStudent := []modelos.CursosStudent{}
 
 	db := database.GetConnection()
 	defer db.Close()
@@ -174,11 +175,11 @@ func GetCursosStudent(w http.ResponseWriter, req *http.Request) {
 	db.Where("usuarios_id = ?", tk.Id_Usuario).Find(&student)
 	db.Where("id = ?", tk.Id_Usuario).Find(&usuario)
 
-	result := db.Where("cod_area = ?", student.Area_Pref).Find(&cursos)
-	//result := db.Debug().Model(&cursos).Select("cursos.*,estudiante.Carr_Pref").Joins("left join estudiante ON cursos.Cod_Area = student.Area_Pref").Scan(&cursoStudent)
+	//result := db.Where("cod_area = ?", student.Area_Pref).Find(&cursos)
+	result := db.Debug().Model(&cursos).Select("DISTINCT cursos.*,estudiantes.Carr_Pref as carrera").Joins("INNER JOIN estudiantes ON cursos.Cod_Area = estudiantes.Area_Pref").Where("cursos.cod_area = ?", student.Area_Pref).Scan(&cursoStudent)
 	if result.RowsAffected == 0 {
 		handler.SendFail(w, req, http.StatusBadRequest, "No se encontró Cursos para el estudiante : "+usuario.Nombres)
 		return
 	}
-	handler.SendSuccess(w, req, http.StatusOK, cursos)
+	handler.SendSuccess(w, req, http.StatusOK, cursoStudent)
 }
