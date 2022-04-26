@@ -1,12 +1,15 @@
 package controllers
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"github.com/MadMaxMR/backend-go/auth"
 	"github.com/MadMaxMR/backend-go/database"
 	"github.com/MadMaxMR/backend-go/handler"
 	"github.com/MadMaxMR/backend-go/modelos"
+	"github.com/cloudinary/cloudinary-go"
+	"github.com/cloudinary/cloudinary-go/api/uploader"
 	"io"
 	"log"
 	"net/http"
@@ -85,7 +88,7 @@ func UpdateUsuario(w http.ResponseWriter, req *http.Request) {
 	if usuario.Password != "" {
 		usuario.Password = modelos.BeforeSave(usuario.Password)
 	}
-	_, err = database.Update(req, &usuario, id)
+	_, err = database.Update(&usuario, id)
 	if err != nil {
 		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
 		return
@@ -164,7 +167,7 @@ func SignIn(email string, password string) (string, uint, error) {
 	return jwtKey, usuario.ID, err
 }
 
-func UpdateAvatar(w http.ResponseWriter, req *http.Request) {
+func UpdateAvatar1(w http.ResponseWriter, req *http.Request) {
 	usuario := modelos.Usuarios{}
 
 	db := database.GetConnection()
@@ -202,7 +205,7 @@ func UpdateAvatar(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func GetAvatar(w http.ResponseWriter, req *http.Request) {
+func GetAvatar1(w http.ResponseWriter, req *http.Request) {
 	usuario := modelos.Usuarios{}
 	id := mux.Vars(req)["id"]
 	_, err := database.Get(&usuario, id)
@@ -222,4 +225,67 @@ func GetAvatar(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	log.Print("'", req.Method, " - ", req.URL.Path, " - ", req.Proto, "' - ", http.StatusOK, " - ", req.RemoteAddr)
+}
+
+func SaveAvatar(w http.ResponseWriter, req *http.Request) {
+	usuario := modelos.Usuarios{}
+	id := mux.Vars(req)["id"]
+
+	cdl, err := cloudinary.NewFromURL("cloudinary://919663283643663:r7-EgFidG0Eu1sFM26ZU1sASIAU@umachayfiles")
+	if err != nil {
+		handler.SendFail(w, req, http.StatusBadRequest, "Error al acceder a cloudinary - "+err.Error())
+		return
+	}
+
+	file, _, err := req.FormFile("image")
+	if err != nil {
+		handler.SendFail(w, req, http.StatusBadRequest, "Error al leer el archivo - "+err.Error())
+		return
+	}
+	var filename string = "user-" + id
+	var ctx = context.Background()
+
+	uploadResult, err := cdl.Upload.Upload(ctx, file, uploader.UploadParams{
+		PublicID: filename,
+		Folder:   "user",
+	})
+	if err != nil {
+		handler.SendFail(w, req, http.StatusBadRequest, "Error al subir la imagen - "+err.Error())
+		return
+	}
+	fmt.Println(uploadResult.SecureURL)
+	usuario.Image = uploadResult.SecureURL
+	_, err = database.Update(&usuario, id)
+	if err != nil {
+		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
+		return
+	}
+	handler.SendSuccessMessage(w, req, http.StatusOK, "Actualización de imagen correcta")
+}
+
+func UpdateAvatar(w http.ResponseWriter, req *http.Request) {
+	//usuario := modelos.Usuarios{}
+	id := mux.Vars(req)["id"]
+
+	cld, err := cloudinary.NewFromURL("cloudinary://919663283643663:r7-EgFidG0Eu1sFM26ZU1sASIAU@umachayfiles")
+	if err != nil {
+		handler.SendFail(w, req, http.StatusBadRequest, "Error al acceder a cloudinary - "+err.Error())
+		return
+	}
+	//file, _, err := req.FormFile("image")
+	/*if err != nil {
+		handler.SendFail(w, req, http.StatusBadRequest, "Error al leer el archivo - "+err.Error())
+		return
+	}*/
+	var filename string = "user-" + id
+	var ctx = context.Background()
+
+	_, err = cld.Upload.Destroy(ctx, uploader.DestroyParams{
+		PublicID: filename,
+	})
+	if err != nil {
+		handler.SendFail(w, req, http.StatusBadRequest, "Error al borrar la imagen - "+err.Error())
+		return
+	}
+	handler.SendSuccessMessage(w, req, http.StatusOK, "Borrado de imagen correcta")
 }
