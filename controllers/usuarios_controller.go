@@ -281,7 +281,7 @@ func UpdateAvatar(w http.ResponseWriter, req *http.Request) {
 	var ctx = context.Background()
 
 	_, err = cld.Upload.Destroy(ctx, uploader.DestroyParams{
-		PublicID: filename,
+		PublicID: "user/" + filename,
 	})
 	if err != nil {
 		handler.SendFail(w, req, http.StatusBadRequest, "Error al borrar la imagen - "+err.Error())
