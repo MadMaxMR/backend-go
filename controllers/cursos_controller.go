@@ -75,7 +75,7 @@ func UpdateCurso(w http.ResponseWriter, req *http.Request) {
 		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
 		return
 	}
-	modelo, err := database.Update(req, &curso, id)
+	modelo, err := database.Update(&curso, id)
 	if err != nil {
 		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
 		return

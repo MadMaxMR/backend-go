@@ -67,7 +67,7 @@ func DeleteTema(w http.ResponseWriter, req *http.Request) {
 func UpdateTema(w http.ResponseWriter, req *http.Request) {
 	tema := models.Temas{}
 	id := mux.Vars(req)["id"]
-	modelo, err := database.Update(req, &tema, id)
+	modelo, err := database.Update(&tema, id)
 	if err != nil {
 		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
 		return

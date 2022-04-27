@@ -11,9 +11,9 @@ import (
 
 func GetConnection() *gorm.DB {
 	/*Coneccion con ElephantSQL*/
-	connStr := "postgres://arwpboxu:qP449bZjdC9jEpih47th8Hn21yi2Aj6h@motty.db.elephantsql.com/arwpboxu"
+	//connStr := "postgres://arwpboxu:qP449bZjdC9jEpih47th8Hn21yi2Aj6h@motty.db.elephantsql.com/arwpboxu"
 	/*Coneccion con Heroku*/
-	//connStr := "postgres://ydckmxkiqmqxtb:d55ac3cfa0bd639e2814a64bf56cb6fb808d39e4a24f932271650b7eaa4087f3@ec2-52-44-209-165.compute-1.amazonaws.com:5432/d1e9oakjh6ue66"
+	connStr := "postgres://ydckmxkiqmqxtb:d55ac3cfa0bd639e2814a64bf56cb6fb808d39e4a24f932271650b7eaa4087f3@ec2-52-44-209-165.compute-1.amazonaws.com:5432/d1e9oakjh6ue66"
 	db, err := gorm.Open("postgres", connStr)
 	if err != nil {
 		log.Fatal(err)
