@@ -4,10 +4,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/MadMaxMR/backend-go/modelos"
-	"github.com/MadMaxMR/backend-go/models"
 	"io/ioutil"
 	"net/http"
+
+	"github.com/MadMaxMR/backend-go/modelos"
+	"github.com/MadMaxMR/backend-go/models"
 )
 
 func ValidateBody(req *http.Request, modelo interface{}) error {
@@ -47,10 +48,10 @@ func ValidateBody2(req *http.Request, modelo1, modelo2 interface{}) error {
 func ValidateCurso(curso *modelos.Cursos) error {
 
 	if curso.Nombre_Curso == "" {
-		return errors.New("required field 'nombre'")
+		return errors.New("required field 'nombre_curso'")
 	}
 	if curso.Cod_Area == "" {
-		return errors.New("required field 'description'")
+		return errors.New("required field 'cod_area'")
 	}
 	if curso.Image == "" {
 		return errors.New("required field 'image'")

@@ -5,8 +5,9 @@ import (
 	"github.com/MadMaxMR/backend-go/handler"
 	"github.com/MadMaxMR/backend-go/modelos"
 
-	"github.com/gorilla/mux"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 func GetAllCarreras(w http.ResponseWriter, req *http.Request) {
@@ -42,7 +43,7 @@ func GetCarreraByArea(w http.ResponseWriter, req *http.Request) {
 	db := database.GetConnection()
 	defer db.Close()
 
-	result := db.Where("cod_area = ?", id).Find(&carreras)
+	result := db.Debug().Where("cod_area = ?", id).Find(&carreras)
 	if result.Error != nil {
 		handler.SendFail(w, req, http.StatusBadRequest, result.Error.Error())
 		return
