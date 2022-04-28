@@ -230,7 +230,18 @@ func GetAvatar1(w http.ResponseWriter, req *http.Request) {
 
 func SaveAvatar(w http.ResponseWriter, req *http.Request) {
 	usuario := modelos.Usuarios{}
-	id := mux.Vars(req)["id"]
+
+	file, _, err := req.FormFile("image")
+	if err != nil {
+		handler.SendFail(w, req, http.StatusBadRequest, "Error al leer el archivo - "+err.Error())
+		return
+	}
+
+	tk, _, _, err := auth.ValidateToken(req.Header.Get("Authorization"))
+	if err != nil {
+		handler.SendFail(w, req, http.StatusBadRequest, "Error en el Token !-"+err.Error())
+		return
+	}
 
 	cdl, err := cloudinary.NewFromURL("cloudinary://919663283643663:r7-EgFidG0Eu1sFM26ZU1sASIAU@umachayfiles")
 	if err != nil {
@@ -238,30 +249,24 @@ func SaveAvatar(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	file, _, err := req.FormFile("image")
-	if err != nil {
-		handler.SendFail(w, req, http.StatusBadRequest, "Error al leer el archivo - "+err.Error())
-		return
-	}
-	var filename string = "user-" + id
+	var filename string = "user-" + tk.Id_Usuario
 	var ctx = context.Background()
 
 	uploadResult, err := cdl.Upload.Upload(ctx, file, uploader.UploadParams{
 		PublicID: filename,
 		Folder:   "user",
 	})
-	if err != nil {
-		handler.SendFail(w, req, http.StatusBadRequest, "Error al subir la imagen - "+err.Error())
+	if uploadResult.AssetID == "" || err != nil {
+		handler.SendFail(w, req, http.StatusBadRequest, "Error al subir la imagen - ")
 		return
 	}
-	fmt.Println(uploadResult.SecureURL)
 	usuario.Image = uploadResult.SecureURL
-	_, err = database.Update(&usuario, id)
+	_, err = database.Update(&usuario, tk.Id_Usuario)
 	if err != nil {
 		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
 		return
 	}
-	handler.SendSuccessMessage(w, req, http.StatusOK, "Actualización de imagen correcta")
+	handler.SendSuccessMessage(w, req, http.StatusOK, "Actualización de imagen correcta del usuario: "+tk.Id_Usuario)
 }
 
 func UpdateAvatar(w http.ResponseWriter, req *http.Request) {

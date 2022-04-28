@@ -21,6 +21,6 @@ func SetUsuariosRoutes(router *mux.Router) {
 	subRoute.HandleFunc("/avatar/{id}", controllers.UpdateAvatar1).Methods("PUT")
 	subRoute.HandleFunc("/avatar/{id}", controllers.GetAvatar1).Methods("GET")
 
-	subRoute.HandleFunc("/avatarsave/{id}", controllers.SaveAvatar).Methods("POST")
-	subRoute.HandleFunc("/updateavatar/{id}", middlew.UserExist(controllers.UpdateAvatar)).Methods("PUT")
+	subRoute.HandleFunc("/updateAvatar/", controllers.SaveAvatar).Methods("POST")
+	subRoute.HandleFunc("/deleteAvatar/{id}", middlew.UserExist(controllers.UpdateAvatar)).Methods("PUT")
 }
