@@ -253,11 +253,12 @@ func SaveAvatar(w http.ResponseWriter, req *http.Request) {
 	var ctx = context.Background()
 
 	uploadResult, err := cdl.Upload.Upload(ctx, file, uploader.UploadParams{
-		PublicID: filename,
-		Folder:   "user",
+		PublicID:       filename,
+		Folder:         "user",
+		AllowedFormats: []string{"jpg", "png", "jpeg", "jfif"},
 	})
-	if uploadResult.AssetID == "" || err != nil {
-		handler.SendFail(w, req, http.StatusBadRequest, "Error al subir la imagen - ")
+	if uploadResult.AssetID == "" || err.Error() != "" {
+		handler.SendFail(w, req, http.StatusBadRequest, "Error al subir la imagen - "+err.Error())
 		return
 	}
 	usuario.Image = uploadResult.SecureURL
