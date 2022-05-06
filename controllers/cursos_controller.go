@@ -144,7 +144,7 @@ func GetImage(w http.ResponseWriter, req *http.Request) {
 }
 
 func GetCursoByArea(w http.ResponseWriter, req *http.Request) {
-	cursos := []modelos.Cursos{}
+	cursos := []modelos.CursosUniversidades{}
 
 	id := mux.Vars(req)["id"]
 
@@ -176,10 +176,21 @@ func GetCursosStudent(w http.ResponseWriter, req *http.Request) {
 	db.Where("id = ?", tk.Id_Usuario).Find(&usuario)
 
 	//result := db.Where("cod_area = ?", student.Area_Pref).Find(&cursos)
-	result := db.Model(&cursos).Select("DISTINCT cursos.*,estudiantes.Carr_Pref as carrera,estudiantes.Uni_Pref as universidad").Joins("INNER JOIN estudiantes ON cursos.Cod_Area = estudiantes.Area_Pref ").Where("cursos.cod_area = ? and estudiantes.Carr_Pref = ?", student.Area_Pref, student.Carr_Pref).Scan(&cursoStudent)
+	result := db.Model(&cursos).Select(" DISTINCT cursos_universidades.id,cursos.nombre_curso, cursos_universidades.cod_area, estudiantes.Carr_Pref as carrera,estudiantes.Uni_Pref as universidad").
+		Joins("inner join cursos_universidades on cursos.id = cursos_universidades.id_curso ").
+		Joins("inner join estudiantes on cursos_universidades.cod_area = estudiantes.area_pref ").
+		Where("cursos_universidades.cod_area = ? and estudiantes.Carr_Pref = ?", student.Area_Pref, student.Carr_Pref).Scan(&cursoStudent)
 	if result.RowsAffected == 0 {
 		handler.SendFail(w, req, http.StatusBadRequest, "No se encontró Cursos para el estudiante : "+usuario.Nombres)
 		return
 	}
 	handler.SendSuccess(w, req, http.StatusOK, cursoStudent)
 }
+
+/*
+select DISTINCT cursos_universidades.id,cursos.nombre_curso, cursos_universidades.cod_area, estudiantes.Carr_Pref as carrera,estudiantes.Uni_Pref as universidad
+from cursos
+inner join cursos_universidades on cursos.id = cursos_universidades.id_curso
+inner join estudiantes on cursos_universidades.cod_area = estudiantes.area_pref
+where cursos_universidades.cod_area ='uncp2' and estudiantes.carr_pref ='INg. Sistemas'
+*/

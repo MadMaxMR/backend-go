@@ -32,7 +32,7 @@ func Migrate() {
 
 	db.AutoMigrate(&modelos.Modulos{}, &modelos.Universidads{}, &modelos.Areas{}, &modelos.PermisoAccesos{}, &modelos.PerfilUsuarios{},
 		&modelos.Usuarios{}, &modelos.Plans{}, &modelos.Estudiantes{}, &modelos.Pagos{}, &modelos.Administradors{},
-		&modelos.ConsultaInvitados{}, &modelos.Profesors{}, &modelos.Cursos{}, &modelos.Tareas{}, &modelos.Chats{},
+		&modelos.ConsultaInvitados{}, &modelos.Profesors{}, &modelos.Cursos{}, &modelos.CursosUniversidades{}, &modelos.Tareas{}, &modelos.Chats{},
 		&modelos.Mensajes{}, &modelos.Publicacions{}, &modelos.Temas{}, &modelos.Videos{}, &modelos.Preguntas{},
 		&modelos.Respuestas{}, &modelos.Carreras{}, &modelos.Examens{},
 		&modelos.HistorialExamens{}, &modelos.PreguntaExamens{}, &modelos.RespuestaExs{}, &modelos.Ebooks{}, &modelos.Clases{},
