@@ -4,14 +4,14 @@ import (
 	"github.com/MadMaxMR/backend-go/auth"
 	"github.com/MadMaxMR/backend-go/database"
 	"github.com/MadMaxMR/backend-go/handler"
-	"github.com/MadMaxMR/backend-go/models"
+	"github.com/MadMaxMR/backend-go/modelos"
 	"net/http"
 
 	"github.com/gorilla/mux"
 )
 
 func GetAllTemas(w http.ResponseWriter, req *http.Request) {
-	temas := []models.Temas{}
+	temas := []modelos.Temas{}
 	page := req.URL.Query().Get("page")
 	modelo, err := database.GetAll(&temas, page)
 	if err != nil {
@@ -23,7 +23,7 @@ func GetAllTemas(w http.ResponseWriter, req *http.Request) {
 }
 
 func GetTema(w http.ResponseWriter, req *http.Request) {
-	tema := models.Temas{}
+	tema := modelos.Temas{}
 	id := mux.Vars(req)["id"]
 	modelo, err := database.Get(&tema, id)
 	if err != nil {
@@ -34,7 +34,7 @@ func GetTema(w http.ResponseWriter, req *http.Request) {
 }
 
 func SaveTema(w http.ResponseWriter, req *http.Request) {
-	tema := models.Temas{}
+	tema := modelos.Temas{}
 	err := auth.ValidateBody(req, &tema)
 	if err != nil {
 		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
@@ -54,7 +54,7 @@ func SaveTema(w http.ResponseWriter, req *http.Request) {
 }
 
 func DeleteTema(w http.ResponseWriter, req *http.Request) {
-	tema := models.Temas{}
+	tema := modelos.Temas{}
 	id := mux.Vars(req)["id"]
 	message, err := database.Delete(&tema, id)
 	if err != nil {
@@ -65,7 +65,7 @@ func DeleteTema(w http.ResponseWriter, req *http.Request) {
 }
 
 func UpdateTema(w http.ResponseWriter, req *http.Request) {
-	tema := models.Temas{}
+	tema := modelos.Temas{}
 	id := mux.Vars(req)["id"]
 	modelo, err := database.Update(&tema, id)
 	if err != nil {
@@ -76,8 +76,8 @@ func UpdateTema(w http.ResponseWriter, req *http.Request) {
 }
 
 func GetTemaByCurso(w http.ResponseWriter, req *http.Request) {
-	temas := []models.Temas{}
-	curso := models.Cursos{}
+	temas := []modelos.Temas{}
+	curso := modelos.Cursos{}
 	id := mux.Vars(req)["id"]
 
 	db := database.GetConnection()
