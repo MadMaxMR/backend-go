@@ -89,7 +89,7 @@ func GetTemaByCurso(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	err = db.Where("cursos_id = ?", id).Find(&temas).Error
+	err = db.Where("id_curso = ?", id).Find(&temas).Error
 	if err != nil {
 		handler.SendFail(w, req, http.StatusInternalServerError, err.Error())
 		return
