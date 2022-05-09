@@ -2,7 +2,7 @@ module github.com/MadMaxMR/backend-go
 
 go 1.17
 
-// +heroku goVersion go1.13
+// +heroku goVersion go1.15
 require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gorilla/mux v1.8.0
