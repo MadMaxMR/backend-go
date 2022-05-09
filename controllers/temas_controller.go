@@ -90,8 +90,8 @@ func GetTemaByCurso(w http.ResponseWriter, req *http.Request) {
 	}
 
 	result := db.Where("id_curso = ?", id).Find(&temas)
-	if result.RowsAffected == 0 || result.Error != nil {
-		handler.SendFail(w, req, http.StatusInternalServerError, err.Error())
+	if result.RowsAffected == 0 {
+		handler.SendFail(w, req, http.StatusInternalServerError, "No se encontró temas para el curso: "+curso.Nombre_Curso)
 		return
 	}
 	handler.SendSuccess(w, req, http.StatusOK, temas)
