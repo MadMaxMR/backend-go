@@ -8,7 +8,6 @@ import (
 	"net/http"
 
 	"github.com/MadMaxMR/backend-go/modelos"
-	"github.com/MadMaxMR/backend-go/models"
 )
 
 func ValidateBody(req *http.Request, modelo interface{}) error {
@@ -59,15 +58,12 @@ func ValidateCurso(curso *modelos.Cursos) error {
 	return nil
 }
 
-func ValidateTema(tema *models.Temas) error {
-	if tema.Title == "" {
-		return errors.New("required field 'Title'")
+func ValidateTema(tema *modelos.Temas) error {
+	if tema.Id_Curso == 0 {
+		return errors.New("required field 'Id_Curso'")
 	}
-	if tema.Description == "" {
-		return errors.New("required field 'Description'")
-	}
-	if tema.CursosID == 0 {
-		return errors.New("required field 'CursoID'")
+	if tema.Nombre_Tema == "" {
+		return errors.New("required field 'Nombre_Tema'")
 	}
 	return nil
 }
