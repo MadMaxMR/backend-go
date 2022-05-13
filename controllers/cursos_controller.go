@@ -176,7 +176,7 @@ func GetCursosStudent(w http.ResponseWriter, req *http.Request) {
 	db.Where("id = ?", tk.Id_Usuario).Find(&usuario)
 
 	//result := db.Where("cod_area = ?", student.Area_Pref).Find(&cursos)
-	result := db.Model(&cursos).Select(" DISTINCT cursos_universidades.id,cursos.nombre_curso, cursos_universidades.cod_area, estudiantes.Carr_Pref as carrera,estudiantes.Uni_Pref as universidad").
+	result := db.Model(&cursos).Select(" DISTINCT cursos.id,cursos.nombre_curso, cursos_universidades.cod_area, estudiantes.Carr_Pref as carrera,estudiantes.Uni_Pref as universidad").
 		Joins("inner join cursos_universidades on cursos.id = cursos_universidades.id_curso ").
 		Joins("inner join estudiantes on cursos_universidades.cod_area = estudiantes.area_pref ").
 		Where("cursos_universidades.cod_area = ? and estudiantes.Carr_Pref = ?", student.Area_Pref, student.Carr_Pref).Scan(&cursoStudent)
