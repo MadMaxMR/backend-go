@@ -26,6 +26,7 @@ func main() {
 	routes.SetCursosRoutes(router)
 	routes.SetTemasRoutes(router)
 	routes.SetUsuariosRoutes(router)
+	routes.SetVideosRoutes(router)
 	if serverPort == "" {
 		serverPort = defaultPort
 	}

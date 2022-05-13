@@ -15,7 +15,6 @@ func GetAllTemas(w http.ResponseWriter, req *http.Request) {
 	page := req.URL.Query().Get("page")
 	modelo, err := database.GetAll(&temas, page)
 	if err != nil {
-
 		handler.SendFail(w, req, http.StatusInternalServerError, err.Error())
 		return
 	}

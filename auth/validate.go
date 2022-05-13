@@ -129,3 +129,19 @@ func ValidateReset(usuario *modelos.Usuarios) error {
 	}
 	return nil
 }
+
+func ValidateVideo(video *modelos.Videos) error {
+	if video.Id_Tema == 0 {
+		return errors.New("required field 'Id_Tema'")
+	}
+	if video.Link == "" {
+		return errors.New("required field 'Link'")
+	}
+	if video.Titulo == "" {
+		return errors.New("required field 'Titulo'")
+	}
+	if video.Duracion == "" {
+		return errors.New("required field 'Duracion'")
+	}
+	return nil
+}
