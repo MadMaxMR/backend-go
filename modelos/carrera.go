@@ -6,4 +6,5 @@ type Carreras struct {
 	Cod_Area    string `json:"id_area" sql:"type:varchar(250) REFERENCES areas(id) "`
 	Nombre_Carr string `json:"nombre_carr" gorm:"type:varchar(250) "`
 	Descripcion string `json:"descripcion" gorm:"type:varchar(250) "`
+	Ranking     int    `json:"ranking" gorm:"type:int"`
 }

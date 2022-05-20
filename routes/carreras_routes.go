@@ -14,6 +14,6 @@ func SetCarrerasRoutes(route *mux.Router) {
 	subRoute.HandleFunc("/carreras/{id}", controllers.GetCarrera).Methods("GET")
 	//r.HandleFunc("/carreras/{id}", UpdateCarrera).Methods("PUT")
 	//r.HandleFunc("/carreras/{id}", DeleteCarrera).Methods("DELETE")
-
+	subRoute.HandleFunc("/carreras/uni/{id}", controllers.GetCarreraUni).Methods("GET")
 	subRoute.HandleFunc("/carreras/area/{id}", controllers.GetCarreraByArea).Methods("GET")
 }

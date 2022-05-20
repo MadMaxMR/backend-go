@@ -50,3 +50,18 @@ func GetCarreraByArea(w http.ResponseWriter, req *http.Request) {
 	}
 	handler.SendSuccess(w, req, http.StatusOK, carreras)
 }
+
+func GetCarreraUni(w http.ResponseWriter, req *http.Request) {
+	carreras := []modelos.Carreras{}
+	id := mux.Vars(req)["id"]
+
+	db := database.GetConnection()
+	defer db.Close()
+
+	result := db.Debug().Where("id_uni = ?", id).Find(&carreras)
+	if result.Error != nil {
+		handler.SendFail(w, req, http.StatusBadRequest, result.Error.Error())
+		return
+	}
+	handler.SendSuccess(w, req, http.StatusOK, carreras)
+}
