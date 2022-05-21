@@ -1,11 +1,12 @@
 package controllers
 
 import (
+	"net/http"
+
 	"github.com/MadMaxMR/backend-go/auth"
 	"github.com/MadMaxMR/backend-go/database"
 	"github.com/MadMaxMR/backend-go/handler"
 	"github.com/MadMaxMR/backend-go/modelos"
-	"net/http"
 
 	"github.com/gorilla/mux"
 )
@@ -93,5 +94,29 @@ func GetTemaByCurso(w http.ResponseWriter, req *http.Request) {
 		handler.SendFail(w, req, http.StatusInternalServerError, "No se encontró temas para el curso: "+curso.Nombre_Curso)
 		return
 	}
+	handler.SendSuccess(w, req, http.StatusOK, temas)
+}
+
+func GetTemasVideos(w http.ResponseWriter, req *http.Request) {
+	temas := []modelos.Temas{}
+	curso := modelos.Cursos{}
+	id := mux.Vars(req)["id"]
+
+	db := database.GetConnection()
+	defer db.Close()
+
+	_, err := database.Get(&curso, id)
+	if err != nil {
+		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	result := db.Model(&temas).Where("id_curso = ?", id).Preload("Videos").Find(&temas)
+
+	if result.RowsAffected == 0 {
+		handler.SendFail(w, req, http.StatusInternalServerError, "No se encontró temas para el curso: "+curso.Nombre_Curso)
+		return
+	}
+
 	handler.SendSuccess(w, req, http.StatusOK, temas)
 }

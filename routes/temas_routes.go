@@ -15,4 +15,5 @@ func SetTemasRoutes(router *mux.Router) {
 	subRoute.HandleFunc("/temas/{id}", controllers.DeleteTema).Methods("DELETE")
 	subRoute.HandleFunc("/temas/{id}", controllers.UpdateTema).Methods("PUT")
 	subRoute.HandleFunc("/temas/curso/{id}", controllers.GetTemaByCurso).Methods("GET")
+	subRoute.HandleFunc("/temas/videos/{id}", controllers.GetTemasVideos).Methods("GET")
 }

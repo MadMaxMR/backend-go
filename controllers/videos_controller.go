@@ -1,11 +1,12 @@
 package controllers
 
 import (
+	"net/http"
+
 	"github.com/MadMaxMR/backend-go/auth"
 	"github.com/MadMaxMR/backend-go/database"
 	"github.com/MadMaxMR/backend-go/handler"
 	"github.com/MadMaxMR/backend-go/modelos"
-	"net/http"
 
 	"github.com/gorilla/mux"
 )
@@ -36,7 +37,7 @@ func GetVideoByTema(w http.ResponseWriter, req *http.Request) {
 	video := []modelos.Videos{}
 	id := mux.Vars(req)["id"]
 	db := database.GetConnection()
-	result := db.Where("id_tema = ?", id).Find(&video)
+	result := db.Where("Temas_Id = ?", id).Find(&video)
 	if result.RowsAffected == 0 {
 		handler.SendFail(w, req, http.StatusBadRequest, "No se encontró videos para el tema : "+id)
 		return
