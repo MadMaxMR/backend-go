@@ -29,7 +29,6 @@ func GetAll(modelo interface{}, page string) (mod interface{}, err error) {
 			return nil, errors.New("No se encontro datos en la página: " + page)
 		}
 	}
-	return nil, nil
 }
 
 func Get(modelo interface{}, id string) (mod interface{}, err error) {

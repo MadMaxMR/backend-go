@@ -2,11 +2,12 @@ package controllers
 
 import (
 	//"fmt"
+	"net/http"
+
 	"github.com/MadMaxMR/backend-go/auth"
 	"github.com/MadMaxMR/backend-go/database"
 	"github.com/MadMaxMR/backend-go/handler"
 	"github.com/MadMaxMR/backend-go/modelos"
-	"net/http"
 )
 
 func ResetPassword(w http.ResponseWriter, req *http.Request) {
@@ -69,5 +70,5 @@ func RecoveryPassword(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	SendMail(ml, tk)
-	handler.SendSuccessMessage(w, req, http.StatusOK, "Se ha enviado un correo con el link para resetear la contraseña")
+	handler.SendSuccessMessage(w, req, http.StatusOK, "Se ha enviado un correo con el link para restablecer la contraseña")
 }

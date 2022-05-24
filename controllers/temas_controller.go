@@ -111,7 +111,7 @@ func GetTemasVideos(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	result := db.Model(&temas).Where("id_curso = ?", id).Preload("Videos").Find(&temas)
+	result := db.Model(&temas).Where("id_curso = ?", id).Preload("Videos").Preload("Evaluaciones").Find(&temas)
 
 	if result.RowsAffected == 0 {
 		handler.SendFail(w, req, http.StatusInternalServerError, "No se encontró temas para el curso: "+curso.Nombre_Curso)

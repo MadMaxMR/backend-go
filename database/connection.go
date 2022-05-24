@@ -26,14 +26,11 @@ func Migrate() {
 	defer db.Close()
 
 	log.Printf("Migrando base de datos")
-	/*db.AutoMigrate(&models.Cursos{}, &models.Temas{}, &models.Videos{}, &models.Usuarios{}, &models.Areas{}, &models.Asignacion_Curso{},
-	&models.Consultas{}, &models.Cursos_Area{}, &models.Detalles_Horario{}, &models.Files_Cursos{}, &models.Horario{},
-	&models.Matricula{}, &models.Perfil{}, &models.User_Permission{})*/
 
 	db.AutoMigrate(&modelos.Modulos{}, &modelos.Universidads{}, &modelos.Areas{}, &modelos.PermisoAccesos{}, &modelos.PerfilUsuarios{},
 		&modelos.Usuarios{}, &modelos.Plans{}, &modelos.Estudiantes{}, &modelos.Pagos{}, &modelos.Administradors{},
 		&modelos.ConsultaInvitados{}, &modelos.Profesors{}, &modelos.Cursos{}, &modelos.CursosUniversidades{}, &modelos.Tareas{}, &modelos.Chats{},
-		&modelos.Mensajes{}, &modelos.Publicacions{}, &modelos.Temas{}, &modelos.Videos{}, &modelos.Preguntas{},
+		&modelos.Mensajes{}, &modelos.Publicacions{}, &modelos.Temas{}, &modelos.Videos{}, &modelos.Evaluaciones{}, &modelos.Preguntas{},
 		&modelos.Respuestas{}, &modelos.Carreras{}, &modelos.Examens{},
 		&modelos.HistorialExamens{}, &modelos.PreguntaExamens{}, &modelos.RespuestaExs{}, &modelos.Ebooks{}, &modelos.Clases{},
 		&modelos.Horarios{}, &modelos.Resolucions{}, &modelos.Archivos{})
