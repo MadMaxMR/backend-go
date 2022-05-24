@@ -145,3 +145,16 @@ func ValidateVideo(video *modelos.Videos) error {
 	}
 	return nil
 }
+
+func ValidateEvaluaciones(eval *modelos.Evaluaciones) error {
+	if eval.TemasID == 0 {
+		return errors.New("required field 'Temas_Id'")
+	}
+	if eval.Nivel == "" {
+		return errors.New("required field 'Nivel'")
+	}
+	if eval.PdfLink == "" {
+		return errors.New("required field 'Pdf_link'")
+	}
+	return nil
+}
