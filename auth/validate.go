@@ -150,7 +150,7 @@ func ValidateEvaluaciones(eval *modelos.Evaluaciones) error {
 	if eval.TemasID == 0 {
 		return errors.New("required field 'Temas_Id'")
 	}
-	if eval.Nivel == "" {
+	if eval.Nivel == 0 {
 		return errors.New("required field 'Nivel'")
 	}
 	if eval.PdfLink == "" {
