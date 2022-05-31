@@ -9,7 +9,7 @@ import (
 )
 
 func GetEvaluaciones(w http.ResponseWriter, req *http.Request) {
-	eval := modelos.Evaluaciones{}
+	eval := []modelos.Evaluaciones{}
 	page := req.URL.Query().Get("page")
 	modelo, err := database.GetAll(&eval, page)
 	if err != nil {
