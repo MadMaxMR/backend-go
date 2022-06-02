@@ -64,12 +64,12 @@ func GetAllStudent(w http.ResponseWriter, r *http.Request) {
 func SaveStudent(w http.ResponseWriter, r *http.Request) {
 	student := modelos.Estudiante{}
 	usuario := modelos.Usuarios{}
+	db := database.GetConnection()
 	err1 := auth.ValidateBody2(r, &usuario, &student)
 	if err1 != nil {
 		handler.SendFail(w, r, http.StatusBadRequest, err1.Error())
 		return
 	}
-
 	err1, err2 := auth.ValidateUsuario(&usuario), auth.ValidateStudent(&student)
 	if err1 != nil {
 		handler.SendFail(w, r, http.StatusBadRequest, err1.Error())
@@ -77,6 +77,16 @@ func SaveStudent(w http.ResponseWriter, r *http.Request) {
 	}
 	if err2 != nil {
 		handler.SendFail(w, r, http.StatusBadRequest, err2.Error())
+		return
+	}
+	result := db.Where("email = ?", usuario.Email).First(&usuario)
+	if result.RowsAffected > 0 {
+		handler.SendFail(w, r, http.StatusBadRequest, "El email ya existe")
+		return
+	}
+	result = db.Where("dni = ?", usuario.Dni).First(&usuario)
+	if result.RowsAffected > 0 {
+		handler.SendFail(w, r, http.StatusBadRequest, "El dni ya existe")
 		return
 	}
 
