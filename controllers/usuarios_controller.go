@@ -241,13 +241,13 @@ func SaveAvatar(w http.ResponseWriter, req *http.Request) {
 		handler.SendFail(w, req, http.StatusBadRequest, "Error en el Token !-"+err.Error())
 		return
 	}
-	fmt.Println("antes de conexion con cludinary")
+
 	cdl, err := cloudinary.NewFromURL("cloudinary://919663283643663:r7-EgFidG0Eu1sFM26ZU1sASIAU@umachayfiles")
 	if err != nil {
 		handler.SendFail(w, req, http.StatusBadRequest, "Error al acceder a cloudinary - "+err.Error())
 		return
 	}
-	fmt.Println("despues de conexion con cludinary")
+
 	var filename string = "user-" + tk.Id_Usuario
 	var ctx = context.Background()
 
@@ -265,7 +265,7 @@ func SaveAvatar(w http.ResponseWriter, req *http.Request) {
 			return
 		}
 	}
-	fmt.Println("despues de subir la imagen")
+
 	usuario.Image = uploadResult.SecureURL
 	_, err = database.Update(&usuario, tk.Id_Usuario)
 	if err != nil {
