@@ -273,7 +273,7 @@ func SaveAvatar(w http.ResponseWriter, req *http.Request) {
 		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
 		return
 	}
-	img.Image = uploadResult.SecureURL
+	img.Image = usuario.Image
 	// handler.SendSuccessMessage(w, req, http.StatusOK, usuario.Image)
 	handler.SendSuccess(w, req, http.StatusOK, img)
 }
