@@ -23,6 +23,9 @@ type Usuarios struct {
 	Fecha_Registro   time.Time      `json:"fecha_registro" gorm:"type:timestamp;default:current_timestamp"`
 	Last_Login       time.Time      `json:"last_login" gorm:"type:timestamp"`
 }
+type ImageUpdate struct {
+	Image string `json:"image"`
+}
 
 func Hash(password string) ([]byte, error) {
 	return bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)

@@ -230,6 +230,7 @@ func GetAvatar1(w http.ResponseWriter, req *http.Request) {
 
 func SaveAvatar(w http.ResponseWriter, req *http.Request) {
 	usuario := modelos.Usuarios{}
+	img := modelos.ImageUpdate{}
 
 	file, _, err := req.FormFile("image")
 	if err != nil {
@@ -261,7 +262,7 @@ func SaveAvatar(w http.ResponseWriter, req *http.Request) {
 			handler.SendFail(w, req, http.StatusBadRequest, "Error al subir la imagen - "+err.Error())
 			return
 		} else {
-			handler.SendFail(w, req, http.StatusBadRequest, "Error al subir la imagen ")
+			handler.SendFail(w, req, http.StatusBadRequest, "Error al subir la imagen")
 			return
 		}
 	}
@@ -272,7 +273,9 @@ func SaveAvatar(w http.ResponseWriter, req *http.Request) {
 		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
 		return
 	}
-	handler.SendSuccessMessage(w, req, http.StatusOK, "Actualización de imagen correcta del usuario: "+tk.Id_Usuario)
+	img.Image = uploadResult.SecureURL
+	// handler.SendSuccessMessage(w, req, http.StatusOK, usuario.Image)
+	handler.SendSuccess(w, req, http.StatusOK, img)
 }
 
 func UpdateAvatar(w http.ResponseWriter, req *http.Request) {
