@@ -80,8 +80,11 @@ func DeleteUsuario(w http.ResponseWriter, req *http.Request) {
 
 func UpdateUsuario(w http.ResponseWriter, req *http.Request) {
 	usuario := modelos.Usuarios{}
+	estudiante := modelos.Estudiante{}
+	db := database.GetConnection()
+	defer db.Close()
 	id := mux.Vars(req)["id"]
-	err := auth.ValidateBody(req, &usuario)
+	err := auth.ValidateBody2(req, &usuario, &estudiante)
 	if err != nil {
 		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
 		return
@@ -90,6 +93,11 @@ func UpdateUsuario(w http.ResponseWriter, req *http.Request) {
 		usuario.Password = modelos.BeforeSave(usuario.Password)
 	}
 	_, err = database.Update(&usuario, id)
+	if err != nil {
+		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
+		return
+	}
+	err = db.Model(&estudiante).Where("usuarios_id = ?", id).Update(&estudiante).Error
 	if err != nil {
 		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
 		return

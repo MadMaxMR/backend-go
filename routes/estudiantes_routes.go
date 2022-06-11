@@ -13,6 +13,6 @@ func SetStudentRoutes(router *mux.Router) {
 	subRoute.HandleFunc("/student/", controllers.GetAllStudent).Methods("GET")
 	subRoute.HandleFunc("/student/", controllers.SaveStudent).Methods("POST")
 	subRoute.HandleFunc("/student/{id}", middlew.ValidToken(middlew.UserExist(controllers.GetStudent))).Methods("GET")
-	//subRoute.HandleFunc("/student/{id}", middlew.UserExist(controllers.UpdateUsuario)).Methods("PUT")
+	subRoute.HandleFunc("/student/{id}", middlew.ValidToken(middlew.UserExist(controllers.UpdateStudent))).Methods("PUT")
 	//subRoute.HandleFunc("/student/{id}", controllers.DeleteUsuario).Methods("DELETE")
 }
