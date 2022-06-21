@@ -132,7 +132,7 @@ func ValidateReset(usuario *modelos.Usuarios) error {
 
 func ValidateVideo(video *modelos.Videos) error {
 	if video.TemasId == 0 {
-		return errors.New("required field 'Temas_Id'")
+		return errors.New("required field 'TemasId'")
 	}
 	if video.Link == "" {
 		return errors.New("required field 'Link'")
@@ -148,7 +148,7 @@ func ValidateVideo(video *modelos.Videos) error {
 
 func ValidateEvaluaciones(eval *modelos.Evaluaciones) error {
 	if eval.TemasID == 0 {
-		return errors.New("required field 'Temas_Id'")
+		return errors.New("required field 'TemasId'")
 	}
 	if eval.Nivel == 0 {
 		return errors.New("required field 'Nivel'")

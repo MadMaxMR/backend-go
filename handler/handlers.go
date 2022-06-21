@@ -2,7 +2,7 @@ package handler
 
 import (
 	"encoding/json"
-	"github.com/MadMaxMR/backend-go/models"
+	"github.com/MadMaxMR/backend-go/modelos"
 	"log"
 	"net/http"
 	"strconv"
@@ -20,7 +20,7 @@ func SendSuccess(w http.ResponseWriter, req *http.Request, status int, model int
 }
 
 func SendSuccessMessage(w http.ResponseWriter, req *http.Request, status int, message string) {
-	var data models.Data = models.Data{Message: make(map[string]string)}
+	var data modelos.Data = modelos.Data{Message: make(map[string]string)}
 	data.Message["success"] = message
 	json, _ := json.Marshal(data)
 	w.Header().Set("Content-Type", "application/json")
@@ -32,7 +32,7 @@ func SendSuccessMessage(w http.ResponseWriter, req *http.Request, status int, me
 }
 
 func SendFail(w http.ResponseWriter, req *http.Request, status int, err string) {
-	var data models.Data = models.Data{Message: make(map[string]string)}
+	var data modelos.Data = modelos.Data{Message: make(map[string]string)}
 	data.Message["error"] = err
 	json, _ := json.Marshal(data)
 	w.Header().Set("Content-Type", "application/json")
