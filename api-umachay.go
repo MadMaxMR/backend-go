@@ -1,13 +1,14 @@
 package main
 
 import (
+	"log"
+	"net/http"
+	"os"
+
 	"github.com/MadMaxMR/backend-go/database"
 	"github.com/MadMaxMR/backend-go/routes"
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
-	"log"
-	"net/http"
-	"os"
 )
 
 const defaultPort = "8000"
@@ -28,6 +29,7 @@ func main() {
 	routes.SetUsuariosRoutes(router)
 	routes.SetVideosRoutes(router)
 	routes.SetEvalsRoutes(router)
+	routes.SetExamenRoutes(router)
 	if serverPort == "" {
 		serverPort = defaultPort
 	}
