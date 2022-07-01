@@ -7,4 +7,6 @@ type Universidads struct {
 	Sede_Princ    string `json:"sede_princ" gorm:"type:varchar(250)"`
 	Sector        string `json:"sector" gorm:"type:varchar(250)"`
 	Ecuacion_Pond string `json:"ecuacion_pond" gorm:"type:varchar(250)"`
+	Ranking       int    `json:"ranking" gorm:"type:int"`
+	Image         string `json:"image" gorm:"type:varchar(250)"`
 }

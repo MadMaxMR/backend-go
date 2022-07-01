@@ -11,4 +11,5 @@ func SetExamenRoutes(router *mux.Router) {
 
 	subRoute.HandleFunc("/examen/", controllers.GetAllExamens).Methods("GET")
 	subRoute.HandleFunc("/examen/preguntas/area/{id}", controllers.GetExamensPregByArea).Methods("GET")
+	subRoute.HandleFunc("/pregunta/", controllers.SavePreguntaResp).Methods("POST")
 }

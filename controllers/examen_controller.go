@@ -1,12 +1,13 @@
 package controllers
 
 import (
-	"net/http"
-	// "github.com/MadMaxMR/backend-go/auth"
+	//"fmt"
+	"github.com/MadMaxMR/backend-go/auth"
 	"github.com/MadMaxMR/backend-go/database"
 	"github.com/MadMaxMR/backend-go/handler"
 	"github.com/MadMaxMR/backend-go/modelos"
 	"github.com/gorilla/mux"
+	"net/http"
 )
 
 func GetAllExamens(w http.ResponseWriter, req *http.Request) {
@@ -41,4 +42,17 @@ func GetExamensPregByArea(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	handler.SendSuccess(w, req, http.StatusOK, examen)
+}
+
+func SavePreguntaResp(w http.ResponseWriter, req *http.Request) {
+	pregunta := modelos.PreguntaExamens{}
+	err := auth.ValidateBody(req, &pregunta)
+	if err != nil {
+		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
+	}
+	modelo, err := database.Create(&pregunta)
+	if err != nil {
+		handler.SendFail(w, req, http.StatusInternalServerError, err.Error())
+	}
+	handler.SendSuccess(w, req, http.StatusOK, modelo)
 }
