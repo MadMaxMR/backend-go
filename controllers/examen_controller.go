@@ -35,7 +35,7 @@ func GetExamensPregByArea(w http.ResponseWriter, req *http.Request) {
 	db := database.GetConnection()
 	defer db.Close()
 
-	result := db.Model(&examen).Where("areas_id = ?", id).Preload("PreguntaExamens").Find(&examen)
+	result := db.Model(&examen).Where("areas_id = ?", id).Preload("PreguntaExamens").Preload("PreguntaExamens.RespuestaExs").Find(&examen)
 	if result.RowsAffected == 0 {
 		handler.SendFail(w, req, http.StatusInternalServerError, "No se encontró examenes para el area: "+id)
 		return
