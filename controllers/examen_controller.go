@@ -29,6 +29,8 @@ func GetExamen(w http.ResponseWriter, req *http.Request) {
 	}
 	handler.SendSuccess(w, req, http.StatusOK, modelo)
 }
+
+//GetExamensPregByArea retorna todos los examenes de un area con sus preguntas y alternativas
 func GetExamensPregByArea(w http.ResponseWriter, req *http.Request) {
 	examen := []modelos.Examens{}
 	id := mux.Vars(req)["id"]

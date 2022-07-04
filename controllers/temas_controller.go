@@ -75,6 +75,7 @@ func UpdateTema(w http.ResponseWriter, req *http.Request) {
 	handler.SendSuccess(w, req, http.StatusOK, modelo)
 }
 
+//GetTemaByCurso retorna todos los temas de un curso
 func GetTemaByCurso(w http.ResponseWriter, req *http.Request) {
 	temas := []modelos.Temas{}
 	curso := modelos.Cursos{}
@@ -97,6 +98,7 @@ func GetTemaByCurso(w http.ResponseWriter, req *http.Request) {
 	handler.SendSuccess(w, req, http.StatusOK, temas)
 }
 
+//GetTemasVideos retorna todos los temas de un curso incluido todos los videos y evaluaciones pertenecientes a los temas
 func GetTemasVideos(w http.ResponseWriter, req *http.Request) {
 	temas := []modelos.Temas{}
 	curso := modelos.Cursos{}

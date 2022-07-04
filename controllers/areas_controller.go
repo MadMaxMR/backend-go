@@ -49,3 +49,19 @@ func GetAreaByUni(w http.ResponseWriter, req *http.Request) {
 	}
 	handler.SendSuccess(w, req, http.StatusOK, areas)
 }
+
+func GetAreaCarrerasByUni(w http.ResponseWriter, req *http.Request) {
+	areas := []modelos.Area{}
+	id := mux.Vars(req)["id"]
+
+	db := database.GetConnection()
+	defer db.Close()
+
+	result := db.Model(&areas).Where("id_uni = ?", id).Preload("Carreras").Find(&areas)
+	if result.RowsAffected == 0 {
+		handler.SendFail(w, req, http.StatusInternalServerError, "No se encontró areas para la universidad: "+id)
+		return
+	}
+
+	handler.SendSuccess(w, req, http.StatusOK, areas)
+}
