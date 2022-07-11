@@ -16,3 +16,9 @@ type CursosStudent struct {
 	Carrera      string `json:"carrera"`
 	Universidad  string `json:"universidad"`
 }
+
+type CursosArea struct {
+	ID           uint   `json:"id"`
+	Nombre_Curso string `json:"nombre_curso"`
+	Cod_Area     string `json:"cod_area"`
+}

@@ -4,6 +4,7 @@ import (
 	"github.com/MadMaxMR/backend-go/database"
 	"github.com/MadMaxMR/backend-go/handler"
 	"github.com/MadMaxMR/backend-go/modelos"
+	"github.com/jinzhu/gorm"
 
 	"github.com/gorilla/mux"
 	"net/http"
@@ -50,6 +51,7 @@ func GetAreaByUni(w http.ResponseWriter, req *http.Request) {
 	handler.SendSuccess(w, req, http.StatusOK, areas)
 }
 
+//GetAreaCarrerasByUni retorna todas las areas de una "universidad" incluido las carreras de sus areas
 func GetAreaCarrerasByUni(w http.ResponseWriter, req *http.Request) {
 	areas := []modelos.Area{}
 	id := mux.Vars(req)["id"]
@@ -57,7 +59,9 @@ func GetAreaCarrerasByUni(w http.ResponseWriter, req *http.Request) {
 	db := database.GetConnection()
 	defer db.Close()
 
-	result := db.Model(&areas).Where("id_uni = ?", id).Preload("Carreras").Find(&areas)
+	result := db.Model(&areas).Where("id_uni = ?", id).Preload("Carreras", func(db *gorm.DB) *gorm.DB {
+		return db.Order("Carreras.nombre_carr ASC")
+	}).Find(&areas)
 	if result.RowsAffected == 0 {
 		handler.SendFail(w, req, http.StatusInternalServerError, "No se encontró areas para la universidad: "+id)
 		return

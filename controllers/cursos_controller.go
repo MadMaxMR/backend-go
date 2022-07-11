@@ -144,19 +144,23 @@ func GetImage(w http.ResponseWriter, req *http.Request) {
 }
 
 func GetCursoByArea(w http.ResponseWriter, req *http.Request) {
-	cursos := []modelos.CursosUniversidades{}
+	cursos := modelos.Cursos{}
+	CursosArea := []modelos.CursosArea{}
 
 	id := mux.Vars(req)["id"]
 
 	db := database.GetConnection()
 	defer db.Close()
 
-	result := db.Where("cod_area = ?", id).Find(&cursos)
+	result := db.Model(&cursos).Select("DISTINCT cursos_universidades.id,cursos_universidades.cod_area, cursos.nombre_curso").
+		Joins("inner join cursos_universidades ON cursos.id = cursos_universidades.id_curso").
+		Where("cursos_universidades.cod_area = ?", id).Scan(&CursosArea)
+
 	if result.RowsAffected == 0 {
 		handler.SendFail(w, req, http.StatusBadRequest, "No se encontró Cursos para el area : "+id)
 		return
 	}
-	handler.SendSuccess(w, req, http.StatusOK, cursos)
+	handler.SendSuccess(w, req, http.StatusOK, CursosArea)
 }
 
 func GetCursosStudent(w http.ResponseWriter, req *http.Request) {
@@ -175,7 +179,6 @@ func GetCursosStudent(w http.ResponseWriter, req *http.Request) {
 	db.Where("usuarios_id = ?", tk.Id_Usuario).Find(&student)
 	db.Where("id = ?", tk.Id_Usuario).Find(&usuario)
 
-	//result := db.Where("cod_area = ?", student.Area_Pref).Find(&cursos)
 	result := db.Model(&cursos).Select(" DISTINCT cursos.id,cursos.nombre_curso, cursos_universidades.cod_area, estudiantes.Carr_Pref as carrera,estudiantes.Uni_Pref as universidad").
 		Joins("inner join cursos_universidades on cursos.id = cursos_universidades.id_curso ").
 		Joins("inner join estudiantes on cursos_universidades.cod_area = estudiantes.area_pref ").

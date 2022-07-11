@@ -7,6 +7,7 @@ import (
 	"github.com/MadMaxMR/backend-go/database"
 	"github.com/MadMaxMR/backend-go/handler"
 	"github.com/MadMaxMR/backend-go/modelos"
+	"github.com/jinzhu/gorm"
 
 	"github.com/gorilla/mux"
 )
@@ -113,7 +114,9 @@ func GetTemasVideos(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	result := db.Model(&temas).Where("id_curso = ?", id).Preload("Videos").Preload("Evaluaciones").Find(&temas)
+	result := db.Model(&temas).Where("id_curso = ?", id).Preload("Videos", func(db *gorm.DB) *gorm.DB {
+		return db.Order("Videos.titulo ASC")
+	}).Preload("Evaluaciones").Find(&temas)
 
 	if result.RowsAffected == 0 {
 		handler.SendFail(w, req, http.StatusInternalServerError, "No se encontró temas para el curso: "+curso.Nombre_Curso)
