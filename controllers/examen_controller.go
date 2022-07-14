@@ -7,6 +7,7 @@ import (
 	"github.com/MadMaxMR/backend-go/handler"
 	"github.com/MadMaxMR/backend-go/modelos"
 	"github.com/gorilla/mux"
+	"github.com/jinzhu/gorm"
 	"net/http"
 )
 
@@ -38,7 +39,11 @@ func GetExamensPregByArea(w http.ResponseWriter, req *http.Request) {
 	db := database.GetConnection()
 	defer db.Close()
 
-	result := db.Model(&examen).Where("areas_id = ?", id).Preload("PreguntaExamens").Preload("PreguntaExamens.RespuestaExs").Find(&examen)
+	result := db.Model(&examen).Where("areas_id = ?", id).Preload("PreguntaExamens", func(db *gorm.DB) *gorm.DB {
+		return db.Order("pregunta_examens.id ASC")
+	}).Preload("PreguntaExamens.RespuestaExs", func(db *gorm.DB) *gorm.DB {
+		return db.Order("respuesta_exs.id ASC")
+	}).Find(&examen)
 	if result.RowsAffected == 0 {
 		handler.SendFail(w, req, http.StatusInternalServerError, "No se encontró examenes para el area: "+id)
 		return
