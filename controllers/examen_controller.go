@@ -2,13 +2,16 @@ package controllers
 
 import (
 	//"fmt"
+
+	"net/http"
+	"strconv"
+
 	"github.com/MadMaxMR/backend-go/auth"
 	"github.com/MadMaxMR/backend-go/database"
 	"github.com/MadMaxMR/backend-go/handler"
 	"github.com/MadMaxMR/backend-go/modelos"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
-	"net/http"
 )
 
 func GetAllExamens(w http.ResponseWriter, req *http.Request) {
@@ -62,4 +65,36 @@ func SavePreguntaResp(w http.ResponseWriter, req *http.Request) {
 		handler.SendFail(w, req, http.StatusInternalServerError, err.Error())
 	}
 	handler.SendSuccess(w, req, http.StatusOK, modelo)
+}
+
+func GetPoints(w http.ResponseWriter, req *http.Request) {
+	points := modelos.Result{}
+	result := map[string]interface{}{}
+	//id := mux.Vars(req)["id"]
+	db := database.GetConnection()
+	correct := 0
+	incorrect := 0
+	err := auth.ValidateBody(req, &result)
+	if err != nil {
+		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
+	}
+	for i := 1; i < 101; i++ {
+		respuesta := modelos.RespuestaExs{}
+		val := strconv.Itoa(i)
+		db.Model(&respuesta).Where("pregunta_examens_id = ? and valor = 'true'", result["id_pregunta"+val+""]).Find(&respuesta)
+
+		if result["respuesta"+val] != float64(0) {
+			if result["respuesta"+val] == float64(respuesta.ID) {
+				correct++
+			}
+		}
+		if result["respuesta"+val] == float64(0) || result["respuesta"+val] != float64(respuesta.ID) {
+			incorrect++
+		}
+		respuesta.ID = 0
+	}
+	points.Correct = correct
+	points.Incorrect = incorrect
+	points.Nota = float64(correct) / float64(correct+incorrect)
+	handler.SendSuccess(w, req, http.StatusOK, points)
 }
