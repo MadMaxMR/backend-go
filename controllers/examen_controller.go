@@ -68,35 +68,40 @@ func SavePreguntaResp(w http.ResponseWriter, req *http.Request) {
 }
 
 func GetPoints(w http.ResponseWriter, req *http.Request) {
-	points := modelos.Result{Solucion: make(map[string]string)}
+	points := modelos.Result{Resultado: make(map[string]string), Solucion: make(map[string]uint)}
 	result := map[string]interface{}{}
-	//id := mux.Vars(req)["id"]
+
 	db := database.GetConnection()
-	correct := 0
-	incorrect := 0
+	defer db.Close()
+	correct, incorrect := 0, 0
+
 	err := auth.ValidateBody(req, &result)
 	if err != nil {
 		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
 	}
-	for i := 1; i < 101; i++ {
+
+	for i := 1; i < (len(result)/2 + 1); i++ {
 		respuesta := modelos.RespuestaExs{}
 		val := strconv.Itoa(i)
 		db.Model(&respuesta).Where("pregunta_examens_id = ? and valor = 'true'", result["id_pregunta"+val+""]).Find(&respuesta)
 
-		if result["respuesta"+val] != float64(0) {
-			if result["respuesta"+val] == float64(respuesta.ID) {
-				points.Solucion["pregunta"+val] = "Correcto"
+		if result["id_respuesta"+val] != float64(0) {
+			if result["id_respuesta"+val] == float64(respuesta.ID) {
+				points.Resultado["pregunta"+val] = "Correcto"
+				points.Solucion["pregunta"+val] = respuesta.ID
 				correct++
 			} else {
-				points.Solucion["pregunta"+val] = "Incorrecto"
+				points.Resultado["pregunta"+val] = "Incorrecto"
+				points.Solucion["pregunta"+val] = respuesta.ID
 				incorrect++
 			}
 		}
-		if result["respuesta"+val] == float64(0) {
-			points.Solucion["pregunta"+val] = "Incorrecto"
+		if result["id_respuesta"+val] == float64(0) {
+			points.Resultado["pregunta"+val] = "No contestada"
+			points.Solucion["pregunta"+val] = respuesta.ID
 			incorrect++
 		}
-		respuesta.ID = 0
+		// respuesta.ID = 0
 	}
 	points.Correct = correct
 	points.Incorrect = incorrect

@@ -11,5 +11,6 @@ type Result struct {
 	Correct   int               `json:"correct"`
 	Incorrect int               `json:"incorrect"`
 	Nota      float64           `json:"nota"`
-	Solucion  map[string]string `json:"solucion"`
+	Resultado map[string]string `json:"Resultado"`
+	Solucion  map[string]uint   `json:"Solucion"`
 }
