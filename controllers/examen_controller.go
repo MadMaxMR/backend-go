@@ -68,7 +68,7 @@ func SavePreguntaResp(w http.ResponseWriter, req *http.Request) {
 }
 
 func GetPoints(w http.ResponseWriter, req *http.Request) {
-	points := modelos.Result{}
+	points := modelos.Result{Solucion: make(map[string]string)}
 	result := map[string]interface{}{}
 	//id := mux.Vars(req)["id"]
 	db := database.GetConnection()
@@ -85,10 +85,15 @@ func GetPoints(w http.ResponseWriter, req *http.Request) {
 
 		if result["respuesta"+val] != float64(0) {
 			if result["respuesta"+val] == float64(respuesta.ID) {
+				points.Solucion["pregunta"+val] = "Correcto"
 				correct++
+			} else {
+				points.Solucion["pregunta"+val] = "Incorrecto"
+				incorrect++
 			}
 		}
-		if result["respuesta"+val] == float64(0) || result["respuesta"+val] != float64(respuesta.ID) {
+		if result["respuesta"+val] == float64(0) {
+			points.Solucion["pregunta"+val] = "Incorrecto"
 			incorrect++
 		}
 		respuesta.ID = 0
