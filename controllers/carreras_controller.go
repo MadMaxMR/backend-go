@@ -43,7 +43,7 @@ func GetCarreraByArea(w http.ResponseWriter, req *http.Request) {
 	db := database.GetConnection()
 	defer db.Close()
 
-	result := db.Debug().Where("cod_area = ?", id).Find(&carreras)
+	result := db.Where("cod_area = ?", id).Find(&carreras)
 	if result.Error != nil {
 		handler.SendFail(w, req, http.StatusBadRequest, result.Error.Error())
 		return
