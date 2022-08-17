@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	//"fmt"
+	"fmt"
 
 	"net/http"
 	"strconv"
@@ -70,6 +70,7 @@ func SavePreguntaResp(w http.ResponseWriter, req *http.Request) {
 func GetPoints(w http.ResponseWriter, req *http.Request) {
 	points := modelos.Result{Resultado: make(map[string]string), Solucion: make(map[string]uint)}
 	result := map[string]interface{}{}
+	var answers string
 
 	db := database.GetConnection()
 	defer db.Close()
@@ -84,7 +85,7 @@ func GetPoints(w http.ResponseWriter, req *http.Request) {
 		respuesta := modelos.RespuestaExs{}
 		val := strconv.Itoa(i)
 		db.Model(&respuesta).Where("pregunta_examens_id = ? and valor = 'true'", result["id_pregunta"+val+""]).Find(&respuesta)
-
+		answers += strconv.Itoa(int(respuesta.ID)) + "-"
 		if result["id_respuesta"+val] != float64(0) {
 			if result["id_respuesta"+val] == float64(respuesta.ID) {
 				points.Resultado["pregunta"+val] = "Correcto"
@@ -106,5 +107,12 @@ func GetPoints(w http.ResponseWriter, req *http.Request) {
 	points.Correct = correct
 	points.Incorrect = incorrect
 	points.Nota = float64(correct) / float64(correct+incorrect)
+	fmt.Println(answers)
 	handler.SendSuccess(w, req, http.StatusOK, points)
 }
+
+// a := "10-15-119-5-8-10-55-"
+// 	cadena := strings.Split(a, "-")
+// 	for i := 0; i < len(cadena)-1; i++ {
+// 		fmt.Print("\n valor ", i, ":", cadena[i])
+// 	}

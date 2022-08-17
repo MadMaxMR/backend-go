@@ -14,3 +14,13 @@ type Result struct {
 	Resultado map[string]string `json:"Resultado"`
 	Solucion  map[string]uint   `json:"Solucion"`
 }
+
+type ExamenEstudiante struct {
+	ID         uint    `json:"id" gorm:"primary_key;auto_increment"`
+	UsuariosId uint    `json:"estudiante_id" gorm:"type:int REFERENCES usuarios(id) "`
+	ExamenId   uint    `json:"examen_id" gorm:"type:int REFERENCES examens(id) "`
+	Fecha      string  `json:"fecha" gorm:"type:varchar(250)"`
+	Nota       float64 `json:"nota" gorm:"type:float"`
+	Resultado  string  `json:"resultado" gorm:"type:varchar(250)"`
+	Solucion   string  `json:"solucion" gorm:"type:varchar(250)"`
+}
