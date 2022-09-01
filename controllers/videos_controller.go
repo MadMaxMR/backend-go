@@ -71,7 +71,7 @@ func GetVideoBySubTema(w http.ResponseWriter, req *http.Request) {
 	id := mux.Vars(req)["id"]
 	db := database.GetConnection()
 	defer db.Close()
-	result := db.Where("sub_temas_id", id).Find(&videos)
+	result := db.Where("sub_temas_id = ?", id).Find(&videos)
 	if result.RowsAffected == 0 {
 		handler.SendFail(w, req, http.StatusBadRequest, "No se encontró videos para el subtema : "+id)
 		return
