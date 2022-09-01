@@ -5,6 +5,6 @@ type Temas struct {
 	Id_Curso     uint           `json:"id_curso" gorm:"type:int REFERENCES cursos(id)"`
 	Nombre_Tema  string         `json:"nombre_tema" gorm:"type:varchar(250);not null"`
 	Recurrencia  float64        `json:"recurrencia" gorm:"type:float"`
-	Videos       []Videos       `json:"videos"`
+	SubTemas     []SubTemas     `json:"sub_temas"`
 	Evaluaciones []Evaluaciones `json:"evaluaciones"`
 }

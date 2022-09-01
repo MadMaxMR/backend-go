@@ -10,4 +10,5 @@ type Videos struct {
 	Finished     bool   `json:"finished" gorm:"type:boolean;default:false"`
 	Nivel        int    `json:"nivel" gorm:"type:int"`
 	SubTemasId   uint   `json:"subtemas_id" gorm:"type:int REFERENCES sub_temas(id)"`
+	ImgLink      string `json:"img_link" gorm:"type:varchar(250);default:'https://res.cloudinary.com/umachayfiles/image/upload/v1651179392/user/user-1.jpg'"`
 }

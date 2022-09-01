@@ -99,7 +99,7 @@ func GetTemaByCurso(w http.ResponseWriter, req *http.Request) {
 	handler.SendSuccess(w, req, http.StatusOK, temas)
 }
 
-//GetTemasVideos retorna todos los temas de un curso incluido todos los videos y evaluaciones pertenecientes a los temas
+//GetTemasVideos retorna todos los temas de un curso(parametro) incluido todos los videos y evaluaciones pertenecientes a los temas
 func GetTemasVideos(w http.ResponseWriter, req *http.Request) {
 	temas := []modelos.Temas{}
 	curso := modelos.Cursos{}
@@ -114,9 +114,11 @@ func GetTemasVideos(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	result := db.Model(&temas).Where("id_curso = ?", id).Preload("Videos", func(db *gorm.DB) *gorm.DB {
-		return db.Order("Videos.titulo ASC")
-	}).Preload("Evaluaciones").Find(&temas)
+	result := db.Model(&temas).Where("id_curso = ?", id).Preload("SubTemas", func(db *gorm.DB) *gorm.DB {
+		return db.Order("sub_temas.nivel ASC")
+	}).Preload("Evaluaciones").Preload("SubTemas.Videos", func(db *gorm.DB) *gorm.DB {
+		return db.Order("videos.titulo ASC")
+	}).Find(&temas)
 
 	if result.RowsAffected == 0 {
 		handler.SendFail(w, req, http.StatusInternalServerError, "No se encontró temas para el curso: "+curso.Nombre_Curso)
