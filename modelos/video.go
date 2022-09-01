@@ -9,4 +9,5 @@ type Videos struct {
 	Link         string `json:"link" gorm:"type:varchar(250);not null"`
 	Finished     bool   `json:"finished" gorm:"type:boolean;default:false"`
 	Nivel        int    `json:"nivel" gorm:"type:int"`
+	SubTemasId   uint   `json:"subtemas_id" gorm:"type:int REFERENCES sub_temas(id)"`
 }
