@@ -312,3 +312,45 @@ func UpdateAvatar(w http.ResponseWriter, req *http.Request) {
 	}
 	handler.SendSuccessMessage(w, req, http.StatusOK, "Borrado de imagen correcta")
 }
+
+func ChangePassword(w http.ResponseWriter, req *http.Request) {
+	ChangePassword := modelos.ChangePassword{}
+	usuario := modelos.Usuarios{}
+
+	tk, _, _, err := auth.ValidateToken(req.Header.Get("Authorization"))
+	if err != nil {
+		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	err = auth.ValidateBody(req, &ChangePassword)
+	if err != nil {
+		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	if ChangePassword.Currentpassword == "" || ChangePassword.Newpassword == "" {
+		handler.SendFail(w, req, http.StatusBadRequest, "Ingrese una contraseña valida")
+		return
+	}
+
+	_, err = database.Get(&usuario, tk.Id_Usuario)
+	if err != nil {
+		handler.SendFail(w, req, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	err = modelos.VerifyPassword(usuario.Password, ChangePassword.Currentpassword)
+	if err != nil {
+		handler.SendFail(w, req, http.StatusBadRequest, "contraseña actual incorrecta")
+		return
+	}
+
+	usuario.Password = modelos.BeforeSave(ChangePassword.Newpassword)
+	_, err = database.Update(&usuario, tk.Id_Usuario)
+	if err != nil {
+		handler.SendFail(w, req, http.StatusBadRequest, "Contraseña no actualizada")
+		return
+	}
+	handler.SendSuccessMessage(w, req, http.StatusOK, "Contraseña cambiada con éxito")
+}

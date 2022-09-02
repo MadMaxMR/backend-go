@@ -23,6 +23,10 @@ type Usuarios struct {
 	Fecha_Registro   time.Time      `json:"fecha_registro" gorm:"type:timestamp;default:current_timestamp"`
 	Last_Login       time.Time      `json:"last_login" gorm:"type:timestamp"`
 }
+type ChangePassword struct {
+	Currentpassword string
+	Newpassword     string
+}
 type ImageUpdate struct {
 	Image string `json:"image"`
 }
