@@ -9,4 +9,6 @@ type HistorialExamens struct {
 	Nota_Max       float64        `json:"nota_max" gorm:"type:float"`
 	Nota_Min       float64        `json:"nota_min" gorm:"type:float"`
 	Nota_Tentativa float64        `json:"nota_tentativa" gorm:"type:float"`
+	Respuestas     string         `json:"respuestas"`
+	Solucion       string         `json:"solucion"`
 }

@@ -70,7 +70,7 @@ func SavePreguntaResp(w http.ResponseWriter, req *http.Request) {
 func GetPoints(w http.ResponseWriter, req *http.Request) {
 	points := modelos.Result{Resultado: make(map[string]string), Solucion: make(map[string]uint)}
 	result := map[string]interface{}{}
-	var answers string
+	var solution, answers string
 
 	db := database.GetConnection()
 	defer db.Close()
@@ -84,8 +84,9 @@ func GetPoints(w http.ResponseWriter, req *http.Request) {
 	for i := 1; i < (len(result)/2 + 1); i++ {
 		respuesta := modelos.RespuestaExs{}
 		val := strconv.Itoa(i)
-		db.Model(&respuesta).Where("pregunta_examens_id = ? and valor = 'true'", result["id_pregunta"+val+""]).Find(&respuesta)
-		answers += strconv.Itoa(int(respuesta.ID)) + "-"
+		db.Model(&respuesta).Where("pregunta_examens_id = ? and valor = 'true'", result["id_pregunta"+val]).Find(&respuesta)
+		solution += strconv.Itoa(int(respuesta.ID)) + "-"
+		answers += fmt.Sprintf("%v", result["id_respuesta"+val]) + "-"
 		if result["id_respuesta"+val] != float64(0) {
 			if result["id_respuesta"+val] == float64(respuesta.ID) {
 				points.Resultado["pregunta"+val] = "Correcto"
@@ -107,7 +108,8 @@ func GetPoints(w http.ResponseWriter, req *http.Request) {
 	points.Correct = correct
 	points.Incorrect = incorrect
 	points.Nota = float64(correct) / float64(correct+incorrect)
-	fmt.Println(answers)
+	fmt.Println("answers: ", answers)
+	fmt.Println("solution: ", solution)
 	handler.SendSuccess(w, req, http.StatusOK, points)
 }
 
