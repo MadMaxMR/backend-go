@@ -14,6 +14,27 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+//SaveExamens controller para crear y guardar un nuevo examen
+func SaveExamens(w http.ResponseWriter, req *http.Request) {
+	examen := modelos.Examens{}
+	err := auth.ValidateBody(req, &examen)
+	if err != nil {
+		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
+		return
+	}
+	err = auth.ValidateExamen(&examen)
+	if err != nil {
+		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
+		return
+	}
+	_, err = database.Create(&examen)
+	if err != nil {
+		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
+		return
+	}
+	handler.SendSuccess(w, req, http.StatusCreated, examen)
+}
+
 func GetAllExamens(w http.ResponseWriter, req *http.Request) {
 	examen := []modelos.Examens{}
 	page := req.URL.Query().Get("page")
@@ -32,6 +53,17 @@ func GetExamen(w http.ResponseWriter, req *http.Request) {
 		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
 	}
 	handler.SendSuccess(w, req, http.StatusOK, modelo)
+}
+
+func DeleteExamen(w http.ResponseWriter, req *http.Request) {
+	examen := modelos.Examens{}
+	id := mux.Vars(req)["id"]
+	message, err := database.Delete(&examen, id)
+	if err != nil {
+		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
+		return
+	}
+	handler.SendSuccessMessage(w, req, http.StatusOK, message)
 }
 
 //GetExamensPregByArea retorna todos los examenes de un area con sus preguntas y alternativas
@@ -59,10 +91,12 @@ func SavePreguntaResp(w http.ResponseWriter, req *http.Request) {
 	err := auth.ValidateBody(req, &pregunta)
 	if err != nil {
 		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
+		return
 	}
 	modelo, err := database.Create(&pregunta)
 	if err != nil {
 		handler.SendFail(w, req, http.StatusInternalServerError, err.Error())
+		return
 	}
 	handler.SendSuccess(w, req, http.StatusOK, modelo)
 }

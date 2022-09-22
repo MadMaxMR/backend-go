@@ -158,3 +158,16 @@ func ValidateEvaluaciones(eval *modelos.Evaluaciones) error {
 	}
 	return nil
 }
+
+func ValidateExamen(examen *modelos.Examens) error {
+	if examen.Id_Uni == "" {
+		return errors.New("required field 'id_uni'")
+	}
+	if examen.AreasId == "" {
+		return errors.New("required field 'id_area'")
+	}
+	if examen.Descripcion == "" {
+		return errors.New("required field 'descripcion'")
+	}
+	return nil
+}
