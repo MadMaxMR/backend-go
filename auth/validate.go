@@ -171,3 +171,10 @@ func ValidateExamen(examen *modelos.Examens) error {
 	}
 	return nil
 }
+
+func ValidatePreguntaExamen(pregunta *modelos.PreguntaExamens) error {
+	if pregunta.Enunciado1 == "" {
+		return errors.New("required field 'enunciado1'")
+	}
+	return nil
+}
