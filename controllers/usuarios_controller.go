@@ -161,18 +161,18 @@ func SignIn(email string, password string) (string, uint, error) {
 	err = db.Where("email = ?", email).Find(&usuario).Error
 
 	if err != nil {
-		err = errors.New("email incorrecto")
+		err = errors.New("credenciales incorrectas")
 		return "", 0, err
 	}
 	err = modelos.VerifyPassword(usuario.Password, password)
 	if err != nil && err == bcrypt.ErrMismatchedHashAndPassword {
-		err = errors.New("contraseña incorrecta")
+		err = errors.New("credenciales incorrectas")
 		return "", 0, err
 	}
 	Last_Login := time.Now()
 	db.Model(&usuario).Update("last_login", Last_Login)
 
-	jwtKey, err := auth.CreateToken(usuario.ID)
+	jwtKey, err := auth.CreateToken(usuario.ID, usuario.UserTipeID)
 	return jwtKey, usuario.ID, err
 }
 

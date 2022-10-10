@@ -8,8 +8,8 @@ import (
 )
 
 type Usuarios struct {
-	ID uint `json:"id" gorm:"primary_key;auto_increment"`
-	//Id_Perfil        uint           `json:"id_perfil" gorm:"type:int REFERENCES perfil_usuarios(id)"`
+	ID               uint           `json:"id" gorm:"primary_key;auto_increment"`
+	UserTipeID       string         `json:"tipe_user" gorm:"type:varchar(10) REFERENCES user_tipes(id);default:'student'"`
 	Password         string         `json:"password" gorm:"type:varchar(250);not null"`
 	Nombres          string         `json:"nombres" gorm:"type:varchar(250);not null"`
 	Apellidos        string         `json:"apellidos" gorm:"type:varchar(250);not null"`

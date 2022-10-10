@@ -8,7 +8,6 @@ type PreguntaExamens struct {
 	Enunciado2   string         `json:"enunciado2" gorm:"type:varchar(250)"`
 	Enunciado3   string         `json:"enunciado3" gorm:"type:varchar(250)"`
 	NumQuestion  uint           `json:"num_question" gorm:"type:int"`
-	Ponderacion  int            `json:"ponderacion" gorm:"type:int"`
 	CursosId     uint           `json:"curso_id" gorm:"type:int REFERENCES cursos(id)"`
 	RespuestaExs []RespuestaExs `json:"respuesta"`
 }

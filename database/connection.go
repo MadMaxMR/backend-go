@@ -33,5 +33,5 @@ func Migrate() {
 		&modelos.Mensajes{}, &modelos.Publicacions{}, &modelos.Temas{}, &modelos.SubTemas{}, &modelos.Videos{}, &modelos.Evaluaciones{}, &modelos.Preguntas{},
 		&modelos.Respuestas{}, &modelos.Carreras{}, &modelos.Examens{},
 		&modelos.HistorialExamens{}, &modelos.PreguntaExamens{}, &modelos.RespuestaExs{}, &modelos.Ebooks{}, &modelos.Clases{},
-		&modelos.Horarios{}, &modelos.Resolucions{}, &modelos.Archivos{}, &modelos.Ponderacion{})
+		&modelos.Horarios{}, &modelos.Resolucions{}, &modelos.Archivos{}, &modelos.Ponderacion{}, &modelos.UserTipe{})
 }

@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"fmt"
+	"math"
 
 	"net/http"
 	"strconv"
@@ -108,7 +109,7 @@ func GetPoints(w http.ResponseWriter, req *http.Request) {
 
 	db := database.GetConnection()
 	defer db.Close()
-	correct, incorrect := 0, 0
+	correct, incorrect, note := 0, 0, 0.0
 
 	err := auth.ValidateBody(req, &result)
 	if err != nil {
@@ -117,14 +118,25 @@ func GetPoints(w http.ResponseWriter, req *http.Request) {
 
 	for i := 1; i < (len(result)/2 + 1); i++ {
 		respuesta := modelos.RespuestaExs{}
+		ponderado := modelos.Ponderacion{}
+		pregunta := modelos.PreguntaExamens{}
+		examen := modelos.Examens{}
 		val := strconv.Itoa(i)
-		db.Model(&respuesta).Where("pregunta_examens_id = ? and valor = 'true'", result["id_pregunta"+val]).Find(&respuesta)
+		rest := db.Model(&respuesta).Where("pregunta_examens_id = ? and valor = 'true'", result["id_pregunta"+val]).Find(&respuesta)
+		if rest.RowsAffected == 0 {
+			handler.SendFail(w, req, http.StatusBadRequest, "No hay alternativa correcta")
+			return
+		}
 		solution += strconv.Itoa(int(respuesta.ID)) + "-"
 		answers += fmt.Sprintf("%v", result["id_respuesta"+val]) + "-"
 		if result["id_respuesta"+val] != float64(0) {
 			if result["id_respuesta"+val] == float64(respuesta.ID) {
+				db.Model(&pregunta).Where("id = ? ", result["id_pregunta"+val]).Find(&pregunta)
+				db.Model(&examen).Where("id = ? ", pregunta.ExamensId).Find(&examen)
+				db.Model(&ponderado).Where("cursos_id = ? and cod_area = ?", pregunta.CursosId, examen.AreasId).Find(&ponderado)
 				points.Resultado["pregunta"+val] = "Correcto"
 				points.Solucion["pregunta"+val] = respuesta.ID
+				note = note + ponderado.Ponderacion
 				correct++
 			} else {
 				points.Resultado["pregunta"+val] = "Incorrecto"
@@ -141,9 +153,10 @@ func GetPoints(w http.ResponseWriter, req *http.Request) {
 	}
 	points.Correct = correct
 	points.Incorrect = incorrect
-	points.Nota = float64(correct) / float64(correct+incorrect)
+	points.Nota = math.Round(((note*20)/50)*100) / 100
 	fmt.Println("answers: ", answers)
 	fmt.Println("solution: ", solution)
+	fmt.Println("Nota general", note)
 	handler.SendSuccess(w, req, http.StatusOK, points)
 }
 
