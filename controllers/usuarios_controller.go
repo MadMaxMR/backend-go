@@ -148,7 +148,7 @@ func Login(w http.ResponseWriter, req *http.Request) {
 	data := auth.Token{
 		Id_Usuario: valid_id,
 		Token:      jwtKey,
-		UserType:   userType,
+		UserTipe:   userType,
 	}
 	handler.SendSuccess(w, req, http.StatusOK, data)
 }

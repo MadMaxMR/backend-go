@@ -14,7 +14,7 @@ func ValidAdmin(next http.HandlerFunc) http.HandlerFunc {
 			handler.SendFail(w, req, http.StatusUnauthorized, "Error en el Token !"+err.Error())
 			return
 		}
-		if tk.UserType != "admin" {
+		if tk.UserTipe != "admin" {
 			handler.SendFail(w, req, http.StatusUnauthorized, "Unauthorized !! "+err.Error())
 			return
 		}
