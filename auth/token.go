@@ -25,9 +25,9 @@ type Claim struct {
 var IDUsuario uint
 var Authorized bool
 
-func CreateToken(id_usuario uint, tipeUser string) (string, error) {
+func CreateToken(id_usuario uint, typeUser string) (string, error) {
 	claims := jwt.MapClaims{}
-	claims["userType"] = tipeUser
+	claims["userType"] = typeUser
 	claims["authorized"] = true
 	claims["user_id"] = id_usuario
 	claims["exp"] = time.Now().Add(time.Hour * 24).Unix()
