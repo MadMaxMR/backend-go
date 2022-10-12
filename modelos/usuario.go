@@ -9,7 +9,7 @@ import (
 
 type Usuarios struct {
 	ID               uint           `json:"id" gorm:"primary_key;auto_increment"`
-	UserTipeID       string         `json:"tipe_user" gorm:"type:varchar(10) REFERENCES user_tipes(id);default:'student'"`
+	UserTipeID       string         `json:"type_user" gorm:"type:varchar(10) REFERENCES user_tipes(id);default:'student'"`
 	Password         string         `json:"password" gorm:"type:varchar(250);not null"`
 	Nombres          string         `json:"nombres" gorm:"type:varchar(250);not null"`
 	Apellidos        string         `json:"apellidos" gorm:"type:varchar(250);not null"`
