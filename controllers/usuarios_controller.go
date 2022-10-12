@@ -137,7 +137,7 @@ func Login(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	jwtKey, valid_id, userTipe, err := SignIn(usuario.Email, usuario.Password)
+	jwtKey, valid_id, userType, err := SignIn(usuario.Email, usuario.Password)
 
 	if err != nil {
 		//log.Fatal(err)
@@ -148,7 +148,7 @@ func Login(w http.ResponseWriter, req *http.Request) {
 	data := auth.Token{
 		Id_Usuario: valid_id,
 		Token:      jwtKey,
-		UserTipe:   userTipe,
+		UserType:   userType,
 	}
 	handler.SendSuccess(w, req, http.StatusOK, data)
 }

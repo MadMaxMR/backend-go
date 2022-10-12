@@ -13,12 +13,12 @@ import (
 type Token struct {
 	Id_Usuario uint   `json:"id" `
 	Token      string `json:"token"`
-	UserTipe   string `json:"user_tipe"`
+	UserType   string `json:"user_type"`
 }
 type Claim struct {
 	Id_Usuario string `json:"id"`
 	Authorized bool   `json:"authorized"`
-	UserTipe   string `json:"userTipe"`
+	UserType   string `json:"userType"`
 	jwt.StandardClaims
 }
 
@@ -27,7 +27,7 @@ var Authorized bool
 
 func CreateToken(id_usuario uint, tipeUser string) (string, error) {
 	claims := jwt.MapClaims{}
-	claims["userTipe"] = tipeUser
+	claims["userType"] = tipeUser
 	claims["authorized"] = true
 	claims["user_id"] = id_usuario
 	claims["exp"] = time.Now().Add(time.Hour * 24).Unix()
@@ -68,7 +68,7 @@ func ValidateToken(tk string) (*Claim, bool, string, error) {
 	if ok && tkn.Valid {
 		claims.Id_Usuario = strconv.FormatUint(uint64(uint(claim["user_id"].(float64))), 10)
 		claims.Authorized = claim["authorized"].(bool)
-		claims.UserTipe = claim["userTipe"].(string)
+		claims.UserType = claim["userType"].(string)
 		return claims, true, claims.Id_Usuario, nil
 	}
 	return claims, false, string(""), errors.New("token invalido")
