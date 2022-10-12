@@ -16,6 +16,7 @@ func ValidAdmin(next http.HandlerFunc) http.HandlerFunc {
 		}
 		if tk.UserTipe != "admin" {
 			handler.SendFail(w, req, http.StatusUnauthorized, "Unauthorized !! "+err.Error())
+			return
 		}
 		next.ServeHTTP(w, req)
 	}

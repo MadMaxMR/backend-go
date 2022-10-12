@@ -137,7 +137,7 @@ func Login(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	jwtKey, valid_id, err := SignIn(usuario.Email, usuario.Password)
+	jwtKey, valid_id, userTipe, err := SignIn(usuario.Email, usuario.Password)
 
 	if err != nil {
 		//log.Fatal(err)
@@ -148,11 +148,12 @@ func Login(w http.ResponseWriter, req *http.Request) {
 	data := auth.Token{
 		Id_Usuario: valid_id,
 		Token:      jwtKey,
+		UserTipe:   userTipe,
 	}
 	handler.SendSuccess(w, req, http.StatusOK, data)
 }
 
-func SignIn(email string, password string) (string, uint, error) {
+func SignIn(email string, password string) (string, uint, string, error) {
 	var err error
 	usuario := modelos.Usuarios{}
 	db := database.GetConnection()
@@ -162,18 +163,18 @@ func SignIn(email string, password string) (string, uint, error) {
 
 	if err != nil {
 		err = errors.New("credenciales incorrectas")
-		return "", 0, err
+		return "", 0, "", err
 	}
 	err = modelos.VerifyPassword(usuario.Password, password)
 	if err != nil && err == bcrypt.ErrMismatchedHashAndPassword {
 		err = errors.New("credenciales incorrectas")
-		return "", 0, err
+		return "", 0, "", err
 	}
 	Last_Login := time.Now()
 	db.Model(&usuario).Update("last_login", Last_Login)
 
 	jwtKey, err := auth.CreateToken(usuario.ID, usuario.UserTipeID)
-	return jwtKey, usuario.ID, err
+	return jwtKey, usuario.ID, usuario.UserTipeID, err
 }
 
 func UpdateAvatar1(w http.ResponseWriter, req *http.Request) {
