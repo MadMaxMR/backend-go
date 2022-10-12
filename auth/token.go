@@ -13,7 +13,7 @@ import (
 type Token struct {
 	Id_Usuario uint   `json:"id" `
 	Token      string `json:"token"`
-	UserTipe   string `json:"user_tipe"`
+	UserTipe   string `json:"user_type"`
 }
 type Claim struct {
 	Id_Usuario string `json:"id"`
