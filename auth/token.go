@@ -68,7 +68,7 @@ func ValidateToken(tk string) (*Claim, bool, string, error) {
 	if ok && tkn.Valid {
 		claims.Id_Usuario = strconv.FormatUint(uint64(uint(claim["user_id"].(float64))), 10)
 		claims.Authorized = claim["authorized"].(bool)
-		claims.UserTipe = claim["user_tipe"].(string)
+		claims.UserTipe = claim["userTipe"].(string)
 		return claims, true, claims.Id_Usuario, nil
 	}
 	return claims, false, string(""), errors.New("token invalido")
