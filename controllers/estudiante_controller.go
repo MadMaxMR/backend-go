@@ -33,7 +33,7 @@ func GetStudent(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	if tk.Id_Usuario != id {
-		handler.SendFail(w, req, http.StatusBadRequest, "Unauthorized")
+		handler.SendFail(w, req, http.StatusUnauthorized, "Unauthorized")
 		return
 	}
 	err = db.Where("usuarios_id = ?", id).First(&student).Error
