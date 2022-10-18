@@ -49,11 +49,20 @@ func GetAllExamens(w http.ResponseWriter, req *http.Request) {
 func GetExamenById(w http.ResponseWriter, req *http.Request) {
 	examen := modelos.Examens{}
 	id := mux.Vars(req)["id"]
-	modelo, err := database.Get(&examen, id)
-	if err != nil {
-		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
+
+	db := database.GetConnection()
+	defer db.Close()
+
+	result := db.Model(&examen).Where("areas_id = ?", id).Preload("PreguntaExamens", func(db *gorm.DB) *gorm.DB {
+		return db.Order("pregunta_examens.id ASC")
+	}).Preload("PreguntaExamens.RespuestaExs", func(db *gorm.DB) *gorm.DB {
+		return db.Order("respuesta_exs.id ASC")
+	}).Find(&examen)
+	if result.RowsAffected == 0 {
+		handler.SendFail(w, req, http.StatusBadRequest, "No se encontró examenes con el id: "+id)
+		return
 	}
-	handler.SendSuccess(w, req, http.StatusOK, modelo)
+	handler.SendSuccess(w, req, http.StatusOK, examen)
 }
 
 func DeleteExamen(w http.ResponseWriter, req *http.Request) {
