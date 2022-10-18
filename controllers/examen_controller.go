@@ -53,7 +53,7 @@ func GetExamenById(w http.ResponseWriter, req *http.Request) {
 	db := database.GetConnection()
 	defer db.Close()
 
-	result := db.Model(&examen).Where("areas_id = ?", id).Preload("PreguntaExamens", func(db *gorm.DB) *gorm.DB {
+	result := db.Model(&examen).Where("id = ?", id).Preload("PreguntaExamens", func(db *gorm.DB) *gorm.DB {
 		return db.Order("pregunta_examens.id ASC")
 	}).Preload("PreguntaExamens.RespuestaExs", func(db *gorm.DB) *gorm.DB {
 		return db.Order("respuesta_exs.id ASC")
