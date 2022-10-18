@@ -46,7 +46,7 @@ func GetAllExamens(w http.ResponseWriter, req *http.Request) {
 	handler.SendSuccess(w, req, http.StatusOK, modelo)
 }
 
-func GetExamen(w http.ResponseWriter, req *http.Request) {
+func GetExamenById(w http.ResponseWriter, req *http.Request) {
 	examen := modelos.Examens{}
 	id := mux.Vars(req)["id"]
 	modelo, err := database.Get(&examen, id)
