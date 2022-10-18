@@ -15,7 +15,7 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-//SaveExamens controller para crear y guardar un nuevo examen
+//SaveExamens controller para crear y guardar un nuevo examen con preguntas y respuestas
 func SaveExamens(w http.ResponseWriter, req *http.Request) {
 	examen := modelos.Examens{}
 	err := auth.ValidateBody(req, &examen)
@@ -63,6 +63,18 @@ func GetExamenById(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	handler.SendSuccess(w, req, http.StatusOK, examen)
+}
+
+func UpdateExamen(w http.ResponseWriter, req *http.Request) {
+	examen := modelos.Examens{}
+	id := mux.Vars(req)["id"]
+
+	_, err := database.Update(&examen, id)
+	if err != nil {
+		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
+		return
+	}
+	handler.SendSuccessMessage(w, req, http.StatusOK, "Examen actualizado correctamente")
 }
 
 func DeleteExamen(w http.ResponseWriter, req *http.Request) {
