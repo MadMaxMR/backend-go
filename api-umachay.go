@@ -30,6 +30,7 @@ func main() {
 	routes.SetVideosRoutes(router)
 	routes.SetEvalsRoutes(router)
 	routes.SetExamenRoutes(router)
+	routes.SetImageRoute(router)
 	if serverPort == "" {
 		serverPort = defaultPort
 	}
