@@ -3,10 +3,12 @@ package controllers
 import (
 	"context"
 	"fmt"
+	//"io/ioutil"
 	"mime/multipart"
 	"net/http"
 
 	"github.com/MadMaxMR/backend-go/handler"
+	//"github.com/MadMaxMR/backend-go/modelos"
 	"github.com/cloudinary/cloudinary-go"
 	"github.com/cloudinary/cloudinary-go/api/uploader"
 
@@ -14,12 +16,24 @@ import (
 )
 
 func UploadImages(w http.ResponseWriter, req *http.Request) {
-	file, _, err := req.FormFile("image")
+	err := req.ParseMultipartForm(32 << 20)
+	if err != nil {
+		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	pregunta := req.Form
+
+	fmt.Println("la pregunta impresa es :", pregunta)
+	fmt.Println("tipo de dato pregunta : ", reflect.TypeOf(pregunta))
+
+	file, hand, err := req.FormFile("image")
 	if err != nil {
 		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
 		return
 	}
 	fmt.Println("tipo de archivo : ", reflect.TypeOf(file))
+	fmt.Println("nombre del archivo : ", hand.Filename)
 	fmt.Println("/********************************************/*")
 }
 
