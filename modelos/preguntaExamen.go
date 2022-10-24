@@ -9,5 +9,5 @@ type PreguntaExamens struct {
 	Enunciado3   string         `json:"enunciado3" gorm:"type:varchar(250)"`
 	NumQuestion  uint           `json:"num_question" gorm:"type:int"`
 	CursosId     uint           `json:"curso_id" gorm:"type:int REFERENCES cursos(id)"`
-	RespuestaExs []RespuestaExs `json:"respuesta"`
+	RespuestaExs []RespuestaExs `json:"respuesta" form:"respuestas"`
 }

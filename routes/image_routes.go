@@ -10,6 +10,5 @@ func SetImageRoute(router *mux.Router) {
 	subRoute := router.PathPrefix("/").Subrouter()
 
 	subRoute.HandleFunc("/upimage", controllers.UploadImages).Methods("POST")
-	subRoute.HandleFunc("/upimage64", controllers.UpImage64).Methods("GET")
 
 }
