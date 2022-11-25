@@ -176,5 +176,8 @@ func ValidatePreguntaExamen(pregunta *modelos.PreguntaExamens) error {
 	if pregunta.Enunciado1 == "" {
 		return errors.New("required field 'enunciado1'")
 	}
+	if pregunta.RespuestaExs[0].Respuesta == "" {
+		return errors.New("required field 'respuestasExs.Respuesta'")
+	}
 	return nil
 }
