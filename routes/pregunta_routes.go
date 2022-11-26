@@ -11,5 +11,5 @@ func SetPreguntasRoutes(router *mux.Router) {
 
 	subRoute.HandleFunc("/guardarPreguntas", controllers.SavePreguntasRespuestas).Methods("POST")
 	subRoute.HandleFunc("/allPreguntas", controllers.GetAllPreguntas).Methods("GET")
-
+	subRoute.HandleFunc("/preguntaCursoTema/{id}", controllers.GetPreguntasCursoTema).Methods("GET")
 }

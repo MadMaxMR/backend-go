@@ -7,6 +7,7 @@ import (
 	"github.com/MadMaxMR/backend-go/database"
 	"github.com/MadMaxMR/backend-go/handler"
 	"github.com/MadMaxMR/backend-go/modelos"
+	"github.com/gorilla/mux"
 )
 
 func SavePreguntasRespuestas(w http.ResponseWriter, req *http.Request) {
@@ -104,6 +105,37 @@ func GetAllPreguntas(w http.ResponseWriter, req *http.Request) {
 	resultQ := db.Model(&preguntas).Select("DISTINCT pregunta_examens.id,pregunta_examens.enunciado1, cursos.nombre_curso,temas.nombre_tema").
 		Joins("LEFT JOIN temas on pregunta_examens.temas_id = temas.id").
 		Joins("LEFT JOIN cursos on pregunta_examens.cursos_id = cursos.id").
+		Limit(25).Offset((pageInt - 1) * 25).Order("id ASC").Scan(&result)
+	if resultQ.RowsAffected == 0 {
+		handler.SendFail(w, req, http.StatusBadRequest, "No se encontró preguntas")
+		return
+	}
+	handler.SendSuccess(w, req, http.StatusOK, result)
+}
+
+func GetPreguntasCursoTema(w http.ResponseWriter, req *http.Request) {
+	preguntas := modelos.PreguntaExamens{}
+	id := mux.Vars(req)["id"]
+	page := req.URL.Query().Get("page")
+	if page == "" {
+		page = "1"
+	}
+	pageInt, _ := strconv.Atoi(page)
+	type Result struct {
+		Id           uint
+		Enunciado1   string
+		Nombre_curso string
+		Nombre_tema  string
+	}
+	result := []Result{}
+
+	db := database.GetConnection()
+	defer db.Close()
+
+	resultQ := db.Model(&preguntas).Select("DISTINCT pregunta_examens.id,pregunta_examens.enunciado1, cursos.nombre_curso,temas.nombre_tema").
+		Joins("LEFT JOIN temas on pregunta_examens.temas_id = temas.id").
+		Joins("LEFT JOIN cursos on pregunta_examens.cursos_id = cursos.id").
+		Where("temas.id  = ?", id).
 		Limit(25).Offset((pageInt - 1) * 25).Order("id ASC").Scan(&result)
 	if resultQ.RowsAffected == 0 {
 		handler.SendFail(w, req, http.StatusBadRequest, "No se encontró preguntas")
