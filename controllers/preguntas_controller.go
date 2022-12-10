@@ -143,3 +143,19 @@ func GetPreguntasCursoTema(w http.ResponseWriter, req *http.Request) {
 	}
 	handler.SendSuccess(w, req, http.StatusOK, result)
 }
+
+func GetPregunta(w http.ResponseWriter, req *http.Request) {
+	preguntas := modelos.PreguntaExamens{}
+	id := mux.Vars(req)["id"]
+
+	db := database.GetConnection()
+	defer db.Close()
+
+	result := db.Model(&preguntas).Where("id = ?", id).Preload("RespuestaExs").Find(&preguntas)
+
+	if result.RowsAffected == 0 {
+		handler.SendFail(w, req, http.StatusBadRequest, "No se encontró pregunta con el id: "+id)
+		return
+	}
+	handler.SendSuccess(w, req, http.StatusOK, preguntas)
+}

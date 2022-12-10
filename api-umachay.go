@@ -38,7 +38,7 @@ func main() {
 		Addr:    ":" + serverPort,
 		Handler: cors.AllowAll().Handler(router),
 	}
-	log.Printf("Starting")
+	log.Printf("Starting on PORT: " + serverPort)
 	log.Fatal(server.ListenAndServe())
 
 }
