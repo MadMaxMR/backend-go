@@ -9,7 +9,7 @@ import (
 	_ "github.com/lib/pq"
 )
 
-func GetConnection() *gorm.DB {
+func initConnection() *gorm.DB {
 	/*Coneccion con ElephantSQL*/
 	//connStr := "postgres://arwpboxu:qP449bZjdC9jEpih47th8Hn21yi2Aj6h@motty.db.elephantsql.com/arwpboxu"
 	/*Coneccion con Heroku*/
@@ -30,8 +30,13 @@ func Migrate() {
 	db.AutoMigrate(&modelos.Modulos{}, &modelos.Universidads{}, &modelos.Areas{}, &modelos.PermisoAccesos{}, &modelos.PerfilUsuarios{},
 		&modelos.Usuarios{}, &modelos.Plans{}, &modelos.Estudiantes{}, &modelos.Pagos{}, &modelos.Administradors{},
 		&modelos.ConsultaInvitados{}, &modelos.Profesors{}, &modelos.Cursos{}, &modelos.CursosUniversidades{}, &modelos.Tareas{}, &modelos.Chats{},
-		&modelos.Mensajes{}, &modelos.Publicacions{}, &modelos.Temas{}, &modelos.SubTemas{}, &modelos.Videos{}, &modelos.Evaluaciones{}, &modelos.Preguntas{},
+		&modelos.Mensajes{}, &modelos.Publicacions{}, &modelos.Temas{}, &modelos.Recursos{}, &modelos.SubTemas{}, &modelos.Videos{}, &modelos.Evaluaciones{}, &modelos.Preguntas{},
 		&modelos.Respuestas{}, &modelos.Carreras{}, &modelos.Examens{},
 		&modelos.HistorialExamens{}, &modelos.PreguntaExamens{}, &modelos.RespuestaExs{}, &modelos.Ebooks{}, &modelos.Clases{},
 		&modelos.Horarios{}, &modelos.Resolucions{}, &modelos.Archivos{}, &modelos.Ponderacion{}, &modelos.UserTipe{})
+}
+
+func GetConnection() *gorm.DB {
+	db := initConnection()
+	return db
 }
