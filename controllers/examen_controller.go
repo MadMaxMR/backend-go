@@ -108,21 +108,6 @@ func GetExamensPregByArea(w http.ResponseWriter, req *http.Request) {
 	handler.SendSuccess(w, req, http.StatusOK, examen)
 }
 
-func SavePreguntaResp(w http.ResponseWriter, req *http.Request) {
-	pregunta := modelos.PreguntaExamens{}
-	err := auth.ValidateBody(req, &pregunta)
-	if err != nil {
-		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
-		return
-	}
-	modelo, err := database.Create(&pregunta)
-	if err != nil {
-		handler.SendFail(w, req, http.StatusInternalServerError, err.Error())
-		return
-	}
-	handler.SendSuccess(w, req, http.StatusOK, modelo)
-}
-
 func GetPoints(w http.ResponseWriter, req *http.Request) {
 	points := modelos.Result{Resultado: make(map[string]string), Solucion: make(map[string]uint)}
 	result := map[string]interface{}{}
