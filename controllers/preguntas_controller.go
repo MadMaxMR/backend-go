@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -78,6 +79,7 @@ func SavePreguntasRespuestas(w http.ResponseWriter, req *http.Request) {
 			return
 		}
 	}
+	fmt.Println("Data de pregunta: ", pregunta)
 	_, err = database.Update(&pregunta, preguntaID)
 	if err != nil {
 		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
@@ -162,11 +164,11 @@ func GetPregunta(w http.ResponseWriter, req *http.Request) {
 	handler.SendSuccess(w, req, http.StatusOK, preguntas)
 }
 
-func UpdatePregunta(w http.ResponseWriter, req *http.Request) {
+func UpdatePreguntaRespuestas(w http.ResponseWriter, req *http.Request) {
+	id := mux.Vars(req)["id"]
+	idPregunta, _ := strconv.Atoi(id)
 	pregunta := modelos.PreguntaExamens{}
-	respuestas := []modelos.RespuestaExs{
-		{Valor: true, Respuesta: ""}, {Valor: false, Respuesta: ""}, {Valor: false, Respuesta: ""},
-		{Valor: false, Respuesta: ""}, {Valor: false, Respuesta: ""}}
+	respuestas := []modelos.RespuestaExs{}
 
 	err := req.ParseMultipartForm(32 << 20)
 	if err != nil {
@@ -174,6 +176,12 @@ func UpdatePregunta(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	db := database.GetConnection()
+	defer db.Close()
+
+	db.Model(&respuestas).Where("pregunta_examens_id  = ?", id).Find(&respuestas)
+
+	pregunta.ID = uint(idPregunta)
 	pregunta.ExamensId = 2
 	pregunta.Enunciado1 = req.Form.Get("enunciado1")
 	pregunta.Enunciado2 = req.Form.Get("enunciado2")
@@ -182,6 +190,8 @@ func UpdatePregunta(w http.ResponseWriter, req *http.Request) {
 	pregunta.NumQuestion = uint(nq)
 	cI, _ := strconv.Atoi(req.Form.Get("CursosId"))
 	pregunta.CursosId = uint(cI)
+	ti, _ := strconv.Atoi(req.Form.Get("TemasId"))
+	pregunta.TemasId = uint(ti)
 
 	for i := 0; i < 5; i++ {
 		index := strconv.Itoa(i + 1)
@@ -190,12 +200,6 @@ func UpdatePregunta(w http.ResponseWriter, req *http.Request) {
 		respuestas[i].Respuesta = req.Form.Get("Respuesta" + index)
 	}
 	pregunta.RespuestaExs = respuestas
-
-	_, err = database.Create(&pregunta)
-	if err != nil {
-		handler.SendFail(w, req, http.StatusBadRequest, "error al crear pregunta "+err.Error())
-		return
-	}
 
 	preguntaID := strconv.FormatUint(uint64(pregunta.ID), 10)
 	file, _, _ := req.FormFile("grafico")
@@ -211,6 +215,7 @@ func UpdatePregunta(w http.ResponseWriter, req *http.Request) {
 	for i := 0; i < 5; i++ {
 		index := strconv.Itoa(i + 1)
 		idRes := strconv.FormatUint(uint64(pregunta.RespuestaExs[i].ID), 10)
+		respuestas[i].PreguntaExamensId = uint(idPregunta)
 		fileR, _, _ := req.FormFile("image" + index)
 		if fileR == nil {
 			continue
@@ -222,16 +227,36 @@ func UpdatePregunta(w http.ResponseWriter, req *http.Request) {
 		}
 		respuestas[i].ID = pregunta.RespuestaExs[i].ID
 		respuestas[i].ImgLink = urlRes
-		_, err = database.Update(&respuestas[i], idRes)
-		if err != nil {
-			handler.SendFail(w, req, http.StatusBadRequest, err.Error())
-			return
-		}
 	}
-	_, err = database.Update(&pregunta, preguntaID)
+	pregunta.RespuestaExs = respuestas
+	fmt.Println("data de pregunta con respuestas: ", pregunta)
+	err = db.Save(&pregunta).Error
 	if err != nil {
 		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
 		return
 	}
 	handler.SendSuccess(w, req, http.StatusCreated, pregunta)
+}
+
+func DeletePreguntaRespuestas(w http.ResponseWriter, req *http.Request) {
+	pregunta := modelos.PreguntaExamens{}
+	respuestas := modelos.RespuestaExs{}
+	id := mux.Vars(req)["id"]
+
+	db := database.GetConnection()
+	defer db.Close()
+
+	err := db.Where("pregunta_examens_id  = ?", id).Delete(&respuestas).Error
+	if err != nil {
+		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	_, err = database.Delete(&pregunta, id)
+	if err != nil {
+		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	handler.SendSuccessMessage(w, req, http.StatusOK, "Pregunta eliminada correctamente")
 }

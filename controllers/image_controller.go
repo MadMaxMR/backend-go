@@ -42,3 +42,22 @@ func UpImages(image multipart.File, id string, folder string) (string, error) {
 
 	return uploadResult.SecureURL, nil
 }
+
+func DeleteImage(id string, folder string) (string, error) {
+
+	cld, err := cloudinary.NewFromURL("cloudinary://919663283643663:r7-EgFidG0Eu1sFM26ZU1sASIAU@umachayfiles")
+	if err != nil {
+		return "", errors.New("Error al acceder a cloudinary - " + err.Error())
+	}
+
+	var filename string = folder + "-" + id
+	var ctx = context.Background()
+
+	_, err = cld.Upload.Destroy(ctx, uploader.DestroyParams{
+		PublicID: folder + "/" + filename,
+	})
+	if err != nil {
+		return "", errors.New("Error al borrar la imagen - " + err.Error())
+	}
+	return "Borrado de imagen correcta", nil
+}
