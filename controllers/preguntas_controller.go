@@ -247,13 +247,13 @@ func DeletePreguntaRespuestas(w http.ResponseWriter, req *http.Request) {
 
 	err := db.Where("pregunta_examens_id  = ?", id).Delete(&respuestas).Error
 	if err != nil {
-		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
+		handler.SendFail(w, req, http.StatusBadRequest, "error eliminando respuestas "+err.Error())
 		return
 	}
 
 	_, err = database.Delete(&pregunta, id)
 	if err != nil {
-		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
+		handler.SendFail(w, req, http.StatusBadRequest, "error eliminando pregunta "+err.Error())
 		return
 	}
 
@@ -264,7 +264,7 @@ func DeletePreguntaRespuestas(w http.ResponseWriter, req *http.Request) {
 		}
 	}
 
-	for i := 0; i < 5; i++ {
+	for i := 0; i < len(respuestas); i++ {
 		if respuestas[i].ImgLink != "" {
 			val := strconv.Itoa(int(respuestas[i].ID))
 			_, err := DeleteImage(val, "Respuesta")
