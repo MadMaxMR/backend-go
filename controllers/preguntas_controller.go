@@ -193,12 +193,6 @@ func UpdatePreguntaRespuestas(w http.ResponseWriter, req *http.Request) {
 	ti, _ := strconv.Atoi(req.Form.Get("TemasId"))
 	pregunta.TemasId = uint(ti)
 
-	for i := 0; i < 5; i++ {
-		index := strconv.Itoa(i + 1)
-		bol, _ := strconv.ParseBool(req.Form.Get("Valor" + index))
-		respuestas[i].Valor = bol
-		respuestas[i].Respuesta = req.Form.Get("Respuesta" + index)
-	}
 	pregunta.RespuestaExs = respuestas
 
 	preguntaID := strconv.FormatUint(uint64(pregunta.ID), 10)
@@ -215,6 +209,9 @@ func UpdatePreguntaRespuestas(w http.ResponseWriter, req *http.Request) {
 	for i := 0; i < 5; i++ {
 		index := strconv.Itoa(i + 1)
 		idRes := strconv.FormatUint(uint64(pregunta.RespuestaExs[i].ID), 10)
+		bol, _ := strconv.ParseBool(req.Form.Get("Valor" + index))
+		respuestas[i].Valor = bol
+		respuestas[i].Respuesta = req.Form.Get("Respuesta" + index)
 		respuestas[i].PreguntaExamensId = uint(idPregunta)
 		fileR, _, _ := req.FormFile("image" + index)
 		if fileR == nil {
@@ -229,7 +226,7 @@ func UpdatePreguntaRespuestas(w http.ResponseWriter, req *http.Request) {
 		respuestas[i].ImgLink = urlRes
 	}
 	pregunta.RespuestaExs = respuestas
-	fmt.Println("data de pregunta con respuestas: ", pregunta)
+
 	err = db.Save(&pregunta).Error
 	if err != nil {
 		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
@@ -240,11 +237,13 @@ func UpdatePreguntaRespuestas(w http.ResponseWriter, req *http.Request) {
 
 func DeletePreguntaRespuestas(w http.ResponseWriter, req *http.Request) {
 	pregunta := modelos.PreguntaExamens{}
-	respuestas := modelos.RespuestaExs{}
+	respuestas := []modelos.RespuestaExs{}
 	id := mux.Vars(req)["id"]
 
 	db := database.GetConnection()
 	defer db.Close()
+
+	db.Model(&respuestas).Where("pregunta_examens_id  = ?", id).Find(&respuestas)
 
 	err := db.Where("pregunta_examens_id  = ?", id).Delete(&respuestas).Error
 	if err != nil {
@@ -256,6 +255,23 @@ func DeletePreguntaRespuestas(w http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
 		return
+	}
+
+	if pregunta.Grafico != "" {
+		_, err := DeleteImage(id, "Pregunta")
+		if err != nil {
+			fmt.Println("Error al borrar imagen de servidor" + err.Error())
+		}
+	}
+
+	for i := 0; i < 5; i++ {
+		if respuestas[i].ImgLink != "" {
+			val := strconv.Itoa(int(respuestas[i].ID))
+			_, err := DeleteImage(val, "Respuesta")
+			if err != nil {
+				fmt.Println("Error al borrar imagen de servidor" + err.Error())
+			}
+		}
 	}
 
 	handler.SendSuccessMessage(w, req, http.StatusOK, "Pregunta eliminada correctamente")
