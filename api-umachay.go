@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/MadMaxMR/backend-go/database"
 	"github.com/MadMaxMR/backend-go/routes"
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
@@ -23,7 +24,7 @@ func init() {
 
 func main() {
 	serverPort := os.Getenv("PORT")
-	//database.Migrate()
+	database.Migrate()
 
 	router := mux.NewRouter()
 

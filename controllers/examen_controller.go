@@ -171,3 +171,6 @@ func GetPoints(w http.ResponseWriter, req *http.Request) {
 // 	for i := 0; i < len(cadena)-1; i++ {
 // 		fmt.Print("\n valor ", i, ":", cadena[i])
 // 	}
+func SavePreguntasExamen(w http.ResponseWriter, req *http.Request) {
+
+}

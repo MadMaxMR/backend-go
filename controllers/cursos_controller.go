@@ -152,7 +152,7 @@ func GetCursoByArea(w http.ResponseWriter, req *http.Request) {
 	db := database.GetConnection()
 	defer db.Close()
 
-	result := db.Model(&cursos).Select("DISTINCT cursos_universidades.id,cursos_universidades.cod_area, cursos.nombre_curso").
+	result := db.Model(&cursos).Select("DISTINCT cursos.id as id,cursos_universidades.cod_area, cursos.nombre_curso").
 		Joins("inner join cursos_universidades ON cursos.id = cursos_universidades.id_curso").
 		Where("cursos_universidades.cod_area = ?", id).Scan(&CursosArea)
 
