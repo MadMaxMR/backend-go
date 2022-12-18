@@ -28,6 +28,7 @@ func SaveExamens(w http.ResponseWriter, req *http.Request) {
 		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
 		return
 	}
+	examen.LimitePreguntas = 50
 	_, err = database.Create(&examen)
 	if err != nil {
 		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
@@ -69,7 +70,12 @@ func UpdateExamen(w http.ResponseWriter, req *http.Request) {
 	examen := modelos.Examens{}
 	id := mux.Vars(req)["id"]
 
-	_, err := database.Update(&examen, id)
+	err := auth.ValidateBody(req, &examen)
+	if err != nil {
+		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
+		return
+	}
+	_, err = database.Update(&examen, id)
 	if err != nil {
 		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
 		return
@@ -171,6 +177,3 @@ func GetPoints(w http.ResponseWriter, req *http.Request) {
 // 	for i := 0; i < len(cadena)-1; i++ {
 // 		fmt.Print("\n valor ", i, ":", cadena[i])
 // 	}
-func SavePreguntasExamen(w http.ResponseWriter, req *http.Request) {
-
-}

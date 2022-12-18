@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/MadMaxMR/backend-go/auth"
 	"github.com/MadMaxMR/backend-go/database"
 	"github.com/MadMaxMR/backend-go/handler"
 	"github.com/MadMaxMR/backend-go/modelos"
@@ -275,4 +276,46 @@ func DeletePreguntaRespuestas(w http.ResponseWriter, req *http.Request) {
 	}
 
 	handler.SendSuccessMessage(w, req, http.StatusOK, "Pregunta eliminada correctamente")
+}
+
+func SavePreguntasExamen(w http.ResponseWriter, req *http.Request) {
+	preguntaEx := modelos.ExamenPreguntas{}
+	data := map[string]interface{}{}
+
+	db := database.GetConnection()
+	defer db.Close()
+
+	err := auth.ValidateBody(req, &data)
+	if err != nil {
+		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
+		return
+	}
+	idExamen := uint(data["id_examen"].(float64))
+	preguntaEx.ExamensId = idExamen
+	preguntas := data["preguntas"].([]interface{})
+
+	result := db.Model(&preguntaEx).Where("examens_id = ?", preguntaEx.ExamensId).Find(&preguntaEx)
+
+	if (len(preguntas) + int(result.RowsAffected)) > 50 {
+		handler.SendFail(w, req, http.StatusBadRequest, "Solo se aceptan 50 preguntas por examen")
+		return
+	}
+
+	for _, pregunta := range preguntas {
+		preguntaEx.ID = 0
+		result := db.Model(&preguntaEx).Where("examens_id = ?", preguntaEx.ExamensId).Find(&preguntaEx)
+		if result.RowsAffected == 50 {
+			handler.SendFail(w, req, http.StatusBadRequest, "Error - El examen ya tiene 50 preguntas")
+			return
+		}
+		preguntaEx.ID = 0
+		preguntaEx.PreguntaExamensId = uint(pregunta.(map[string]interface{})["id_pregunta"].(float64))
+		_, err = database.Create(&preguntaEx)
+		if err != nil {
+			handler.SendFail(w, req, http.StatusBadRequest, "Error al guardar pregunta"+err.Error())
+			return
+		}
+		db.Table("examens").Where("id = ?", idExamen).UpdateColumn("cantidad_preguntas", result.RowsAffected)
+	}
+	handler.SendSuccessMessage(w, req, http.StatusOK, "Preguntas agregadas exitosamente")
 }
