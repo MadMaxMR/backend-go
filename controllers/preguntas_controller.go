@@ -127,10 +127,10 @@ func GetPreguntasCursoTema(w http.ResponseWriter, req *http.Request) {
 	}
 	pageInt, _ := strconv.Atoi(page)
 	type Result struct {
-		Id           uint   `json:"id"`
-		Enunciado1   string `json:"enunciado"`
-		Nombre_curso string `json:"curso"`
-		Nombre_tema  string `json:"tema"`
+		Id           uint
+		Enunciado1   string
+		Nombre_curso string
+		Nombre_tema  string
 	}
 	result := []Result{}
 
