@@ -312,7 +312,7 @@ func SavePreguntasExamen(w http.ResponseWriter, req *http.Request) {
 		preguntaEx.PreguntaExamensId = uint(pregunta.(map[string]interface{})["id_pregunta"].(float64))
 		_, err = database.Create(&preguntaEx)
 		if err != nil {
-			handler.SendFail(w, req, http.StatusBadRequest, "Error al guardar pregunta"+err.Error())
+			handler.SendFail(w, req, http.StatusBadRequest, "Error al guardar pregunta - "+err.Error())
 			return
 		}
 		db.Table("examens").Where("id = ?", idExamen).UpdateColumn("cantidad_preguntas", result.RowsAffected)
