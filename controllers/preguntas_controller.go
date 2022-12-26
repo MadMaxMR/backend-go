@@ -34,6 +34,7 @@ func SavePreguntasRespuestas(w http.ResponseWriter, req *http.Request) {
 	pregunta.CursosId = uint(cI)
 	ti, _ := strconv.Atoi(req.Form.Get("TemasId"))
 	pregunta.TemasId = uint(ti)
+	pregunta.Nivel = req.Form.Get("Nivel")
 
 	for i := 0; i < 5; i++ {
 		index := strconv.Itoa(i + 1)
@@ -101,13 +102,14 @@ func GetAllPreguntas(w http.ResponseWriter, req *http.Request) {
 		Enunciado1   string
 		Nombre_curso string
 		Nombre_tema  string
+		Nivel        string
 	}
 	result := []Result{}
 
 	db := database.GetConnection()
 	defer db.Close()
 
-	resultQ := db.Model(&preguntas).Select("DISTINCT pregunta_examens.id,pregunta_examens.enunciado1, cursos.nombre_curso,temas.nombre_tema").
+	resultQ := db.Model(&preguntas).Select("DISTINCT pregunta_examens.id,pregunta_examens.enunciado1,pregunta_examens.nivel, cursos.nombre_curso,temas.nombre_tema").
 		Joins("LEFT JOIN temas on pregunta_examens.temas_id = temas.id").
 		Joins("LEFT JOIN cursos on pregunta_examens.cursos_id = cursos.id").
 		Limit(25).Offset((pageInt - 1) * 25).Order("id ASC").Scan(&result)
@@ -131,13 +133,14 @@ func GetPreguntasCursoTema(w http.ResponseWriter, req *http.Request) {
 		Enunciado1   string
 		Nombre_curso string
 		Nombre_tema  string
+		Nivel        string
 	}
 	result := []Result{}
 
 	db := database.GetConnection()
 	defer db.Close()
 
-	resultQ := db.Model(&preguntas).Select("DISTINCT pregunta_examens.id,pregunta_examens.enunciado1, cursos.nombre_curso,temas.nombre_tema").
+	resultQ := db.Model(&preguntas).Select("DISTINCT pregunta_examens.id,pregunta_examens.enunciado1,pregunta_examens.nivel, cursos.nombre_curso,temas.nombre_tema").
 		Joins("LEFT JOIN temas on pregunta_examens.temas_id = temas.id").
 		Joins("LEFT JOIN cursos on pregunta_examens.cursos_id = cursos.id").
 		Where("temas.id  = ?", id).
@@ -193,6 +196,7 @@ func UpdatePreguntaRespuestas(w http.ResponseWriter, req *http.Request) {
 	pregunta.CursosId = uint(cI)
 	ti, _ := strconv.Atoi(req.Form.Get("TemasId"))
 	pregunta.TemasId = uint(ti)
+	pregunta.Nivel = req.Form.Get("Nivel")
 
 	pregunta.RespuestaExs = respuestas
 

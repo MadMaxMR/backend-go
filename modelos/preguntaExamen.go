@@ -10,5 +10,6 @@ type PreguntaExamens struct {
 	NumQuestion  uint           `json:"num_question" gorm:"type:int"`
 	CursosId     uint           `json:"curso_id" gorm:"type:int REFERENCES cursos(id)"`
 	TemasId      uint           `json:"tema_id" gorm:"type:int REFERENCES temas(id)"`
+	Nivel        string         `json:"nivel" gorm:"type:varchar(250)"`
 	RespuestaExs []RespuestaExs `json:"respuesta" form:"respuesta"`
 }
