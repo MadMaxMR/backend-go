@@ -210,5 +210,37 @@ func GetPreguntasByExamen(w http.ResponseWriter, req *http.Request) {
 }
 
 func GetPreguntasExamenByArea(w http.ResponseWriter, req *http.Request) {
+	preguntas := []modelos.PreguntaExamens{}
+	examen := []modelos.Examens{}
+	id := mux.Vars(req)["id"]
 
+	db := database.GetConnection()
+	defer db.Close()
+
+	db.Model(&examen).Where("areas_id = ?", id).Find(&examen)
+
+	fmt.Print("tamaño de examen", len(examen))
+
+	for i := 0; i < len(examen); i++ {
+		resultQ := db.Preload("RespuestaExs").
+			Where("ex.examens_id = ?", examen[i].ID).
+			Select("pregunta_examens.id,ex.examens_id,pregunta_examens.enunciado1,pregunta_examens.grafico,pregunta_examens.enunciado2,pregunta_examens.enunciado3,ex.num_question,pregunta_examens.cursos_id,pregunta_examens.temas_id,pregunta_examens.nivel").
+			Joins("INNER JOIN examen_preguntas ex on ex.pregunta_examens_id = pregunta_examens.id").
+			Find(&preguntas).Error
+		if resultQ != nil {
+			handler.SendFail(w, req, http.StatusBadRequest, resultQ.Error())
+			return
+		}
+		examen[i].PreguntaExamens = preguntas
+	}
+
+	handler.SendSuccess(w, req, http.StatusOK, examen)
 }
+
+/*
+SELECT pre.id,ex.examens_id,pre.enunciado1,pre.grafico,pre.enunciado2,pre.enunciado3,ex.num_question,pre.cursos_id,
+pre.temas_id,pre.nivel
+FROM examen_preguntas ex
+INNER JOIN pregunta_examens  pre on ex.pregunta_examens_id = pre.id
+WHERE ex.examens_id = 1
+*/

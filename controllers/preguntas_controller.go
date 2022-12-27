@@ -248,6 +248,14 @@ func DeletePreguntaRespuestas(w http.ResponseWriter, req *http.Request) {
 	db := database.GetConnection()
 	defer db.Close()
 
+	result := modelos.ExamenPreguntas{}
+
+	response := db.Table("examen_preguntas").Where("pregunta_examens_id = ?", id).Take(&result)
+	if response.RowsAffected >= 1 {
+		handler.SendSuccessMessage(w, req, http.StatusBadRequest, "No se puede eliminar una pregunta que ya se agregó a un examen")
+		return
+	}
+
 	db.Model(&respuestas).Where("pregunta_examens_id  = ?", id).Find(&respuestas)
 
 	err := db.Where("pregunta_examens_id  = ?", id).Delete(&respuestas).Error
@@ -319,7 +327,7 @@ func SavePreguntasExamen(w http.ResponseWriter, req *http.Request) {
 			handler.SendFail(w, req, http.StatusBadRequest, "Error al guardar pregunta - "+err.Error())
 			return
 		}
-		db.Table("examens").Where("id = ?", idExamen).UpdateColumn("cantidad_preguntas", result.RowsAffected)
+		db.Table("examens").Where("id = ?", idExamen).UpdateColumn("cantidad_preguntas", result.RowsAffected+1)
 	}
 	handler.SendSuccessMessage(w, req, http.StatusOK, "Preguntas agregadas exitosamente")
 }
