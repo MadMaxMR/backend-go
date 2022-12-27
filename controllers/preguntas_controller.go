@@ -112,7 +112,7 @@ func GetAllPreguntas(w http.ResponseWriter, req *http.Request) {
 	resultQ := db.Model(&preguntas).Select("DISTINCT pregunta_examens.id,pregunta_examens.enunciado1,pregunta_examens.nivel, cursos.nombre_curso,temas.nombre_tema").
 		Joins("LEFT JOIN temas on pregunta_examens.temas_id = temas.id").
 		Joins("LEFT JOIN cursos on pregunta_examens.cursos_id = cursos.id").
-		Limit(25).Offset((pageInt - 1) * 25).Order("id ASC").Scan(&result)
+		Limit(25).Offset((pageInt - 1) * 25).Order("id DESC").Scan(&result)
 	if resultQ.RowsAffected == 0 {
 		handler.SendFail(w, req, http.StatusBadRequest, "No se encontró preguntas")
 		return
@@ -144,7 +144,7 @@ func GetPreguntasCursoTema(w http.ResponseWriter, req *http.Request) {
 		Joins("LEFT JOIN temas on pregunta_examens.temas_id = temas.id").
 		Joins("LEFT JOIN cursos on pregunta_examens.cursos_id = cursos.id").
 		Where("temas.id  = ?", id).
-		Limit(25).Offset((pageInt - 1) * 25).Order("id ASC").Scan(&result)
+		Limit(25).Offset((pageInt - 1) * 25).Order("id DESC").Scan(&result)
 	if resultQ.RowsAffected == 0 {
 		handler.SendFail(w, req, http.StatusBadRequest, "No se encontró preguntas")
 		return
