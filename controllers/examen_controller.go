@@ -177,3 +177,38 @@ func GetPoints(w http.ResponseWriter, req *http.Request) {
 // 	for i := 0; i < len(cadena)-1; i++ {
 // 		fmt.Print("\n valor ", i, ":", cadena[i])
 // 	}
+
+func GetPreguntasByExamen(w http.ResponseWriter, req *http.Request) {
+	id := mux.Vars(req)["id"]
+	type Result struct {
+		Id           uint
+		Enunciado1   string
+		Nombre_curso string
+		Nombre_tema  string
+		Nivel        string
+		Pregunta_id  uint
+		Examens_id   uint
+	}
+
+	result := []Result{}
+
+	db := database.GetConnection()
+	defer db.Close()
+
+	resultQ := db.Table("examen_preguntas as ex").
+		Select("ex.id,pre.enunciado1,cursos.nombre_curso,temas.nombre_tema,pre.nivel,pre.id as pregunta_id,ex.examens_id").
+		Joins("INNER JOIN pregunta_examens  pre on ex.pregunta_examens_id = pre.id").
+		Joins("INNER JOIN temas on pre.temas_id = temas.id").
+		Joins("INNER JOIN cursos on pre.cursos_id = cursos.id").
+		Where("ex.examens_id = ?", id).Scan(&result)
+
+	if resultQ.RowsAffected == 0 {
+		handler.SendFail(w, req, http.StatusBadRequest, "No se encontró preguntas")
+		return
+	}
+	handler.SendSuccess(w, req, http.StatusOK, result)
+}
+
+func GetPreguntasExamenByArea(w http.ResponseWriter, req *http.Request) {
+
+}
