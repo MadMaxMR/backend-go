@@ -219,8 +219,6 @@ func GetPreguntasExamenByArea(w http.ResponseWriter, req *http.Request) {
 
 	db.Model(&examen).Where("areas_id = ?", id).Find(&examen)
 
-	fmt.Print("tamaño de examen", len(examen))
-
 	for i := 0; i < len(examen); i++ {
 		resultQ := db.Preload("RespuestaExs").
 			Where("ex.examens_id = ?", examen[i].ID).
