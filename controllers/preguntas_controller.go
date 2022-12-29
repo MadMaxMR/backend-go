@@ -331,3 +331,25 @@ func SavePreguntasExamen(w http.ResponseWriter, req *http.Request) {
 	}
 	handler.SendSuccessMessage(w, req, http.StatusOK, "Preguntas agregadas exitosamente")
 }
+
+func ChangePreguntaExamen(w http.ResponseWriter, req *http.Request) {
+	preguntaEx := modelos.ExamenPreguntas{}
+	id := mux.Vars(req)["id"]
+
+	db := database.GetConnection()
+	defer db.Close()
+
+	err := auth.ValidateBody(req, &preguntaEx)
+	if err != nil {
+		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	_, err = database.Update(&preguntaEx, id)
+	if err != nil {
+		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	handler.SendSuccessMessage(w, req, http.StatusOK, "Pregunta actualizada correctamente")
+}
