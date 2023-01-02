@@ -13,7 +13,7 @@ func initConnection() *gorm.DB {
 	/*Coneccion con ElephantSQL*/
 	//connStr := "postgres://arwpboxu:qP449bZjdC9jEpih47th8Hn21yi2Aj6h@motty.db.elephantsql.com/arwpboxu"
 	/*Coneccion con Heroku*/
-	connStr := "postgresql://postgres:CMFtIgy7JsN8onVdZb9k@containers-us-west-18.railway.app:6849/railway"
+	connStr := "postgresql://postgres:Z6csX3syUbpUwp5b5GUc@containers-us-west-18.railway.app:6849/railway"
 	//postgresql://${{ PGUSER }}:${{ PGPASSWORD }}@${{ PGHOST }}:${{ PGPORT }}/${{ PGDATABASE }}
 	db, err := gorm.Open("postgres", connStr)
 	if err != nil {
