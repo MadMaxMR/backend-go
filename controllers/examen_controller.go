@@ -95,7 +95,7 @@ func DeleteExamen(w http.ResponseWriter, req *http.Request) {
 }
 
 //GetExamensPregByArea retorna todos los examenes de un area con sus preguntas y alternativas
-func GetExamensPregByArea(w http.ResponseWriter, req *http.Request) {
+func GetPreguntasExamenByArea(w http.ResponseWriter, req *http.Request) {
 	examen := []modelos.Examens{}
 	id := mux.Vars(req)["id"]
 
@@ -155,8 +155,7 @@ func GetPoints(w http.ResponseWriter, req *http.Request) {
 				points.Solucion["pregunta"+val] = respuesta.ID
 				incorrect++
 			}
-		}
-		if result["id_respuesta"+val] == float64(0) {
+		} else if result["id_respuesta"+val] == float64(0) {
 			points.Resultado["pregunta"+val] = "No contestada"
 			points.Solucion["pregunta"+val] = respuesta.ID
 			incorrect++
@@ -178,38 +177,7 @@ func GetPoints(w http.ResponseWriter, req *http.Request) {
 // 		fmt.Print("\n valor ", i, ":", cadena[i])
 // 	}
 
-func GetPreguntasByExamen(w http.ResponseWriter, req *http.Request) {
-	id := mux.Vars(req)["id"]
-	type Result struct {
-		Id           uint
-		Enunciado1   string
-		Nombre_curso string
-		Nombre_tema  string
-		Nivel        string
-		Pregunta_id  uint
-		Examens_id   uint
-	}
-
-	result := []Result{}
-
-	db := database.GetConnection()
-	defer db.Close()
-
-	resultQ := db.Table("examen_preguntas as ex").
-		Select("ex.id,pre.enunciado1,cursos.nombre_curso,temas.nombre_tema,pre.nivel,pre.id as pregunta_id,ex.examens_id").
-		Joins("INNER JOIN pregunta_examens  pre on ex.pregunta_examens_id = pre.id").
-		Joins("INNER JOIN temas on pre.temas_id = temas.id").
-		Joins("INNER JOIN cursos on pre.cursos_id = cursos.id").
-		Where("ex.examens_id = ?", id).Scan(&result)
-
-	if resultQ.RowsAffected == 0 {
-		handler.SendFail(w, req, http.StatusBadRequest, "No se encontró preguntas")
-		return
-	}
-	handler.SendSuccess(w, req, http.StatusOK, result)
-}
-
-func GetPreguntasExamenByArea(w http.ResponseWriter, req *http.Request) {
+func GetExamensPregByArea(w http.ResponseWriter, req *http.Request) {
 	preguntas := []modelos.PreguntaExamens{}
 	examen := []modelos.Examens{}
 	id := mux.Vars(req)["id"]
@@ -222,7 +190,9 @@ func GetPreguntasExamenByArea(w http.ResponseWriter, req *http.Request) {
 	for i := 0; i < len(examen); i++ {
 		resultQ := db.Preload("RespuestaExs").
 			Where("ex.examens_id = ?", examen[i].ID).
-			Select("pregunta_examens.id,ex.examens_id,pregunta_examens.enunciado1,pregunta_examens.grafico,pregunta_examens.enunciado2,pregunta_examens.enunciado3,ex.num_question,pregunta_examens.cursos_id,pregunta_examens.temas_id,pregunta_examens.nivel").
+			Select("pregunta_examens.id,ex.examens_id,pregunta_examens.enunciado1,pregunta_examens.grafico," +
+				"pregunta_examens.enunciado2,pregunta_examens.enunciado3,row_number() OVER () AS num_question," +
+				"pregunta_examens.cursos_id,pregunta_examens.temas_id,pregunta_examens.nivel").
 			Joins("INNER JOIN examen_preguntas ex on ex.pregunta_examens_id = pregunta_examens.id").
 			Find(&preguntas).Error
 		if resultQ != nil {

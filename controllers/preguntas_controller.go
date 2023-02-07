@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"sync"
 
 	"github.com/MadMaxMR/backend-go/auth"
 	"github.com/MadMaxMR/backend-go/database"
@@ -12,6 +13,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
+//SavePreguntasRespuestas guarda una pregunta con sus respuestas e imagenes, recibe el body en tipo Form-Data
 func SavePreguntasRespuestas(w http.ResponseWriter, req *http.Request) {
 	pregunta := modelos.PreguntaExamens{}
 	respuestas := []modelos.RespuestaExs{
@@ -28,20 +30,12 @@ func SavePreguntasRespuestas(w http.ResponseWriter, req *http.Request) {
 	pregunta.Enunciado1 = req.Form.Get("enunciado1")
 	pregunta.Enunciado2 = req.Form.Get("enunciado2")
 	pregunta.Enunciado3 = req.Form.Get("enunciado3")
-	nq, _ := strconv.Atoi(req.Form.Get("NumQuestion"))
-	pregunta.NumQuestion = uint(nq)
 	cI, _ := strconv.Atoi(req.Form.Get("CursosId"))
 	pregunta.CursosId = uint(cI)
 	ti, _ := strconv.Atoi(req.Form.Get("TemasId"))
 	pregunta.TemasId = uint(ti)
 	pregunta.Nivel = req.Form.Get("Nivel")
 
-	for i := 0; i < 5; i++ {
-		index := strconv.Itoa(i + 1)
-		bol, _ := strconv.ParseBool(req.Form.Get("Valor" + index))
-		respuestas[i].Valor = bol
-		respuestas[i].Respuesta = req.Form.Get("Respuesta" + index)
-	}
 	pregunta.RespuestaExs = respuestas
 
 	_, err = database.Create(&pregunta)
@@ -60,33 +54,42 @@ func SavePreguntasRespuestas(w http.ResponseWriter, req *http.Request) {
 		}
 		pregunta.Grafico = urlPreg
 	}
-
-	for i := 0; i < 5; i++ {
-		index := strconv.Itoa(i + 1)
-		idRes := strconv.FormatUint(uint64(pregunta.RespuestaExs[i].ID), 10)
-		fileR, _, _ := req.FormFile("image" + index)
-		if fileR == nil {
-			continue
-		}
-		urlRes, err := UpImages(fileR, idRes, "Respuesta")
-		if err != nil {
-			handler.SendFail(w, req, http.StatusBadRequest, err.Error())
-			return
-		}
-		respuestas[i].ID = pregunta.RespuestaExs[i].ID
-		respuestas[i].ImgLink = urlRes
-		_, err = database.Update(&respuestas[i], idRes)
-		if err != nil {
-			handler.SendFail(w, req, http.StatusBadRequest, err.Error())
-			return
-		}
-	}
-	fmt.Println("Data de pregunta: ", pregunta)
 	_, err = database.Update(&pregunta, preguntaID)
 	if err != nil {
 		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
 		return
 	}
+
+	var wg sync.WaitGroup
+	for i := 0; i < 5; i++ {
+		index := strconv.Itoa(i + 1)
+		idRes := strconv.FormatUint(uint64(pregunta.RespuestaExs[i].ID), 10)
+		bol, _ := strconv.ParseBool(req.Form.Get("Valor" + index))
+		fileR, _, _ := req.FormFile("image" + index)
+		if fileR == nil {
+			continue
+		}
+		wg.Add(1)
+		go func(i int) {
+			defer wg.Done()
+			urlRes, err := UpImages(fileR, idRes, "Respuesta")
+			if err != nil {
+				handler.SendFail(w, req, http.StatusBadRequest, err.Error())
+				return
+			}
+			respuestas[i].ID = pregunta.RespuestaExs[i].ID
+			respuestas[i].Valor = bol
+			respuestas[i].Respuesta = req.Form.Get("Respuesta" + index)
+			respuestas[i].ImgLink = urlRes
+			_, err = database.Update(&respuestas[i], idRes)
+			if err != nil {
+				handler.SendFail(w, req, http.StatusBadRequest, err.Error())
+				return
+			}
+		}(i)
+	}
+
+	wg.Wait()
 	handler.SendSuccess(w, req, http.StatusCreated, pregunta)
 }
 
@@ -112,6 +115,72 @@ func GetAllPreguntas(w http.ResponseWriter, req *http.Request) {
 	resultQ := db.Model(&preguntas).Select("DISTINCT pregunta_examens.id,pregunta_examens.enunciado1,pregunta_examens.nivel, cursos.nombre_curso,temas.nombre_tema").
 		Joins("LEFT JOIN temas on pregunta_examens.temas_id = temas.id").
 		Joins("LEFT JOIN cursos on pregunta_examens.cursos_id = cursos.id").
+		Limit(25).Offset((pageInt - 1) * 25).Order("id DESC").Scan(&result)
+	if resultQ.RowsAffected == 0 {
+		handler.SendFail(w, req, http.StatusBadRequest, "No se encontró preguntas")
+		return
+	}
+	handler.SendSuccess(w, req, http.StatusOK, result)
+}
+
+func GetPreguntasForExamen(w http.ResponseWriter, req *http.Request) {
+	preguntas := modelos.PreguntaExamens{}
+	idExamen := mux.Vars(req)["idExamen"]
+	page := req.URL.Query().Get("page")
+	if page == "" {
+		page = "1"
+	}
+	pageInt, _ := strconv.Atoi(page)
+	type Result struct {
+		Id           uint
+		Enunciado1   string
+		Nombre_curso string
+		Nombre_tema  string
+		Nivel        string
+	}
+	result := []Result{}
+
+	db := database.GetConnection()
+	defer db.Close()
+
+	resultQ := db.Model(&preguntas).Select("DISTINCT pregunta_examens.id,pregunta_examens.enunciado1,pregunta_examens.nivel, cursos.nombre_curso,temas.nombre_tema").
+		Joins("LEFT JOIN temas on pregunta_examens.temas_id = temas.id").
+		Joins("LEFT JOIN cursos on pregunta_examens.cursos_id = cursos.id").
+		Joins("LEFT JOIN examen_preguntas on pregunta_examens.id = examen_preguntas.pregunta_examens_id").
+		Where("examen_preguntas.examens_id <> ?", idExamen).
+		Limit(25).Offset((pageInt - 1) * 25).Order("id DESC").Scan(&result)
+	if resultQ.RowsAffected == 0 {
+		handler.SendFail(w, req, http.StatusBadRequest, "No se encontró preguntas")
+		return
+	}
+	handler.SendSuccess(w, req, http.StatusOK, result)
+}
+
+func GetPreguntasOfExamen(w http.ResponseWriter, req *http.Request) {
+	preguntas := modelos.PreguntaExamens{}
+	idExamen := mux.Vars(req)["idExamen"]
+	page := req.URL.Query().Get("page")
+	if page == "" {
+		page = "1"
+	}
+	pageInt, _ := strconv.Atoi(page)
+	type Result struct {
+		Id           uint
+		Enunciado1   string
+		Nombre_curso string
+		Nombre_tema  string
+		Nivel        string
+	}
+	result := []Result{}
+
+	db := database.GetConnection()
+	defer db.Close()
+
+	resultQ := db.Model(&preguntas).Select("DISTINCT pregunta_examens.id,pregunta_examens.enunciado1,pregunta_examens.nivel, cursos.nombre_curso,temas.nombre_tema").
+		Joins("LEFT JOIN temas on pregunta_examens.temas_id = temas.id").
+		Joins("LEFT JOIN cursos on pregunta_examens.cursos_id = cursos.id").
+		Joins("INNER JOIN examen_preguntas on pregunta_examens.id = examen_preguntas.pregunta_examens_id").
+		Where("examen_preguntas.examens_id = ?", idExamen).
 		Limit(25).Offset((pageInt - 1) * 25).Order("id DESC").Scan(&result)
 	if resultQ.RowsAffected == 0 {
 		handler.SendFail(w, req, http.StatusBadRequest, "No se encontró preguntas")
@@ -306,29 +375,33 @@ func SavePreguntasExamen(w http.ResponseWriter, req *http.Request) {
 	preguntaEx.ExamensId = idExamen
 	preguntas := data["preguntas"].([]interface{})
 
-	result := db.Model(&preguntaEx).Where("examens_id = ?", preguntaEx.ExamensId).Find(&preguntaEx)
+	result := db.Model(&preguntaEx).Where("examens_id = ?", idExamen).Find(&preguntaEx)
 
 	if (len(preguntas) + int(result.RowsAffected)) > 50 {
-		handler.SendFail(w, req, http.StatusBadRequest, "Solo se aceptan 50 preguntas por examen")
+		handler.SendFail(w, req, http.StatusBadRequest, "Las cantidad de preguntas superan el limite de preguntas del examen")
 		return
 	}
 
+	var wg sync.WaitGroup
+	wg.Add(len(preguntas))
+
 	for _, pregunta := range preguntas {
-		preguntaEx.ID = 0
-		result := db.Model(&preguntaEx).Where("examens_id = ?", preguntaEx.ExamensId).Find(&preguntaEx)
-		if result.RowsAffected == 50 {
-			handler.SendFail(w, req, http.StatusBadRequest, "Error - El examen ya tiene 50 preguntas")
-			return
-		}
-		preguntaEx.ID = 0
-		preguntaEx.PreguntaExamensId = uint(pregunta.(map[string]interface{})["id_pregunta"].(float64))
-		_, err = database.Create(&preguntaEx)
-		if err != nil {
-			handler.SendFail(w, req, http.StatusBadRequest, "Error al guardar pregunta - "+err.Error())
-			return
-		}
-		db.Table("examens").Where("id = ?", idExamen).UpdateColumn("cantidad_preguntas", result.RowsAffected+1)
+		go func(pregunta interface{}) {
+			defer wg.Done()
+			preguntaEx := modelos.ExamenPreguntas{}
+			preguntaEx.ExamensId = idExamen
+			preguntaEx.PreguntaExamensId = uint(pregunta.(map[string]interface{})["id_pregunta"].(float64))
+			err = db.Create(&preguntaEx).Error
+			if err != nil {
+				handler.SendFail(w, req, http.StatusBadRequest, "Error al guardar pregunta - "+err.Error())
+				return
+			}
+		}(pregunta)
 	}
+
+	wg.Wait()
+	db.Table("examens").Where("id = ?", idExamen).UpdateColumn("cantidad_preguntas", result.RowsAffected+int64(len(preguntas)))
+
 	handler.SendSuccessMessage(w, req, http.StatusOK, "Preguntas agregadas exitosamente")
 }
 
