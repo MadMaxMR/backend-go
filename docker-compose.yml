@@ -1,6 +1,7 @@
 version : '3.9'
 services:
   goapp: 
+    container_name: umachay-backend
     build: .
     ports: 
       - "8000:8000"
