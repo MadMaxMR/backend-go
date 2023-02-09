@@ -1,7 +1,9 @@
 package database
 
 import (
+	"fmt"
 	"log"
+	"os"
 
 	"github.com/MadMaxMR/backend-go/modelos"
 
@@ -10,13 +12,17 @@ import (
 )
 
 func initConnection() *gorm.DB {
-	/*Coneccion con ElephantSQL*/
-	//connStr := "postgres://arwpboxu:qP449bZjdC9jEpih47th8Hn21yi2Aj6h@motty.db.elephantsql.com/arwpboxu"
+	host := os.Getenv("DB_HOST")
+	port := os.Getenv("DB_PORT")
+	user := os.Getenv("DB_USER")
+	password := os.Getenv("DB_PASSWORD")
+	dbname := os.Getenv("DB_DATABASE")
 	/*Coneccion con Heroku*/
-	connStr := "postgres://umachay:PoEGxikOL6atTxJrJGvkihikgRCmsZEJ@dpg-cfa8h9pgp3jsh6eefoo0-a.frankfurt-postgres.render.com/umachay"
+	//connStr := "postgres://umachay:PoEGxikOL6atTxJrJGvkihikgRCmsZEJ@dpg-cfa8h9pgp3jsh6eefoo0-a.frankfurt-postgres.render.com/umachay"
 	//connStr := "postgresql://postgres:Z6csX3syUbpUwp5b5GUc@containers-us-west-18.railway.app:6849/railway"
-	//postgresql://${{ PGUSER }}:${{ PGPASSWORD }}@${{ PGHOST }}:${{ PGPORT }}/${{ PGDATABASE }}
-	db, err := gorm.Open("postgres", connStr)
+	dbURI := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s", host, port, user, dbname, password)
+	//connStr := "host='" + PGHOST + "' port=5432 user=postgres dbname='" + PGDATABASE + "' password='" + PGPASSWORD + "' sslmode=disable"
+	db, err := gorm.Open("postgres", dbURI)
 	if err != nil {
 		log.Fatal(err)
 	}
