@@ -144,10 +144,9 @@ func GetPreguntasForExamen(w http.ResponseWriter, req *http.Request) {
 	defer db.Close()
 
 	resultQ := db.Model(&preguntas).Select("DISTINCT pregunta_examens.id,pregunta_examens.enunciado1,pregunta_examens.nivel, cursos.nombre_curso,temas.nombre_tema").
-		Joins("LEFT JOIN temas on pregunta_examens.temas_id = temas.id").
-		Joins("LEFT JOIN cursos on pregunta_examens.cursos_id = cursos.id").
-		Joins("LEFT JOIN examen_preguntas on pregunta_examens.id = examen_preguntas.pregunta_examens_id").
-		Where("examen_preguntas.examens_id <> ?", idExamen).
+		Joins("INNER JOIN temas on pregunta_examens.temas_id = temas.id").
+		Joins("INNER JOIN cursos on pregunta_examens.cursos_id = cursos.id").
+		Where("pregunta_examens.id <> ALL (select pregunta_examens_id from examen_preguntas where examens_id =?)", idExamen).
 		Limit(25).Offset((pageInt - 1) * 25).Order("id DESC").Scan(&result)
 	if resultQ.RowsAffected == 0 {
 		handler.SendFail(w, req, http.StatusBadRequest, "No se encontró preguntas")
