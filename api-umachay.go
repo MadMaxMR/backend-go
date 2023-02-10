@@ -42,7 +42,7 @@ func main() {
 	routes.SetPreguntasRoutes(router)
 
 	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Servicios rest ACADEMIA-UMACHAY"))
+		w.Write([]byte("Servicios rest ACADEMIA-UMACHAY v1.2"))
 	}).Methods("GET")
 
 	if serverPort == "" {
