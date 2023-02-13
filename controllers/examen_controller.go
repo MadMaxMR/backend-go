@@ -85,7 +85,14 @@ func UpdateExamen(w http.ResponseWriter, req *http.Request) {
 
 func DeleteExamen(w http.ResponseWriter, req *http.Request) {
 	examen := modelos.Examens{}
+	examenPreguntas := []modelos.ExamenPreguntas{}
 	id := mux.Vars(req)["id"]
+
+	_, _ = database.GetAll(examenPreguntas, "")
+	if len(examenPreguntas) != 0 {
+		handler.SendFail(w, req, http.StatusNotAcceptable, "Invalid-El examen tiene preguntas")
+		return
+	}
 	message, err := database.Delete(&examen, id)
 	if err != nil {
 		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
