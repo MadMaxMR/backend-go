@@ -420,7 +420,7 @@ func ChangePreguntaExamen(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	handler.SendSuccess(w, req, http.StatusOK, preguntaEx)
+	handler.SendSuccessMessage(w, req, http.StatusOK, "Pregunta actualizada correctamente")
 }
 
 func DeletePreguntaExamen(w http.ResponseWriter, req *http.Request) {
