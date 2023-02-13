@@ -88,7 +88,7 @@ func DeleteExamen(w http.ResponseWriter, req *http.Request) {
 	examenPreguntas := []modelos.ExamenPreguntas{}
 	id := mux.Vars(req)["id"]
 
-	_, _ = database.GetAll(examenPreguntas, "")
+	_, _ = database.GetAll(&examenPreguntas, "")
 	if len(examenPreguntas) != 0 {
 		handler.SendFail(w, req, http.StatusNotAcceptable, "Invalid-El examen tiene preguntas")
 		return
