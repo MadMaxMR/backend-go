@@ -175,7 +175,7 @@ func GetPreguntasOfExamen(w http.ResponseWriter, req *http.Request) {
 	db := database.GetConnection()
 	defer db.Close()
 
-	resultQ := db.Model(&preguntas).Select("DISTINCT pregunta_examens.id,pregunta_examens.enunciado1,pregunta_examens.nivel, cursos.nombre_curso,temas.nombre_tema").
+	resultQ := db.Model(&preguntas).Select("DISTINCT examen_preguntas.id,pregunta_examens.enunciado1,pregunta_examens.nivel, cursos.nombre_curso,temas.nombre_tema").
 		Joins("LEFT JOIN temas on pregunta_examens.temas_id = temas.id").
 		Joins("LEFT JOIN cursos on pregunta_examens.cursos_id = cursos.id").
 		Joins("INNER JOIN examen_preguntas on pregunta_examens.id = examen_preguntas.pregunta_examens_id").
@@ -408,9 +408,6 @@ func ChangePreguntaExamen(w http.ResponseWriter, req *http.Request) {
 	preguntaEx := modelos.ExamenPreguntas{}
 	id := mux.Vars(req)["id"]
 
-	db := database.GetConnection()
-	defer db.Close()
-
 	err := auth.ValidateBody(req, &preguntaEx)
 	if err != nil {
 		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
@@ -424,4 +421,16 @@ func ChangePreguntaExamen(w http.ResponseWriter, req *http.Request) {
 	}
 
 	handler.SendSuccessMessage(w, req, http.StatusOK, "Pregunta actualizada correctamente")
+}
+
+func DeletePreguntaExamen(w http.ResponseWriter, req *http.Request) {
+	preguntaEx := modelos.ExamenPreguntas{}
+	id := mux.Vars(req)["idPregunta"]
+
+	_, err := database.Delete(&preguntaEx, id)
+	if err != nil {
+		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
+		return
+	}
+	handler.SendSuccessMessage(w, req, http.StatusOK, "Pregunta eliminada correctamente")
 }
