@@ -1,9 +1,7 @@
 package database
 
 import (
-	"fmt"
 	"log"
-	"os"
 
 	"github.com/MadMaxMR/backend-go/modelos"
 
@@ -12,15 +10,16 @@ import (
 )
 
 func initConnection() *gorm.DB {
-	host := os.Getenv("DB_HOST")
-	port := os.Getenv("DB_PORT")
-	user := os.Getenv("DB_USER")
-	password := os.Getenv("DB_PASSWORD")
-	dbname := os.Getenv("DB_DATABASE")
-	/*Coneccion con Heroku*/
-	//connStr := "postgres://umachay:PoEGxikOL6atTxJrJGvkihikgRCmsZEJ@dpg-cfa8h9pgp3jsh6eefoo0-a.frankfurt-postgres.render.com/umachay"
+	// host := os.Getenv("DB_HOST")
+	// port := os.Getenv("DB_PORT")
+	// user := os.Getenv("DB_USER")
+	// password := os.Getenv("DB_PASSWORD")
+	// dbname := os.Getenv("DB_DATABASE")
+	/*Coneccion con Railway*/
+	dbURI := "postgresql://postgres:pTUXyukv5bNNsB8caBOZ@containers-us-west-18.railway.app:7907/railway"
 	//connStr := "postgresql://postgres:Z6csX3syUbpUwp5b5GUc@containers-us-west-18.railway.app:6849/railway"
-	dbURI := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s", host, port, user, dbname, password)
+	/*Conecciòn por .env*/
+	//dbURI := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s", host, port, user, dbname, password)
 	//connStr := "host='" + PGHOST + "' port=5432 user=postgres dbname='" + PGDATABASE + "' password='" + PGPASSWORD + "' sslmode=disable"
 	db, err := gorm.Open("postgres", dbURI)
 	if err != nil {
