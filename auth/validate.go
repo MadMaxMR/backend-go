@@ -49,12 +49,7 @@ func ValidateCurso(curso *modelos.Cursos) error {
 	if curso.Nombre_Curso == "" {
 		return errors.New("required field 'nombre_curso'")
 	}
-	if curso.Cod_Area == "" {
-		return errors.New("required field 'cod_area'")
-	}
-	if curso.Image == "" {
-		return errors.New("required field 'image'")
-	}
+
 	return nil
 }
 
