@@ -4,6 +4,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/MadMaxMR/backend-go/auth"
@@ -75,12 +76,14 @@ func UpdateCurso(w http.ResponseWriter, req *http.Request) {
 		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
 		return
 	}
-	modelo, err := database.Update(&curso, id)
+	_, err = database.Update(&curso, id)
 	if err != nil {
 		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
 		return
 	}
-	handler.SendSuccess(w, req, http.StatusOK, modelo)
+	idI, _ := strconv.Atoi(id)
+	curso.ID = uint(idI)
+	handler.SendSuccess(w, req, http.StatusOK, curso)
 }
 
 func UploadImage(w http.ResponseWriter, req *http.Request) {
