@@ -58,14 +58,24 @@ func SaveCurso(w http.ResponseWriter, req *http.Request) {
 }
 
 func DeleteCurso(w http.ResponseWriter, req *http.Request) {
-	curso := modelos.Cursos{}
+	// curso := modelos.Cursos{}
+	db := database.GetConnection()
 	id := mux.Vars(req)["id"]
-	message, err := database.Delete(&curso, id)
-	if err != nil {
-		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
+
+	defer db.Close()
+
+	type Result struct {
+		Response string
+		Status   int
+	}
+	var res []Result
+	db.Raw("CALL delete_cursos($1)", id).Scan(&res)
+
+	if res[0].Status == 400 {
+		handler.SendFail(w, req, http.StatusBadRequest, res[0].Response)
 		return
 	}
-	handler.SendSuccessMessage(w, req, http.StatusOK, message)
+	handler.SendSuccessMessage(w, req, http.StatusOK, res[0].Response)
 }
 
 func UpdateCurso(w http.ResponseWriter, req *http.Request) {
