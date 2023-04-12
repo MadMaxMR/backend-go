@@ -78,3 +78,15 @@ func GetVideoBySubTema(w http.ResponseWriter, req *http.Request) {
 	}
 	handler.SendSuccess(w, req, http.StatusOK, videos)
 }
+
+func DeleteVideo(w http.ResponseWriter, req *http.Request) {
+	videos := []modelos.Videos{}
+	id := mux.Vars(req)["id"]
+
+	message, err := database.Delete(&videos, id)
+	if err != nil {
+		handler.SendFail(w, req, http.StatusConflict, err.Error())
+		return
+	}
+	handler.SendSuccessMessage(w, req, http.StatusOK, message)
+}

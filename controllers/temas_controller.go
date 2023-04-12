@@ -55,14 +55,24 @@ func SaveTema(w http.ResponseWriter, req *http.Request) {
 }
 
 func DeleteTema(w http.ResponseWriter, req *http.Request) {
-	tema := modelos.Temas{}
 	id := mux.Vars(req)["id"]
-	message, err := database.Delete(&tema, id)
-	if err != nil {
-		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
+
+	db := database.GetConnection()
+	defer db.Close()
+
+	type Result struct {
+		Response string
+		Status   int
+	}
+
+	var res []Result
+	db.Raw("CALL delete_tema($1)", id).Scan(&res)
+
+	if res[0].Status == 400 {
+		handler.SendFail(w, req, http.StatusBadRequest, res[0].Response)
 		return
 	}
-	handler.SendSuccessMessage(w, req, http.StatusOK, message)
+	handler.SendSuccessMessage(w, req, http.StatusOK, res[0].Response)
 }
 
 func UpdateTema(w http.ResponseWriter, req *http.Request) {
@@ -114,11 +124,10 @@ func GetTemasVideos(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	result := db.Model(&temas).Where("id_curso = ?", id).Preload("SubTemas", func(db *gorm.DB) *gorm.DB {
-		return db.Order("sub_temas.nivel ASC")
-	}).Preload("Evaluaciones").Preload("SubTemas.Videos", func(db *gorm.DB) *gorm.DB {
-		return db.Order("videos.titulo ASC")
-	}).Find(&temas)
+	result := db.Model(&temas).Where("id_curso = ?", id).Preload("Recursos").
+		Preload("Videos", func(db *gorm.DB) *gorm.DB {
+			return db.Order("videos.titulo ASC")
+		}).Find(&temas)
 
 	if result.RowsAffected == 0 {
 		handler.SendFail(w, req, http.StatusInternalServerError, "No se encontró temas para el curso: "+curso.Nombre_Curso)

@@ -127,16 +127,16 @@ func ValidateReset(usuario *modelos.Usuarios) error {
 
 func ValidateVideo(video *modelos.Videos) error {
 	if video.TemasId == 0 {
-		return errors.New("required field 'TemasId'")
+		return errors.New("required field 'temas_id'")
 	}
 	if video.Link == "" {
-		return errors.New("required field 'Link'")
+		return errors.New("required field 'link'")
 	}
 	if video.Titulo == "" {
-		return errors.New("required field 'Titulo'")
+		return errors.New("required field 'titulo'")
 	}
 	if video.Duracion == "" {
-		return errors.New("required field 'Duracion'")
+		return errors.New("required field 'duracion'")
 	}
 	return nil
 }
