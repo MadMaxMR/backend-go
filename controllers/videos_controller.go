@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/MadMaxMR/backend-go/auth"
 	"github.com/MadMaxMR/backend-go/database"
@@ -79,8 +80,30 @@ func GetVideoBySubTema(w http.ResponseWriter, req *http.Request) {
 	handler.SendSuccess(w, req, http.StatusOK, videos)
 }
 
+func UpdateVideo(w http.ResponseWriter, req *http.Request) {
+	video := modelos.Videos{}
+	id := mux.Vars(req)["id"]
+
+	err := auth.ValidateBody(req, &video)
+	if err != nil {
+		handler.SendFail(w, req, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	_, err = database.Update(&video, id)
+	if err != nil {
+		handler.SendFail(w, req, http.StatusConflict, err.Error())
+		return
+	}
+
+	idInt, _ := strconv.Atoi(id)
+	video.ID = uint(idInt)
+
+	handler.SendSuccess(w, req, http.StatusOK, video)
+}
+
 func DeleteVideo(w http.ResponseWriter, req *http.Request) {
-	videos := []modelos.Videos{}
+	videos := modelos.Videos{}
 	id := mux.Vars(req)["id"]
 
 	message, err := database.Delete(&videos, id)
