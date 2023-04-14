@@ -93,7 +93,7 @@ func UpdateTema(w http.ResponseWriter, req *http.Request) {
 	}
 	
 	idInt,_ := strconv.Atoi(id)
-	tema.ID = idInt
+	tema.ID = uint(idInt)
 	handler.SendSuccess(w, req, http.StatusOK, tema)
 }
 
