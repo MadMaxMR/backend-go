@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/MadMaxMR/backend-go/auth"
 	"github.com/MadMaxMR/backend-go/database"
@@ -85,7 +86,7 @@ func UpdateTema(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	
-	_, err := database.Update(&tema, id)
+	_, err = database.Update(&tema, id)
 	if err != nil {
 		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
 		return
