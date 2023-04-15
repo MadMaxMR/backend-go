@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/MadMaxMR/backend-go/auth"
 	"github.com/MadMaxMR/backend-go/database"
@@ -78,12 +79,22 @@ func DeleteTema(w http.ResponseWriter, req *http.Request) {
 func UpdateTema(w http.ResponseWriter, req *http.Request) {
 	tema := modelos.Temas{}
 	id := mux.Vars(req)["id"]
-	modelo, err := database.Update(&tema, id)
+	
+	err := auth.ValidateBody(req, &tema)
+	if err != nil {
+		handler.SendFail(w, req, http.StatusInternalServerError, err.Error())
+		return
+	}
+	
+	_, err = database.Update(&tema, id)
 	if err != nil {
 		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
 		return
 	}
-	handler.SendSuccess(w, req, http.StatusOK, modelo)
+	
+	idInt,_ := strconv.Atoi(id)
+	tema.ID = uint(idInt)
+	handler.SendSuccess(w, req, http.StatusOK, tema)
 }
 
 //GetTemaByCurso retorna todos los temas de un curso
