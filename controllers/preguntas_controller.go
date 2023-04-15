@@ -35,6 +35,7 @@ func SavePreguntasRespuestas(w http.ResponseWriter, req *http.Request) {
 	ti, _ := strconv.Atoi(req.Form.Get("TemasId"))
 	pregunta.TemasId = uint(ti)
 	pregunta.Nivel = req.Form.Get("Nivel")
+	pregunta.Tipo = req.Form.Get("Tipo")
 
 	pregunta.RespuestaExs = respuestas
 
@@ -106,13 +107,14 @@ func GetAllPreguntas(w http.ResponseWriter, req *http.Request) {
 		Nombre_curso string
 		Nombre_tema  string
 		Nivel        string
+		Tipo         string
 	}
 	result := []Result{}
 
 	db := database.GetConnection()
 	defer db.Close()
 
-	resultQ := db.Model(&preguntas).Select("DISTINCT pregunta_examens.id,pregunta_examens.enunciado1,pregunta_examens.nivel, cursos.nombre_curso,temas.nombre_tema").
+	resultQ := db.Model(&preguntas).Select("DISTINCT pregunta_examens.id,pregunta_examens.enunciado1,pregunta_examens.nivel,pregunta_examens.tipo, cursos.nombre_curso,temas.nombre_tema").
 		Joins("LEFT JOIN temas on pregunta_examens.temas_id = temas.id").
 		Joins("LEFT JOIN cursos on pregunta_examens.cursos_id = cursos.id").
 		Limit(25).Offset((pageInt - 1) * 25).Order("id DESC").Scan(&result)
@@ -265,6 +267,7 @@ func UpdatePreguntaRespuestas(w http.ResponseWriter, req *http.Request) {
 	ti, _ := strconv.Atoi(req.Form.Get("TemasId"))
 	pregunta.TemasId = uint(ti)
 	pregunta.Nivel = req.Form.Get("Nivel")
+	pregunta.Tipo = req.Form.Get("Tipo")
 
 	pregunta.RespuestaExs = respuestas
 
@@ -442,4 +445,20 @@ func DeletePreguntaExamen(w http.ResponseWriter, req *http.Request) {
 	}
 
 	handler.SendSuccessMessage(w, req, http.StatusOK, "Pregunta eliminada correctamente")
+}
+
+func GetPreguntasforETA(w http.ResponseWriter, req *http.Request) {
+	preguntas := []modelos.PreguntaExamens{}
+	id := mux.Vars(req)["id"]
+	db := database.GetConnection()
+	defer db.Close()
+
+	db.Raw("select * from fn_preguntas_eta($1)", id).Scan(&preguntas)
+	fmt.Println("Tamaño de las preguntas: ", len(preguntas))
+
+	for i, pregunta := range preguntas {
+		db.Raw("Select * from respuesta_exs where pregunta_examens_id = $1", pregunta.ID).Scan(&preguntas[i].RespuestaExs)
+	}
+	handler.SendSuccess(w, req, http.StatusOK, preguntas)
+
 }

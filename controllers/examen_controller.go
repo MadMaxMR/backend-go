@@ -193,6 +193,10 @@ func GetExamensPregByArea(w http.ResponseWriter, req *http.Request) {
 	defer db.Close()
 
 	db.Model(&examen).Where("areas_id = ?", id).Find(&examen)
+	if len(examen) == 0 {
+		handler.SendFail(w, req, http.StatusBadRequest, "No hay examenes para el area - "+id)
+		return
+	}
 
 	for i := 0; i < len(examen); i++ {
 		resultQ := db.Preload("RespuestaExs").
