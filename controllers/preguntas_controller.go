@@ -447,6 +447,7 @@ func DeletePreguntaExamen(w http.ResponseWriter, req *http.Request) {
 	handler.SendSuccessMessage(w, req, http.StatusOK, "Pregunta eliminada correctamente")
 }
 
+//GetPreguntasforETA devuelve 10 preguntas para FAS TEST 7 de tipo ETA y 3 de tipo Admision
 func GetPreguntasforETA(w http.ResponseWriter, req *http.Request) {
 	preguntas := []modelos.PreguntaExamens{}
 	id := mux.Vars(req)["id"]
