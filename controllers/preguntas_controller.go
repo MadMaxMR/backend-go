@@ -454,12 +454,15 @@ func GetPreguntasforETA(w http.ResponseWriter, req *http.Request) {
 	db := database.GetConnection()
 	defer db.Close()
 
-	db.Raw("select * from fn_preguntas_eta($1)", id).Scan(&preguntas)
-	fmt.Println("Tamaño de las preguntas: ", len(preguntas))
+	err := db.Raw("select * from fn_preguntas_eta($1)", id).Scan(&preguntas).Error
+
+	if err != nil {
+		handler.SendFail(w, req, http.StatusInternalServerError, err.Error())
+		return
+	}
 
 	for i, pregunta := range preguntas {
 		db.Raw("Select * from respuesta_exs where pregunta_examens_id = $1", pregunta.ID).Scan(&preguntas[i].RespuestaExs)
 	}
 	handler.SendSuccess(w, req, http.StatusOK, preguntas)
-
 }
