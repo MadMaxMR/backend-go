@@ -5,7 +5,9 @@ type Examens struct {
 	Id_Uni            string            `json:"id_uni" gorm:"type:varchar(250) REFERENCES universidads(id) "`
 	AreasId           string            `json:"id_area" sql:"type:varchar(250) REFERENCES areas(id) "`
 	Descripcion       string            `json:"descripcion" gorm:"type:varchar(250)"`
+	Modalidad         string            `json:"modalidad" gorm:"type:string "`
 	LimitePreguntas   int               `json:"limite_preguntas" gorm:"type:int "`
 	CantidadPreguntas int               `json:"cantidad_preguntas" gorm:"type:int "`
+	AnioExamen        string            `json:"anio_examen" gorm:"type:string "`
 	PreguntaExamens   []PreguntaExamens `json:"preguntas"`
 }

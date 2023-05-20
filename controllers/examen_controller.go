@@ -223,3 +223,8 @@ FROM examen_preguntas ex
 INNER JOIN pregunta_examens  pre on ex.pregunta_examens_id = pre.id
 WHERE ex.examens_id = 1
 */
+
+func GetExamensbyAño(w http.ResponseWriter, r *http.Request){
+	
+
+}

@@ -427,22 +427,21 @@ func ChangePreguntaExamen(w http.ResponseWriter, req *http.Request) {
 }
 
 func DeletePreguntaExamen(w http.ResponseWriter, req *http.Request) {
-	preguntaEx := modelos.ExamenPreguntas{}
+	examen_preg := modelos.ExamenPreguntas{}
 	id := mux.Vars(req)["idPregunta"]
 
 	db := database.GetConnection()
 	defer db.Close()
 
-	_, err := database.Delete(&preguntaEx, id)
+	_, err := database.Delete(&examen_preg, id)
 	if err != nil {
 		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
 		return
 	}
 	examenPregunta := modelos.ExamenPreguntas{}
-	result := db.Model(&examenPregunta).Where("examens_id = ?", preguntaEx.ExamensId).Find(&examenPregunta)
-	if result.RowsAffected != 0 {
-		db.Table("examens").Where("id = ?", preguntaEx.ExamensId).UpdateColumn("cantidad_preguntas", result.RowsAffected)
-	}
+	result := db.Model(&examenPregunta).Where("examens_id = ?", examen_preg.ExamensId).Find(&examenPregunta)
+
+	db.Table("examens").Where("id = ?", examen_preg.ExamensId).UpdateColumn("cantidad_preguntas", result.RowsAffected)
 
 	handler.SendSuccessMessage(w, req, http.StatusOK, "Pregunta eliminada correctamente")
 }
