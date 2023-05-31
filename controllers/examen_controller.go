@@ -86,9 +86,14 @@ func UpdateExamen(w http.ResponseWriter, req *http.Request) {
 func DeleteExamen(w http.ResponseWriter, req *http.Request) {
 	examen := modelos.Examens{}
 	examenPreguntas := []modelos.ExamenPreguntas{}
+
 	id := mux.Vars(req)["id"]
 
-	_, _ = database.GetAll(&examenPreguntas, "")
+	db := database.GetConnection()
+
+	defer db.Close()
+
+	db.Raw("SELECT * FROM examen_preguntas where examens_id = ?", id).Scan(&examenPreguntas)
 	if len(examenPreguntas) != 0 {
 		handler.SendFail(w, req, http.StatusNotAcceptable, "Invalid-El examen tiene preguntas")
 		return
@@ -224,7 +229,16 @@ INNER JOIN pregunta_examens  pre on ex.pregunta_examens_id = pre.id
 WHERE ex.examens_id = 1
 */
 
-func GetExamensbyAño(w http.ResponseWriter, r *http.Request){
-	
+func GetExamensbyAño(w http.ResponseWriter, req *http.Request) {
+	type Examenes struct {
+		AnioExamen string
+		Examens    []modelos.Examens
+	}
+	// id := mux.Vars(req)["id"]
 
+	// db := database.GetConnection()
+
+	// defer db.Close()
+
+	// err := db.Raw("SELECT anio_examen FROM")
 }

@@ -8,6 +8,6 @@ type Examens struct {
 	Modalidad         string            `json:"modalidad" gorm:"type:string "`
 	LimitePreguntas   int               `json:"limite_preguntas" gorm:"type:int "`
 	CantidadPreguntas int               `json:"cantidad_preguntas" gorm:"type:int "`
-	AnioExamen        string            `json:"anio_examen" gorm:"type:string "`
+	Anio              string            `json:"anio" gorm:"type:string "`
 	PreguntaExamens   []PreguntaExamens `json:"preguntas"`
 }
