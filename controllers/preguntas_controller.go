@@ -66,6 +66,9 @@ func SavePreguntasRespuestas(w http.ResponseWriter, req *http.Request) {
 		index := strconv.Itoa(i + 1)
 		idRes := strconv.FormatUint(uint64(pregunta.RespuestaExs[i].ID), 10)
 		bol, _ := strconv.ParseBool(req.Form.Get("Valor" + index))
+		respuestas[i].ID = pregunta.RespuestaExs[i].ID
+		respuestas[i].Valor = bol
+		respuestas[i].Respuesta = req.Form.Get("Respuesta" + index)
 		fileR, _, _ := req.FormFile("image" + index)
 		if fileR == nil {
 			continue
@@ -78,16 +81,13 @@ func SavePreguntasRespuestas(w http.ResponseWriter, req *http.Request) {
 				handler.SendFail(w, req, http.StatusBadRequest, err.Error())
 				return
 			}
-			respuestas[i].ID = pregunta.RespuestaExs[i].ID
-			respuestas[i].Valor = bol
-			respuestas[i].Respuesta = req.Form.Get("Respuesta" + index)
 			respuestas[i].ImgLink = urlRes
-			_, err = database.Update(&respuestas[i], idRes)
-			if err != nil {
-				handler.SendFail(w, req, http.StatusBadRequest, err.Error())
-				return
-			}
 		}(i)
+		_, err = database.Update(&respuestas[i], idRes)
+		if err != nil {
+			handler.SendFail(w, req, http.StatusBadRequest, err.Error())
+			return
+		}
 	}
 
 	wg.Wait()
