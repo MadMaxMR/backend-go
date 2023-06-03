@@ -69,13 +69,14 @@ func SavePreguntasRespuestas(w http.ResponseWriter, req *http.Request) {
 		respuestas[i].ID = pregunta.RespuestaExs[i].ID
 		respuestas[i].Valor = bol
 		respuestas[i].Respuesta = req.Form.Get("Respuesta" + index)
-		fileR, _, _ := req.FormFile("image" + index)
-		if fileR == nil {
-			continue
-		}
+
 		wg.Add(1)
 		go func(i int) {
 			defer wg.Done()
+			fileR, _, _ := req.FormFile("image" + index)
+			if fileR == nil {
+				return
+			}
 			urlRes, err := UpImages(fileR, idRes, "Respuesta")
 			if err != nil {
 				handler.SendFail(w, req, http.StatusBadRequest, err.Error())
