@@ -26,7 +26,7 @@ func SavePreguntasRespuestas(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	pregunta.ExamensId = 2
+	pregunta.ExamensId = 0
 	pregunta.Enunciado1 = req.Form.Get("enunciado1")
 	pregunta.Enunciado2 = req.Form.Get("enunciado2")
 	pregunta.Enunciado3 = req.Form.Get("enunciado3")
@@ -257,7 +257,7 @@ func UpdatePreguntaRespuestas(w http.ResponseWriter, req *http.Request) {
 	db.Model(&respuestas).Where("pregunta_examens_id  = ?", id).Find(&respuestas)
 
 	pregunta.ID = uint(idPregunta)
-	pregunta.ExamensId = 2
+	pregunta.ExamensId = 0
 	pregunta.Enunciado1 = req.Form.Get("enunciado1")
 	pregunta.Enunciado2 = req.Form.Get("enunciado2")
 	pregunta.Enunciado3 = req.Form.Get("enunciado3")

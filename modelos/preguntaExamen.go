@@ -2,7 +2,7 @@ package modelos
 
 type PreguntaExamens struct {
 	ID           uint           `json:"id" gorm:"primary_key;auto_increment"`
-	ExamensId    uint           `json:"examen_id" gorm:"type:int REFERENCES examens(id) "`
+	ExamensId    uint           `json:"examen_id" gorm:"type:int"` //REFERENCES examens(id)
 	Enunciado1   string         `json:"enunciado1" gorm:"type:varchar(2000)"`
 	Grafico      string         `json:"grafico" gorm:"type:varchar(2000)"`
 	Enunciado2   string         `json:"enunciado2" gorm:"type:varchar(2000)"`

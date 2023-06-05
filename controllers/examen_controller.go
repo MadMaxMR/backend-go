@@ -106,7 +106,6 @@ func DeleteExamen(w http.ResponseWriter, req *http.Request) {
 	handler.SendSuccessMessage(w, req, http.StatusOK, message)
 }
 
-//GetExamensPregByArea retorna todos los examenes de un area con sus preguntas y alternativas
 func GetPreguntasExamenByArea(w http.ResponseWriter, req *http.Request) {
 	examen := []modelos.Examens{}
 	id := mux.Vars(req)["id"]
@@ -189,6 +188,7 @@ func GetPoints(w http.ResponseWriter, req *http.Request) {
 // 		fmt.Print("\n valor ", i, ":", cadena[i])
 // 	}
 
+//GetExamensPregByArea retorna todos los examenes de un area con sus preguntas y alternativas
 func GetExamensPregByArea(w http.ResponseWriter, req *http.Request) {
 	preguntas := []modelos.PreguntaExamens{}
 	examen := []modelos.Examens{}
@@ -229,16 +229,27 @@ INNER JOIN pregunta_examens  pre on ex.pregunta_examens_id = pre.id
 WHERE ex.examens_id = 1
 */
 
-func GetExamensbyAño(w http.ResponseWriter, req *http.Request) {
-	type Examenes struct {
-		AnioExamen string
-		Examens    []modelos.Examens
+func GetExamensbyAnio(w http.ResponseWriter, req *http.Request) {
+	type Examen struct {
+		Anio    string
+		Examens []modelos.Examens
 	}
-	// id := mux.Vars(req)["id"]
+	Examenes := []Examen{}
+	id := mux.Vars(req)["id"]
 
-	// db := database.GetConnection()
+	db := database.GetConnection()
+	defer db.Close()
 
-	// defer db.Close()
+	db.Raw("SELECT anio FROM examens WHERE areas_id = $1 GROUP BY anio ", id).Scan(&Examenes)
+	if len(Examenes) == 0 {
+		handler.SendFail(w, req, http.StatusNotFound, "No se encontró examenes para el area seleccionada")
+		return
+	}
 
-	// err := db.Raw("SELECT anio_examen FROM")
+	for n, v := range Examenes {
+		var Examens []modelos.Examens
+		db.Where("anio= $1 and areas_id = $2", v.Anio, id).Find(&Examens)
+		Examenes[n].Examens = Examens
+	}
+	handler.SendSuccess(w, req, http.StatusOK, Examenes)
 }
