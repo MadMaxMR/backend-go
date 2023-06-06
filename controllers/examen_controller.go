@@ -230,13 +230,13 @@ WHERE ex.examens_id = 1
 */
 func GetModalidad(w http.ResponseWriter, req *http.Request){
 	type Modalidades struct {
-		Name	String
-		Code	String
+		Name	string
+		Code	string
 	}
 	modalidad := []Modalidades{}
 	page := req.URL.Query().Get("page")
 	
-	_,err := database.getAll(&modalidad,page)
+	_,err := database.GetAll(&modalidad,page)
 	if err != nil {
 		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
 	}
@@ -264,7 +264,7 @@ func GetExamensbyAnio(w http.ResponseWriter, req *http.Request) {
 	for n, v := range años {
 		var Examens []modelos.Examens
 		db.Where("anio= $1 and areas_id = $2", v.Anio, id).Find(&Examens)
-		examenes[v.anio] = Examens
+		examenes[v.Anio] = Examens
 	}
 	
 	handler.SendSuccess(w, req, http.StatusOK, examenes)
