@@ -234,12 +234,16 @@ func GetModalidad(w http.ResponseWriter, req *http.Request){
 		Code	string
 	}
 	modalidad := []Modalidades{}
-	page := req.URL.Query().Get("page")
 	
-	_,err := database.GetAll(&modalidad,page)
-	if err != nil {
-		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
+	db := database.GetConnection()
+	defer db.Close()
+	
+	db.Raw("SELECT name,code FROM modalidades").Scan(&modalidad)
+	if len(modalidad) == 0 {
+		handler.SendFail(w, req, http.StatusNotFound, "No hay modalidades registradas")
+		return
 	}
+	
 	handler.SendSuccess(w,req,http.StatusOK, modalidad)
 }
 
