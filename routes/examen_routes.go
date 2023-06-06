@@ -23,7 +23,10 @@ func SetExamenRoutes(router *mux.Router) {
 
 	//Ruta para ver los examenes por año
 	subRoute.HandleFunc("/examen/anio/area/{id}", controllers.GetExamensbyAnio).Methods("GET")
-
+	
+	//Ruta para ver las modalidades de los examenes
+	subRoute.HandleFunc("/examen/modalidades/",controllers.GetModalidad).Methods("GET")
+	
 	//No carga las preguntas ni las respuestas - Antiguo
 	subRoute.HandleFunc("/examen/preguntasRespuestas/{id}", controllers.GetPreguntasExamenByArea).Methods("GET")
 
