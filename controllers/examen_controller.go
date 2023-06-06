@@ -228,28 +228,44 @@ FROM examen_preguntas ex
 INNER JOIN pregunta_examens  pre on ex.pregunta_examens_id = pre.id
 WHERE ex.examens_id = 1
 */
+func GetModalidad(w http.ResponseWriter, req *http.Request{
+	type Modalidades struct {
+		Name	String
+		Code	String
+	}
+	modalidad := []Modalidades{}
+	page := req.URL.Query().Get("page")
+	
+	_,err := database.getAll(&modalidad,page)
+	if err != nil {
+		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
+	}
+	handler.SendSuccess(w,req,http.StatusOK, modalidad)
+}
 
 func GetExamensbyAnio(w http.ResponseWriter, req *http.Request) {
-	type Examen struct {
+	type Año struct {
 		Anio    string
-		Examens []modelos.Examens
 	}
-	Examenes := []Examen{}
+	años := []Año{}
 	id := mux.Vars(req)["id"]
-
+	examenes := make(map[string]interface{})
+	
+	
 	db := database.GetConnection()
 	defer db.Close()
 
-	db.Raw("SELECT anio FROM examens WHERE areas_id = $1 GROUP BY anio ", id).Scan(&Examenes)
-	if len(Examenes) == 0 {
+	db.Raw("SELECT anio FROM examens WHERE areas_id = $1 GROUP BY anio ", id).Scan(&años)
+	if len(años) == 0 {
 		handler.SendFail(w, req, http.StatusNotFound, "No se encontró examenes para el area seleccionada")
 		return
 	}
 
-	for n, v := range Examenes {
+	for n, v := range años {
 		var Examens []modelos.Examens
 		db.Where("anio= $1 and areas_id = $2", v.Anio, id).Find(&Examens)
-		Examenes[n].Examens = Examens
+		examenes[v.anio] = Examens
 	}
-	handler.SendSuccess(w, req, http.StatusOK, Examenes)
+	
+	handler.SendSuccess(w, req, http.StatusOK, examenes)
 }
