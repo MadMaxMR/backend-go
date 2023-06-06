@@ -228,7 +228,7 @@ FROM examen_preguntas ex
 INNER JOIN pregunta_examens  pre on ex.pregunta_examens_id = pre.id
 WHERE ex.examens_id = 1
 */
-func GetModalidad(w http.ResponseWriter, req *http.Request{
+func GetModalidad(w http.ResponseWriter, req *http.Request){
 	type Modalidades struct {
 		Name	String
 		Code	String
