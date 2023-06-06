@@ -261,7 +261,7 @@ func GetExamensbyAnio(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	for n, v := range años {
+	for _, v := range años {
 		var Examens []modelos.Examens
 		db.Where("anio= $1 and areas_id = $2", v.Anio, id).Find(&Examens)
 		examenes[v.Anio] = Examens
