@@ -364,6 +364,7 @@ func DeletePreguntaRespuestas(w http.ResponseWriter, req *http.Request) {
 
 func SavePreguntasExamen(w http.ResponseWriter, req *http.Request) {
 	preguntaEx := modelos.ExamenPreguntas{}
+	examen := modelos.Examens{}
 	data := map[string]interface{}{}
 
 	db := database.GetConnection()
@@ -379,8 +380,9 @@ func SavePreguntasExamen(w http.ResponseWriter, req *http.Request) {
 	preguntas := data["preguntas"].([]interface{})
 
 	result := db.Model(&preguntaEx).Where("examens_id = ?", idExamen).Find(&preguntaEx)
-
-	if (len(preguntas) + int(result.RowsAffected)) > 50 {
+	db.Model(&examen).Where("id = ?", id).Find(&examen)
+	
+	if (len(preguntas) + int(result.RowsAffected)) > examen.LimitePreguntas {
 		handler.SendFail(w, req, http.StatusBadRequest, "Las cantidad de preguntas superan el limite de preguntas del examen")
 		return
 	}
