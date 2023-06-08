@@ -380,7 +380,7 @@ func SavePreguntasExamen(w http.ResponseWriter, req *http.Request) {
 	preguntas := data["preguntas"].([]interface{})
 
 	result := db.Model(&preguntaEx).Where("examens_id = ?", idExamen).Find(&preguntaEx)
-	db.Model(&examen).Where("id = ?", id).Find(&examen)
+	db.Model(&examen).Where("id = ?", idExamen).Find(&examen)
 	
 	if (len(preguntas) + int(result.RowsAffected)) > examen.LimitePreguntas {
 		handler.SendFail(w, req, http.StatusBadRequest, "Las cantidad de preguntas superan el limite de preguntas del examen")
