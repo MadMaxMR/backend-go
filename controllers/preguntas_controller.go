@@ -13,7 +13,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-//SavePreguntasRespuestas guarda una pregunta con sus respuestas e imagenes, recibe el body en tipo Form-Data
+// SavePreguntasRespuestas guarda una pregunta con sus respuestas e imagenes, recibe el body en tipo Form-Data
 func SavePreguntasRespuestas(w http.ResponseWriter, req *http.Request) {
 	pregunta := modelos.PreguntaExamens{}
 	respuestas := []modelos.RespuestaExs{
@@ -99,16 +99,16 @@ func GetAllPreguntas(w http.ResponseWriter, req *http.Request) {
 	preguntas := []modelos.PreguntaExamens{}
 	page := req.URL.Query().Get("page")
 	pageSizes := req.URL.Query().Get("pageSize")
-	
-	if page == ""  {
+
+	if page == "" {
 		page = "1"
 	}
 	if pageSizes == "" {
 		pageSizes = "20"
 	}
 	pageInt, _ := strconv.Atoi(page)
-	pageSize,_ :=strconv.Atoi(pageSizes)
-	
+	pageSize, _ := strconv.Atoi(pageSizes)
+
 	type Result struct {
 		Id           uint
 		Enunciado1   string
@@ -136,7 +136,7 @@ func GetAllPreguntas(w http.ResponseWriter, req *http.Request) {
 	}
 
 	_, _ = database.GetAll(&preguntas, "")
-	if len(preguntas)%25 == 0 {
+	if len(preguntas)%pageSize == 0 {
 		result2.Total = len(preguntas) / pageSize
 	} else {
 		result2.Total = (len(preguntas) / pageSize) + 1
@@ -165,10 +165,16 @@ func GetPreguntasForExamen(w http.ResponseWriter, req *http.Request) {
 	preguntas := []modelos.PreguntaExamens{}
 	idExamen := mux.Vars(req)["idExamen"]
 	page := req.URL.Query().Get("page")
+	pageSizes := req.URL.Query().Get("pageSize")
+
 	if page == "" {
 		page = "1"
 	}
+	if pageSizes == "" {
+		pageSizes = "20"
+	}
 	pageInt, _ := strconv.Atoi(page)
+	pageSize, _ := strconv.Atoi(pageSizes)
 	type Result struct {
 		Id           uint
 		Enunciado1   string
@@ -203,11 +209,10 @@ func GetPreguntasForExamen(w http.ResponseWriter, req *http.Request) {
 		result2.Prev = true
 	}
 
-	if int(resultQ.RowsAffected)%25 == 0 || int(resultQ.RowsAffected)%25 >= 13 {
-		result2.Total = int(resultQ.RowsAffected) / 25
-	}
-	if int(resultQ.RowsAffected)%25 <= 12 {
-		result2.Total = (int(resultQ.RowsAffected) / 25) + 1
+	if int(resultQ.RowsAffected)%pageSize == 0 {
+		result2.Total = int(resultQ.RowsAffected) / pageSize
+	} else {
+		result2.Total = (int(resultQ.RowsAffected) / pageSize) + 1
 	}
 
 	if pageInt == result2.Total {
@@ -218,7 +223,7 @@ func GetPreguntasForExamen(w http.ResponseWriter, req *http.Request) {
 		Joins("INNER JOIN temas on pregunta_examens.temas_id = temas.id").
 		Joins("INNER JOIN cursos on pregunta_examens.cursos_id = cursos.id").
 		Where("pregunta_examens.id <> ALL (select pregunta_examens_id from examen_preguntas where examens_id =?)", idExamen).
-		Limit(25).Offset((pageInt - 1) * 25).Order("id DESC").Scan(&result)
+		Limit(pageSize).Offset((pageInt - 1) * pageSize).Order("id DESC").Scan(&result)
 	if resultQ.RowsAffected == 0 {
 		handler.SendFail(w, req, http.StatusBadRequest, "No se encontró preguntas")
 		return
@@ -231,10 +236,15 @@ func GetPreguntasOfExamen(w http.ResponseWriter, req *http.Request) {
 	preguntas := []modelos.PreguntaExamens{}
 	idExamen := mux.Vars(req)["idExamen"]
 	page := req.URL.Query().Get("page")
+	pageSizes := req.URL.Query().Get("pageSize")
 	if page == "" {
 		page = "1"
 	}
+	if pageSizes == "" {
+		pageSizes = "20"
+	}
 	pageInt, _ := strconv.Atoi(page)
+	pageSize, _ := strconv.Atoi(pageSizes)
 	type Result struct {
 		Id           uint
 		Enunciado1   string
@@ -270,11 +280,10 @@ func GetPreguntasOfExamen(w http.ResponseWriter, req *http.Request) {
 		result2.Prev = true
 	}
 
-	if int(resultQ.RowsAffected)%25 == 0 || int(resultQ.RowsAffected)%25 >= 13 {
-		result2.Total = int(resultQ.RowsAffected) / 25
-	}
-	if int(resultQ.RowsAffected)%25 <= 12 {
-		result2.Total = (int(resultQ.RowsAffected) / 25) + 1
+	if int(resultQ.RowsAffected)%pageSize == 0 {
+		result2.Total = int(resultQ.RowsAffected) / pageSize
+	} else {
+		result2.Total = (int(resultQ.RowsAffected) / pageSize) + 1
 	}
 
 	if pageInt == result2.Total {
@@ -286,7 +295,7 @@ func GetPreguntasOfExamen(w http.ResponseWriter, req *http.Request) {
 		Joins("LEFT JOIN cursos on pregunta_examens.cursos_id = cursos.id").
 		Joins("INNER JOIN examen_preguntas on pregunta_examens.id = examen_preguntas.pregunta_examens_id").
 		Where("examen_preguntas.examens_id = ?", idExamen).
-		Limit(25).Offset((pageInt - 1) * 25).Order("id DESC").Scan(&result)
+		Limit(pageSize).Offset((pageInt - 1) * pageSize).Order("id DESC").Scan(&result)
 	if resultQ.RowsAffected == 0 {
 		handler.SendFail(w, req, http.StatusBadRequest, "No se encontró preguntas")
 		return
@@ -553,7 +562,7 @@ func DeletePreguntaExamen(w http.ResponseWriter, req *http.Request) {
 	handler.SendSuccessMessage(w, req, http.StatusOK, "Pregunta eliminada correctamente")
 }
 
-//GetPreguntasforETA devuelve 10 preguntas para FAS TEST 7 de tipo ETA y 3 de tipo Admision
+// GetPreguntasforETA devuelve 10 preguntas para FAS TEST 7 de tipo ETA y 3 de tipo Admision
 func GetPreguntasforETA(w http.ResponseWriter, req *http.Request) {
 	preguntas := []modelos.PreguntaExamens{}
 	id := mux.Vars(req)["id"]
