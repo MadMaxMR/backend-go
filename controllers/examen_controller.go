@@ -61,8 +61,7 @@ func GetAllExamens(w http.ResponseWriter, req *http.Request) {
 	}
 
 	_, _ = database.GetAll(&examen, "")
-	fmt.Println(len(examen) % 10)
-	fmt.Println(len(examen) / 10)
+
 	if len(examen)%10 == 0 || len(examen)%10 > 5 {
 		result2.Total = len(examen) / 10
 	}

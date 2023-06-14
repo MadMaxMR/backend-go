@@ -157,7 +157,7 @@ func GetAllPreguntas(w http.ResponseWriter, req *http.Request) {
 }
 
 func GetPreguntasForExamen(w http.ResponseWriter, req *http.Request) {
-	preguntas := modelos.PreguntaExamens{}
+	preguntas := []modelos.PreguntaExamens{}
 	idExamen := mux.Vars(req)["idExamen"]
 	page := req.URL.Query().Get("page")
 	if page == "" {
@@ -171,12 +171,45 @@ func GetPreguntasForExamen(w http.ResponseWriter, req *http.Request) {
 		Nombre_tema  string
 		Nivel        string
 	}
+	type Result2 struct {
+		Page      string
+		Prev      bool
+		Next      bool
+		Total     int
+		Preguntas []Result
+	}
 	result := []Result{}
+	result2 := Result2{}
 
 	db := database.GetConnection()
 	defer db.Close()
-
 	resultQ := db.Model(&preguntas).Select("DISTINCT pregunta_examens.id,pregunta_examens.enunciado1,pregunta_examens.nivel, cursos.nombre_curso,temas.nombre_tema").
+		Joins("INNER JOIN temas on pregunta_examens.temas_id = temas.id").
+		Joins("INNER JOIN cursos on pregunta_examens.cursos_id = cursos.id").
+		Where("pregunta_examens.id <> ALL (select pregunta_examens_id from examen_preguntas where examens_id =?)", idExamen).
+		Scan(&result)
+
+	result2.Page = page
+	result2.Next = true
+	if pageInt == 1 {
+		result2.Prev = false
+	}
+	if pageInt > 1 {
+		result2.Prev = true
+	}
+
+	if int(resultQ.RowsAffected)%25 == 0 || int(resultQ.RowsAffected)%25 >= 13 {
+		result2.Total = int(resultQ.RowsAffected) / 25
+	}
+	if int(resultQ.RowsAffected)%25 <= 12 {
+		result2.Total = (int(resultQ.RowsAffected) / 25) + 1
+	}
+
+	if pageInt == result2.Total {
+		result2.Next = false
+	}
+
+	resultQ = db.Model(&preguntas).Select("DISTINCT pregunta_examens.id,pregunta_examens.enunciado1,pregunta_examens.nivel, cursos.nombre_curso,temas.nombre_tema").
 		Joins("INNER JOIN temas on pregunta_examens.temas_id = temas.id").
 		Joins("INNER JOIN cursos on pregunta_examens.cursos_id = cursos.id").
 		Where("pregunta_examens.id <> ALL (select pregunta_examens_id from examen_preguntas where examens_id =?)", idExamen).
@@ -185,11 +218,12 @@ func GetPreguntasForExamen(w http.ResponseWriter, req *http.Request) {
 		handler.SendFail(w, req, http.StatusBadRequest, "No se encontró preguntas")
 		return
 	}
-	handler.SendSuccess(w, req, http.StatusOK, result)
+	result2.Preguntas = result
+	handler.SendSuccess(w, req, http.StatusOK, result2)
 }
 
 func GetPreguntasOfExamen(w http.ResponseWriter, req *http.Request) {
-	preguntas := modelos.PreguntaExamens{}
+	preguntas := []modelos.PreguntaExamens{}
 	idExamen := mux.Vars(req)["idExamen"]
 	page := req.URL.Query().Get("page")
 	if page == "" {
@@ -203,12 +237,46 @@ func GetPreguntasOfExamen(w http.ResponseWriter, req *http.Request) {
 		Nombre_tema  string
 		Nivel        string
 	}
+	type Result2 struct {
+		Page      string
+		Prev      bool
+		Next      bool
+		Total     int
+		Preguntas []Result
+	}
 	result := []Result{}
+	result2 := Result2{}
 
 	db := database.GetConnection()
 	defer db.Close()
 
 	resultQ := db.Model(&preguntas).Select("DISTINCT examen_preguntas.id,pregunta_examens.enunciado1,pregunta_examens.nivel, cursos.nombre_curso,temas.nombre_tema").
+		Joins("LEFT JOIN temas on pregunta_examens.temas_id = temas.id").
+		Joins("LEFT JOIN cursos on pregunta_examens.cursos_id = cursos.id").
+		Joins("INNER JOIN examen_preguntas on pregunta_examens.id = examen_preguntas.pregunta_examens_id").
+		Where("examen_preguntas.examens_id = ?", idExamen).Scan(&result)
+
+	result2.Page = page
+	result2.Next = true
+	if pageInt == 1 {
+		result2.Prev = false
+	}
+	if pageInt > 1 {
+		result2.Prev = true
+	}
+
+	if int(resultQ.RowsAffected)%25 == 0 || int(resultQ.RowsAffected)%25 >= 13 {
+		result2.Total = int(resultQ.RowsAffected) / 25
+	}
+	if int(resultQ.RowsAffected)%25 <= 12 {
+		result2.Total = (int(resultQ.RowsAffected) / 25) + 1
+	}
+
+	if pageInt == result2.Total {
+		result2.Next = false
+	}
+
+	resultQ = db.Model(&preguntas).Select("DISTINCT examen_preguntas.id,pregunta_examens.enunciado1,pregunta_examens.nivel, cursos.nombre_curso,temas.nombre_tema").
 		Joins("LEFT JOIN temas on pregunta_examens.temas_id = temas.id").
 		Joins("LEFT JOIN cursos on pregunta_examens.cursos_id = cursos.id").
 		Joins("INNER JOIN examen_preguntas on pregunta_examens.id = examen_preguntas.pregunta_examens_id").
@@ -218,7 +286,8 @@ func GetPreguntasOfExamen(w http.ResponseWriter, req *http.Request) {
 		handler.SendFail(w, req, http.StatusBadRequest, "No se encontró preguntas")
 		return
 	}
-	handler.SendSuccess(w, req, http.StatusOK, result)
+	result2.Preguntas = result
+	handler.SendSuccess(w, req, http.StatusOK, result2)
 }
 
 func GetPreguntasCursoTema(w http.ResponseWriter, req *http.Request) {
