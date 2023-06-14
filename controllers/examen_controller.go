@@ -62,10 +62,9 @@ func GetAllExamens(w http.ResponseWriter, req *http.Request) {
 
 	_, _ = database.GetAll(&examen, "")
 
-	if len(examen)%10 == 0 || len(examen)%10 > 5 {
+	if len(examen)%10 == 0 {
 		result2.Total = len(examen) / 10
-	}
-	if len(examen)%10 <= 5 {
+	}else{
 		result2.Total = (len(examen) / 10) + 1
 	}
 
