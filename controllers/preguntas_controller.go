@@ -114,7 +114,7 @@ func GetAllPreguntas(w http.ResponseWriter, req *http.Request) {
 		Prev      bool
 		Next      bool
 		Total     int
-		Preguntas []Result
+		Preguntas []map[string]interface{}
 	}
 	result2 := Result{}
 
