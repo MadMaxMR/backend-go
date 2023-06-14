@@ -40,11 +40,47 @@ func SaveExamens(w http.ResponseWriter, req *http.Request) {
 func GetAllExamens(w http.ResponseWriter, req *http.Request) {
 	examen := []modelos.Examens{}
 	page := req.URL.Query().Get("page")
-	modelo, err := database.GetAll(&examen, page)
+	pageInt, _ := strconv.Atoi(page)
+
+	type Result struct {
+		Page     string
+		Prev     bool
+		Next     bool
+		Total    int
+		Examenes []modelos.Examens
+	}
+	result2 := Result{}
+
+	result2.Page = page
+	result2.Next = true
+	if pageInt == 1 {
+		result2.Prev = false
+	}
+	if pageInt > 1 {
+		result2.Prev = true
+	}
+
+	_, _ = database.GetAll(&examen, "")
+	fmt.Println(len(examen) % 10)
+	fmt.Println(len(examen) / 10)
+	if len(examen)%10 == 0 || len(examen)%10 > 5 {
+		result2.Total = len(examen) / 10
+	}
+	if len(examen)%10 <= 5 {
+		result2.Total = (len(examen) / 10) + 1
+	}
+
+	if pageInt == result2.Total {
+		result2.Next = false
+	}
+
+	examen = nil
+	_, err := database.GetAll(&examen, page)
 	if err != nil {
 		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
 	}
-	handler.SendSuccess(w, req, http.StatusOK, modelo)
+	result2.Examenes = examen
+	handler.SendSuccess(w, req, http.StatusOK, result2)
 }
 
 func GetExamenById(w http.ResponseWriter, req *http.Request) {
@@ -228,34 +264,33 @@ FROM examen_preguntas ex
 INNER JOIN pregunta_examens  pre on ex.pregunta_examens_id = pre.id
 WHERE ex.examens_id = 1
 */
-func GetModalidad(w http.ResponseWriter, req *http.Request){
+func GetModalidad(w http.ResponseWriter, req *http.Request) {
 	type Modalidades struct {
-		Name	string
-		Code	string
+		Name string
+		Code string
 	}
 	modalidad := []Modalidades{}
-	
+
 	db := database.GetConnection()
 	defer db.Close()
-	
+
 	db.Raw("SELECT name,code FROM modalidades").Scan(&modalidad)
 	if len(modalidad) == 0 {
 		handler.SendFail(w, req, http.StatusNotFound, "No hay modalidades registradas")
 		return
 	}
-	
-	handler.SendSuccess(w,req,http.StatusOK, modalidad)
+
+	handler.SendSuccess(w, req, http.StatusOK, modalidad)
 }
 
 func GetExamensbyAnio(w http.ResponseWriter, req *http.Request) {
 	type Año struct {
-		Anio    string
+		Anio string
 	}
 	años := []Año{}
 	id := mux.Vars(req)["id"]
 	examenes := make(map[string]interface{})
-	
-	
+
 	db := database.GetConnection()
 	defer db.Close()
 
@@ -270,6 +305,6 @@ func GetExamensbyAnio(w http.ResponseWriter, req *http.Request) {
 		db.Where("anio= $1 and areas_id = $2", v.Anio, id).Find(&Examens)
 		examenes[v.Anio] = Examens
 	}
-	
+
 	handler.SendSuccess(w, req, http.StatusOK, examenes)
 }

@@ -96,7 +96,7 @@ func SavePreguntasRespuestas(w http.ResponseWriter, req *http.Request) {
 }
 
 func GetAllPreguntas(w http.ResponseWriter, req *http.Request) {
-	preguntas := modelos.PreguntaExamens{}
+	preguntas := []modelos.PreguntaExamens{}
 	page := req.URL.Query().Get("page")
 	if page == "" {
 		page = "1"
@@ -110,7 +110,36 @@ func GetAllPreguntas(w http.ResponseWriter, req *http.Request) {
 		Nivel        string
 		Tipo         string
 	}
+	type Result2 struct {
+		Page      string
+		Prev      bool
+		Next      bool
+		Total     int
+		Preguntas []Result
+	}
 	result := []Result{}
+	result2 := Result2{}
+
+	result2.Page = page
+	result2.Next = true
+	if pageInt == 1 {
+		result2.Prev = false
+	}
+	if pageInt > 1 {
+		result2.Prev = true
+	}
+
+	_, _ = database.GetAll(&preguntas, "")
+	if len(preguntas)%25 == 0 || len(preguntas)%25 >= 13 {
+		result2.Total = len(preguntas) / 25
+	}
+	if len(preguntas)%25 <= 12 {
+		result2.Total = (len(preguntas) / 25) + 1
+	}
+
+	if pageInt == result2.Total {
+		result2.Next = false
+	}
 
 	db := database.GetConnection()
 	defer db.Close()
@@ -123,7 +152,8 @@ func GetAllPreguntas(w http.ResponseWriter, req *http.Request) {
 		handler.SendFail(w, req, http.StatusBadRequest, "No se encontró preguntas")
 		return
 	}
-	handler.SendSuccess(w, req, http.StatusOK, result)
+	result2.Preguntas = result
+	handler.SendSuccess(w, req, http.StatusOK, result2)
 }
 
 func GetPreguntasForExamen(w http.ResponseWriter, req *http.Request) {
@@ -381,7 +411,7 @@ func SavePreguntasExamen(w http.ResponseWriter, req *http.Request) {
 
 	result := db.Model(&preguntaEx).Where("examens_id = ?", idExamen).Find(&preguntaEx)
 	db.Model(&examen).Where("id = ?", idExamen).Find(&examen)
-	
+
 	if (len(preguntas) + int(result.RowsAffected)) > examen.LimitePreguntas {
 		handler.SendFail(w, req, http.StatusBadRequest, "Las cantidad de preguntas superan el limite de preguntas del examen")
 		return
