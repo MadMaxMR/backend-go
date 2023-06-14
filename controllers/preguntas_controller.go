@@ -136,10 +136,9 @@ func GetAllPreguntas(w http.ResponseWriter, req *http.Request) {
 	}
 
 	_, _ = database.GetAll(&preguntas, "")
-	if len(preguntas)%pageSize == 0 || len(preguntas)%pageSize > pageSize/2 {
+	if len(preguntas)%25 == 0 {
 		result2.Total = len(preguntas) / pageSize
-	}
-	if len(preguntas)%pageSize <= pageSize/2 {
+	} else {
 		result2.Total = (len(preguntas) / pageSize) + 1
 	}
 
