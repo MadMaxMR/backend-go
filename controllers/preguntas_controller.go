@@ -116,7 +116,7 @@ func GetAllPreguntas(w http.ResponseWriter, req *http.Request) {
 		Nombre_tema  string
 		Nivel        string
 	}
-	type Result struct {
+	type Result2 struct {
 		Page      string
 		Prev      bool
 		Next      bool
@@ -124,7 +124,7 @@ func GetAllPreguntas(w http.ResponseWriter, req *http.Request) {
 		Preguntas []map[string]interface{}
 	}
 	result := []Result{}
-	result2 := Result{}
+	result2 := Result2{}
 
 	result2.Page = page
 	result2.Next = true
