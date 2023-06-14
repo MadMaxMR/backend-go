@@ -97,7 +97,6 @@ func SavePreguntasRespuestas(w http.ResponseWriter, req *http.Request) {
 
 func GetAllPreguntas(w http.ResponseWriter, req *http.Request) {
 	preguntas := []modelos.PreguntaExamens{}
-	var result []map[string]interface{}
 	page := req.URL.Query().Get("page")
 	pageSizes := req.URL.Query().Get("pageSize")
 	
@@ -109,6 +108,14 @@ func GetAllPreguntas(w http.ResponseWriter, req *http.Request) {
 	}
 	pageInt, _ := strconv.Atoi(page)
 	pageSize,_ :=strconv.Atoi(pageSizes)
+	
+	type Result struct {
+		Id           uint
+		Enunciado1   string
+		Nombre_curso string
+		Nombre_tema  string
+		Nivel        string
+	}
 	type Result struct {
 		Page      string
 		Prev      bool
@@ -116,6 +123,7 @@ func GetAllPreguntas(w http.ResponseWriter, req *http.Request) {
 		Total     int
 		Preguntas []map[string]interface{}
 	}
+	result := []Result{}
 	result2 := Result{}
 
 	result2.Page = page
