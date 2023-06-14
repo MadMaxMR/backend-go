@@ -99,16 +99,16 @@ func GetAllPreguntas(w http.ResponseWriter, req *http.Request) {
 	preguntas := []modelos.PreguntaExamens{}
 	var result []map[string]interface{}
 	page := req.URL.Query().Get("page")
-	pageSize := req.URL.Query().Get("pageSize")
+	pageSizes := req.URL.Query().Get("pageSize")
 	
 	if page == ""  {
 		page = "1"
 	}
-	if pageSize == "" {
-		pageSize = "20"
+	if pageSizes == "" {
+		pageSizes = "20"
 	}
 	pageInt, _ := strconv.Atoi(page)
-	
+	pageSize,_ :=strconv.Atoi(pageSizes)
 	type Result struct {
 		Page      string
 		Prev      bool
