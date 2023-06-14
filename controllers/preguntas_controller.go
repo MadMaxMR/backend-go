@@ -97,28 +97,26 @@ func SavePreguntasRespuestas(w http.ResponseWriter, req *http.Request) {
 
 func GetAllPreguntas(w http.ResponseWriter, req *http.Request) {
 	preguntas := []modelos.PreguntaExamens{}
+	var result []map[string]interface{}
 	page := req.URL.Query().Get("page")
-	if page == "" {
+	pageSize := req.URL.Query().Get("pageSize")
+	
+	if page == ""  {
 		page = "1"
 	}
-	pageInt, _ := strconv.Atoi(page)
-	type Result struct {
-		Id           uint
-		Enunciado1   string
-		Nombre_curso string
-		Nombre_tema  string
-		Nivel        string
-		Tipo         string
+	if pageSize == "" {
+		pageSize = "20"
 	}
-	type Result2 struct {
+	pageInt, _ := strconv.Atoi(page)
+	
+	type Result struct {
 		Page      string
 		Prev      bool
 		Next      bool
 		Total     int
 		Preguntas []Result
 	}
-	result := []Result{}
-	result2 := Result2{}
+	result2 := Result{}
 
 	result2.Page = page
 	result2.Next = true
@@ -130,11 +128,11 @@ func GetAllPreguntas(w http.ResponseWriter, req *http.Request) {
 	}
 
 	_, _ = database.GetAll(&preguntas, "")
-	if len(preguntas)%25 == 0 || len(preguntas)%25 >= 13 {
-		result2.Total = len(preguntas) / 25
+	if len(preguntas)%pageSize == 0 || len(preguntas)%pageSize > pageSize/2 {
+		result2.Total = len(preguntas) / pageSize
 	}
-	if len(preguntas)%25 <= 12 {
-		result2.Total = (len(preguntas) / 25) + 1
+	if len(preguntas)%pageSize <= pageSize/2 {
+		result2.Total = (len(preguntas) / pageSize) + 1
 	}
 
 	if pageInt == result2.Total {
@@ -147,7 +145,7 @@ func GetAllPreguntas(w http.ResponseWriter, req *http.Request) {
 	resultQ := db.Model(&preguntas).Select("DISTINCT pregunta_examens.id,pregunta_examens.enunciado1,pregunta_examens.nivel,pregunta_examens.tipo, cursos.nombre_curso,temas.nombre_tema").
 		Joins("LEFT JOIN temas on pregunta_examens.temas_id = temas.id").
 		Joins("LEFT JOIN cursos on pregunta_examens.cursos_id = cursos.id").
-		Limit(25).Offset((pageInt - 1) * 25).Order("id DESC").Scan(&result)
+		Limit(pageSize).Offset((pageInt - 1) * pageSize).Order("id DESC").Scan(&result)
 	if resultQ.RowsAffected == 0 {
 		handler.SendFail(w, req, http.StatusBadRequest, "No se encontró preguntas")
 		return
