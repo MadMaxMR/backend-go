@@ -40,7 +40,13 @@ func SaveExamens(w http.ResponseWriter, req *http.Request) {
 func GetAllExamens(w http.ResponseWriter, req *http.Request) {
 	examen := []modelos.Examens{}
 	page := req.URL.Query().Get("page")
+	pageSizes := req.URL.Query().Get("pageSize")
+
 	pageInt, _ := strconv.Atoi(page)
+	pageSize, _ := strconv.Atoi(pageSizes)
+
+	db := database.GetConnection()
+	defer db.Close()
 
 	type Result struct {
 		Page     string
@@ -61,22 +67,24 @@ func GetAllExamens(w http.ResponseWriter, req *http.Request) {
 	}
 
 	_, _ = database.GetAll(&examen, "")
-
-	if len(examen)%10 == 0 {
-		result2.Total = len(examen) / 10
-	}else{
-		result2.Total = (len(examen) / 10) + 1
+	if len(examen)%pageSize == 0 {
+		result2.Total = len(examen) / pageSize
+	} else {
+		result2.Total = (len(examen) / pageSize) + 1
 	}
 
 	if pageInt == result2.Total {
 		result2.Next = false
 	}
 
-	examen = nil
-	_, err := database.GetAll(&examen, page)
-	if err != nil {
-		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
+	result := db.Model(&examen).Select("*").Limit(pageSize).Offset((pageInt - 1) * pageSize).Order("id ASC").Find(&examen)
+	if result.RowsAffected == 0 {
+		handler.SendFail(w, req, http.StatusNotFound, "No se encontró exámenes")
+		return
 	}
+
+	fmt.Println("count de result", result.RowsAffected)
+
 	result2.Examenes = examen
 	handler.SendSuccess(w, req, http.StatusOK, result2)
 }
