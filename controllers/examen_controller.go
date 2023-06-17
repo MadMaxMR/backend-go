@@ -42,6 +42,13 @@ func GetAllExamens(w http.ResponseWriter, req *http.Request) {
 	page := req.URL.Query().Get("page")
 	pageSizes := req.URL.Query().Get("pageSize")
 
+	if page == "" {
+		page = "1"
+	}
+	if pageSizes == "" {
+		pageSizes = "10"
+	}
+
 	pageInt, _ := strconv.Atoi(page)
 	pageSize, _ := strconv.Atoi(pageSizes)
 
@@ -82,8 +89,6 @@ func GetAllExamens(w http.ResponseWriter, req *http.Request) {
 		handler.SendFail(w, req, http.StatusNotFound, "No se encontró exámenes")
 		return
 	}
-
-	fmt.Println("count de result", result.RowsAffected)
 
 	result2.Examenes = examen
 	handler.SendSuccess(w, req, http.StatusOK, result2)
