@@ -256,7 +256,7 @@ func GetExamensPregByArea(w http.ResponseWriter, req *http.Request) {
 			Select("pregunta_examens.id,ex.examens_id,pregunta_examens.enunciado1,pregunta_examens.grafico," +
 				"pregunta_examens.enunciado2,pregunta_examens.enunciado3,row_number() OVER () AS num_question," +
 				"pregunta_examens.cursos_id,pregunta_examens.temas_id,pregunta_examens.nivel").
-			Joins("INNER JOIN examen_preguntas ex on ex.pregunta_examens_id = pregunta_examens.id").
+			Joins("INNER JOIN examen_preguntas ex on ex.pregunta_examens_id = pregunta_examens.id").Order("pregunta_examens.id DESC").
 			Find(&preguntas).Error
 		if resultQ != nil {
 			handler.SendFail(w, req, http.StatusBadRequest, resultQ.Error())
