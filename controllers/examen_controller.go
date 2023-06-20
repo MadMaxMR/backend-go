@@ -244,9 +244,9 @@ func GetExamensPregByArea(w http.ResponseWriter, req *http.Request) {
 	db := database.GetConnection()
 	defer db.Close()
 
-	db.Model(&examen).Where("areas_id = ?", id).Find(&examen)
+	db.Model(&examen).Where("id = ?", id).Find(&examen)
 	if len(examen) == 0 {
-		handler.SendFail(w, req, http.StatusBadRequest, "No hay examenes para el area - "+id)
+		handler.SendFail(w, req, http.StatusBadRequest, "No existe el examen - "+id)
 		return
 	}
 
