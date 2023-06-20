@@ -249,8 +249,11 @@ func GetExamensPregByArea(w http.ResponseWriter, req *http.Request) {
 		handler.SendFail(w, req, http.StatusBadRequest, "No existe el examen - "+id)
 		return
 	}
-
-	resultQ := db.Preload("RespuestaExs").
+	if  examen.LimitePreguntas != examen.CantidadPreguntas {
+		handler.SendFail(w, req, http.StatusBadRequest, "El examen no tiene preguntas completas")
+		return
+	}
+	resultQ = db.Preload("RespuestaExs").
 		Where("ex.examens_id = ?", examen.ID).
 		Select("pregunta_examens.id,ex.examens_id,pregunta_examens.enunciado1,pregunta_examens.grafico," +
 			"pregunta_examens.enunciado2,pregunta_examens.enunciado3,row_number() OVER () AS num_question," +
