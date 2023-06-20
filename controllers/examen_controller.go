@@ -260,7 +260,7 @@ func GetExamensPregByArea(w http.ResponseWriter, req *http.Request) {
 			"pregunta_examens.cursos_id,pregunta_examens.temas_id,pregunta_examens.nivel").
 		Joins("INNER JOIN examen_preguntas ex on ex.pregunta_examens_id = pregunta_examens.id").Order("pregunta_examens.id DESC").
 		Find(&preguntas)
-	if resultQ.RowsAffected != 0 {
+	if resultQ.RowsAffected == 0 {
 		handler.SendFail(w, req, http.StatusBadRequest, "No se agregó preguntas al examen")
 		return
 	}
