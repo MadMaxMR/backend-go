@@ -250,7 +250,7 @@ func GetExamensPregByArea(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	if  examen.LimitePreguntas != examen.CantidadPreguntas {
-		handler.SendFail(w, req, http.StatusBadRequest, "El examen no tiene preguntas completas")
+		handler.SendFail(w, req, http.StatusBadRequest, "El examen no tiene preguntas completas - "+fmt.Sprint(examen.LimitePreguntas)+"/"+fmt.Sprint(examen.CantidadPreguntas))
 		return
 	}
 	resultQ = db.Preload("RespuestaExs").
