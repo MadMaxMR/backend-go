@@ -238,33 +238,31 @@ func GetPoints(w http.ResponseWriter, req *http.Request) {
 //GetExamensPregByArea retorna todos los examenes de un area con sus preguntas y alternativas
 func GetExamensPregByArea(w http.ResponseWriter, req *http.Request) {
 	preguntas := []modelos.PreguntaExamens{}
-	examen := []modelos.Examens{}
+	examen := modelos.Examens{}
 	id := mux.Vars(req)["id"]
 
 	db := database.GetConnection()
 	defer db.Close()
 
-	db.Model(&examen).Where("id = ?", id).Find(&examen)
-	if len(examen) == 0 {
+	resultQ := db.Model(&examen).Where("id = ?", id).Find(&examen)
+	if resultQ.RowsAffected == 0 {
 		handler.SendFail(w, req, http.StatusBadRequest, "No existe el examen - "+id)
 		return
 	}
 
-	for i := 0; i < len(examen); i++ {
-		resultQ := db.Preload("RespuestaExs").
-			Where("ex.examens_id = ?", examen[i].ID).
-			Select("pregunta_examens.id,ex.examens_id,pregunta_examens.enunciado1,pregunta_examens.grafico," +
-				"pregunta_examens.enunciado2,pregunta_examens.enunciado3,row_number() OVER () AS num_question," +
-				"pregunta_examens.cursos_id,pregunta_examens.temas_id,pregunta_examens.nivel").
-			Joins("INNER JOIN examen_preguntas ex on ex.pregunta_examens_id = pregunta_examens.id").Order("pregunta_examens.id DESC").
-			Find(&preguntas).Error
-		if resultQ != nil {
-			handler.SendFail(w, req, http.StatusBadRequest, resultQ.Error())
-			return
-		}
-		examen[i].PreguntaExamens = preguntas
+	resultQ := db.Preload("RespuestaExs").
+		Where("ex.examens_id = ?", examen.ID).
+		Select("pregunta_examens.id,ex.examens_id,pregunta_examens.enunciado1,pregunta_examens.grafico," +
+			"pregunta_examens.enunciado2,pregunta_examens.enunciado3,row_number() OVER () AS num_question," +
+			"pregunta_examens.cursos_id,pregunta_examens.temas_id,pregunta_examens.nivel").
+		Joins("INNER JOIN examen_preguntas ex on ex.pregunta_examens_id = pregunta_examens.id").Order("pregunta_examens.id DESC").
+		Find(&preguntas)
+	if resultQ.RowsAffected != 0 {
+		handler.SendFail(w, req, http.StatusBadRequest, "No se agregó preguntas al examen")
+		return
 	}
-
+	examen.PreguntaExamens = preguntas
+	
 	handler.SendSuccess(w, req, http.StatusOK, examen)
 }
 
