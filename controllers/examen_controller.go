@@ -84,7 +84,7 @@ func GetAllExamens(w http.ResponseWriter, req *http.Request) {
 		result2.Next = false
 	}
 
-	result := db.Model(&examen).Select("*").Limit(pageSize).Offset((pageInt - 1) * pageSize).Order("id ASC").Find(&examen)
+	result := db.Model(&examen).Select("*").Limit(pageSize).Offset((pageInt - 1) * pageSize).Order("id DESC").Find(&examen)
 	if result.RowsAffected == 0 {
 		handler.SendFail(w, req, http.StatusNotFound, "No se encontró exámenes")
 		return
@@ -249,7 +249,7 @@ func GetExamensPregByArea(w http.ResponseWriter, req *http.Request) {
 		handler.SendFail(w, req, http.StatusBadRequest, "No existe el examen - "+id)
 		return
 	}
-	if  examen.LimitePreguntas != examen.CantidadPreguntas {
+	if examen.LimitePreguntas != examen.CantidadPreguntas {
 		handler.SendFail(w, req, http.StatusBadRequest, "El examen no tiene preguntas completas - "+fmt.Sprint(examen.LimitePreguntas)+"/"+fmt.Sprint(examen.CantidadPreguntas))
 		return
 	}
@@ -265,7 +265,7 @@ func GetExamensPregByArea(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	examen.PreguntaExamens = preguntas
-	
+
 	handler.SendSuccess(w, req, http.StatusOK, examen)
 }
 
