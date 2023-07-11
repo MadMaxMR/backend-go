@@ -2,10 +2,11 @@ package handler
 
 import (
 	"encoding/json"
-	"github.com/MadMaxMR/backend-go/modelos"
 	"log"
 	"net/http"
 	"strconv"
+
+	"github.com/MadMaxMR/backend-go/modelos"
 )
 
 func SendSuccess(w http.ResponseWriter, req *http.Request, status int, model interface{}) {

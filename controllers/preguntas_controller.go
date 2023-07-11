@@ -563,21 +563,31 @@ func DeletePreguntaExamen(w http.ResponseWriter, req *http.Request) {
 }
 
 // GetPreguntasforETA devuelve 10 preguntas para FAS TEST 7 de tipo ETA y 3 de tipo Admision
-func GetPreguntasforETA(w http.ResponseWriter, req *http.Request) {
+func GetFastTest(w http.ResponseWriter, req *http.Request) {
 	preguntas := []modelos.PreguntaExamens{}
 	id := mux.Vars(req)["id"]
+	total := req.URL.Query().Get("total")
+	if total == "" {
+		total = "10"
+	}
+	totalInt, _ := strconv.Atoi(total)
 	db := database.GetConnection()
 	defer db.Close()
 
-	err := db.Raw("select * from fn_preguntas_eta($1)", id).Scan(&preguntas).Error
-
+	err := db.Preload("RespuestaExs").Where("temas_id = ?", id).
+		Select("pregunta_examens.id,ex.examens_id,pregunta_examens.enunciado1,pregunta_examens.grafico," +
+			"pregunta_examens.enunciado2,pregunta_examens.enunciado3,row_number() OVER () AS num_question," +
+			"pregunta_examens.cursos_id,pregunta_examens.temas_id,pregunta_examens.nivel").
+		Joins("INNER JOIN examen_preguntas ex on ex.pregunta_examens_id = pregunta_examens.id").
+		Limit(totalInt).Order("random()").
+		Find(&preguntas).Error
 	if err != nil {
 		handler.SendFail(w, req, http.StatusInternalServerError, err.Error())
 		return
 	}
-
-	for i, pregunta := range preguntas {
-		db.Raw("Select * from respuesta_exs where pregunta_examens_id = $1", pregunta.ID).Scan(&preguntas[i].RespuestaExs)
+	if len(preguntas) < totalInt {
+		handler.SendFail(w, req, http.StatusInternalServerError, "No se encontraron preguntas suficientes para el tema seleccionado")
+		return
 	}
 	handler.SendSuccess(w, req, http.StatusOK, preguntas)
 }
