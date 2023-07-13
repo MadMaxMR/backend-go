@@ -11,6 +11,7 @@ import (
 	"github.com/MadMaxMR/backend-go/handler"
 	"github.com/MadMaxMR/backend-go/modelos"
 	"github.com/gorilla/mux"
+	"github.com/jinzhu/gorm"
 )
 
 // SavePreguntasRespuestas guarda una pregunta con sus respuestas e imagenes, recibe el body en tipo Form-Data
@@ -565,7 +566,8 @@ func DeletePreguntaExamen(w http.ResponseWriter, req *http.Request) {
 // GetPreguntasforETA devuelve 10 preguntas para FAS TEST 7 de tipo ETA y 3 de tipo Admision
 func GetFastTest(w http.ResponseWriter, req *http.Request) {
 	preguntas := []modelos.PreguntaExamens{}
-	id := mux.Vars(req)["id"]
+	idCurso := mux.Vars(req)["idCurso"]
+	idTema := mux.Vars(req)["idTema"]
 	total := req.URL.Query().Get("total")
 	if total == "" {
 		total = "10"
@@ -574,10 +576,15 @@ func GetFastTest(w http.ResponseWriter, req *http.Request) {
 	db := database.GetConnection()
 	defer db.Close()
 
-	err := db.Preload("RespuestaExs").Where("temas_id = ?", id).
-		Select("pregunta_examens.id,ex.examens_id,pregunta_examens.enunciado1,pregunta_examens.grafico," +
-			"pregunta_examens.enunciado2,pregunta_examens.enunciado3,row_number() OVER () AS num_question," +
-			"pregunta_examens.cursos_id,pregunta_examens.temas_id,pregunta_examens.nivel").
+	err := db.Preload("RespuestaExs").Scopes(func(db *gorm.DB) *gorm.DB {
+		if idTema == "0" || idTema == " " {
+			return db.Where("cursos_id = ?", idCurso)
+		} else {
+			return db.Where("temas_id = ?", idTema)
+		}
+	}).Select("pregunta_examens.id,ex.examens_id,pregunta_examens.enunciado1,pregunta_examens.grafico," +
+		"pregunta_examens.enunciado2,pregunta_examens.enunciado3,row_number() OVER () AS num_question," +
+		"pregunta_examens.cursos_id,pregunta_examens.temas_id,pregunta_examens.nivel").
 		Joins("INNER JOIN examen_preguntas ex on ex.pregunta_examens_id = pregunta_examens.id").
 		Limit(totalInt).Order("random()").
 		Find(&preguntas).Error
