@@ -25,6 +25,6 @@ func SetPreguntasRoutes(router *mux.Router) {
 	subRoute.HandleFunc("/cambiarPreguntaExamen/{id}", controllers.ChangePreguntaExamen).Methods("PUT")
 
 	//PREGUNTAS DE FASTEST
-	subRoute.HandleFunc("/fasttest/{idCurso}/{idTema}", controllers.GetFastTest).Methods("GET")
+	subRoute.HandleFunc("/fasttest/", controllers.GetFastTest).Methods("GET")
 
 }

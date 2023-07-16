@@ -566,8 +566,8 @@ func DeletePreguntaExamen(w http.ResponseWriter, req *http.Request) {
 // GetPreguntasforETA devuelve 10 preguntas para FAS TEST 7 de tipo ETA y 3 de tipo Admision
 func GetFastTest(w http.ResponseWriter, req *http.Request) {
 	preguntas := []modelos.PreguntaExamens{}
-	idCurso := mux.Vars(req)["idCurso"]
-	idTema := mux.Vars(req)["idTema"]
+	idCurso := req.URL.Query().Get("idCurso")
+	idTema := req.URL.Query().Get("idTema")
 	total := req.URL.Query().Get("total")
 	if total == "" {
 		total = "10"
@@ -577,10 +577,12 @@ func GetFastTest(w http.ResponseWriter, req *http.Request) {
 	defer db.Close()
 
 	err := db.Preload("RespuestaExs").Scopes(func(db *gorm.DB) *gorm.DB {
-		if idTema == "0" || idTema == " " {
+		if idTema == "" && idCurso != "" {
 			return db.Where("cursos_id = ?", idCurso)
-		} else {
+		} else if idCurso != "" && idTema != "" {
 			return db.Where("temas_id = ?", idTema)
+		} else {
+			return db.Where("cursos_id <> 0")
 		}
 	}).Select("pregunta_examens.id,ex.examens_id,pregunta_examens.enunciado1,pregunta_examens.grafico," +
 		"pregunta_examens.enunciado2,pregunta_examens.enunciado3,row_number() OVER () AS num_question," +
