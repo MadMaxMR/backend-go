@@ -6,8 +6,9 @@ import (
 	"github.com/MadMaxMR/backend-go/modelos"
 	"github.com/jinzhu/gorm"
 
-	"github.com/gorilla/mux"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 func GetAllAreas(w http.ResponseWriter, req *http.Request) {
@@ -61,7 +62,7 @@ func GetAreaCarrerasByUni(w http.ResponseWriter, req *http.Request) {
 
 	result := db.Model(&areas).Where("id_uni = ?", id).Preload("Carreras", func(db *gorm.DB) *gorm.DB {
 		return db.Order("Carreras.nombre_carr ASC")
-	}).Find(&areas)
+	}).Preload("Carreras.PerfilPostulante").Find(&areas)
 	if result.RowsAffected == 0 {
 		handler.SendFail(w, req, http.StatusInternalServerError, "No se encontró areas para la universidad: "+id)
 		return
