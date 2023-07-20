@@ -74,7 +74,7 @@ func GetAreaCarrerasByUni(w http.ResponseWriter, req *http.Request) {
 	db := database.GetConnection()
 	defer db.Close()
 
-	db.Debug().Where("id LIKE ?", idUniversidad).Preload("Area", "id LIKE ?", idArea).Preload("Area.Carreras", "id::text LIKE ?", idCarrera, func(db *gorm.DB) *gorm.DB {
+	db.Where("id LIKE ?", idUniversidad).Preload("Area", "id LIKE ?", idArea).Preload("Area.Carreras", "id::text LIKE ?", idCarrera, func(db *gorm.DB) *gorm.DB {
 		return db.Order("Carreras.nombre_carr ASC")
 	}).Preload("Area.Carreras.PerfilPostulante").Find(&universidads)
 	// if result.RowsAffected == 0 {
