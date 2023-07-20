@@ -52,7 +52,7 @@ func GetAreaByUni(w http.ResponseWriter, req *http.Request) {
 	handler.SendSuccess(w, req, http.StatusOK, areas)
 }
 
-//GetAreaCarrerasByUni retorna todas las areas de una "universidad" incluido las carreras de sus areas
+// GetAreaCarrerasByUni retorna todas las areas de una "universidad" incluido las carreras de sus areas
 func GetAreaCarrerasByUni(w http.ResponseWriter, req *http.Request) {
 	universidads := []modelos.Universidads{}
 	//areas := []modelos.Area{}
@@ -61,20 +61,20 @@ func GetAreaCarrerasByUni(w http.ResponseWriter, req *http.Request) {
 	idUniversidad := req.URL.Query().Get("idUniversidad")
 	//page := req.URL.Query().Get("page")
 
-	if idCarrera == "" {
-		idCarrera = "%"
+	if idUniversidad == "" {
+		idUniversidad = "%"
 	}
 	if idArea == "" {
 		idArea = "%"
 	}
-	if idUniversidad == "" {
-		idUniversidad = "%"
+	if idCarrera == "" {
+		idCarrera = "%"
 	}
 
 	db := database.GetConnection()
 	defer db.Close()
 
-	db.Debug().Where("id LIKE ?", idUniversidad).Preload("Area").Preload("Area.Carreras", func(db *gorm.DB) *gorm.DB {
+	db.Debug().Where("id LIKE ?", idUniversidad).Preload("Area", "id LIKE ?", idArea).Preload("Area.Carreras", "id::text LIKE ?", idCarrera, func(db *gorm.DB) *gorm.DB {
 		return db.Order("Carreras.nombre_carr ASC")
 	}).Preload("Area.Carreras.PerfilPostulante").Find(&universidads)
 	// if result.RowsAffected == 0 {
