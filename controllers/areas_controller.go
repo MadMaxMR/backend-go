@@ -55,7 +55,6 @@ func GetAreaByUni(w http.ResponseWriter, req *http.Request) {
 // GetAreaCarrerasByUni retorna todas las areas de una "universidad" incluido las carreras de sus areas
 func GetAreaCarrerasByUni(w http.ResponseWriter, req *http.Request) {
 	universidads := []modelos.Universidads{}
-	//areas := []modelos.Area{}
 	idCarrera := req.URL.Query().Get("idCarrera")
 	idArea := req.URL.Query().Get("idArea")
 	idUniversidad := req.URL.Query().Get("idUniversidad")
@@ -74,13 +73,14 @@ func GetAreaCarrerasByUni(w http.ResponseWriter, req *http.Request) {
 	db := database.GetConnection()
 	defer db.Close()
 
-	db.Where("id LIKE ?", idUniversidad).Preload("Area", "id LIKE ?", idArea).Preload("Area.Carreras", "id::text LIKE ?", idCarrera, func(db *gorm.DB) *gorm.DB {
+	result := db.Where("id LIKE ?", idUniversidad).Preload("Area", "id LIKE ?", idArea).Preload("Area.Carreras", "id::text LIKE ?", idCarrera, func(db *gorm.DB) *gorm.DB {
 		return db.Order("Carreras.nombre_carr ASC")
 	}).Preload("Area.Carreras.PerfilPostulante").Find(&universidads)
-	// if result.RowsAffected == 0 {
-	// 	handler.SendFail(w, req, http.StatusInternalServerError, "No se encontró areas para la universidad solicitada")
-	// 	return
-	// }
+
+	if result.RowsAffected == 0 {
+		handler.SendFail(w, req, http.StatusInternalServerError, "No se encontró areas para la universidad solicitada")
+		return
+	}
 
 	handler.SendSuccess(w, req, http.StatusOK, universidads)
 }
