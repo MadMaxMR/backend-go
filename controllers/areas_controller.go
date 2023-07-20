@@ -54,19 +54,33 @@ func GetAreaByUni(w http.ResponseWriter, req *http.Request) {
 
 //GetAreaCarrerasByUni retorna todas las areas de una "universidad" incluido las carreras de sus areas
 func GetAreaCarrerasByUni(w http.ResponseWriter, req *http.Request) {
-	areas := []modelos.Area{}
-	id := mux.Vars(req)["id"]
+	universidads := []modelos.Universidads{}
+	//areas := []modelos.Area{}
+	idCarrera := req.URL.Query().Get("idCarrera")
+	idArea := req.URL.Query().Get("idArea")
+	idUniversidad := req.URL.Query().Get("idUniversidad")
+	//page := req.URL.Query().Get("page")
+
+	if idCarrera == "" {
+		idCarrera = "%"
+	}
+	if idArea == "" {
+		idArea = "%"
+	}
+	if idUniversidad == "" {
+		idUniversidad = "%"
+	}
 
 	db := database.GetConnection()
 	defer db.Close()
 
-	result := db.Model(&areas).Where("id_uni = ?", id).Preload("Carreras", func(db *gorm.DB) *gorm.DB {
+	db.Debug().Where("id LIKE ?", idUniversidad).Preload("Area").Preload("Area.Carreras", func(db *gorm.DB) *gorm.DB {
 		return db.Order("Carreras.nombre_carr ASC")
-	}).Preload("Carreras.PerfilPostulante").Find(&areas)
-	if result.RowsAffected == 0 {
-		handler.SendFail(w, req, http.StatusInternalServerError, "No se encontró areas para la universidad: "+id)
-		return
-	}
+	}).Preload("Area.Carreras.PerfilPostulante").Find(&universidads)
+	// if result.RowsAffected == 0 {
+	// 	handler.SendFail(w, req, http.StatusInternalServerError, "No se encontró areas para la universidad solicitada")
+	// 	return
+	// }
 
-	handler.SendSuccess(w, req, http.StatusOK, areas)
+	handler.SendSuccess(w, req, http.StatusOK, universidads)
 }

@@ -9,4 +9,5 @@ type Universidads struct {
 	Ecuacion_Pond string `json:"ecuacion_pond" gorm:"type:varchar(250)"`
 	Ranking       int    `json:"ranking" gorm:"type:int"`
 	Image         string `json:"image" gorm:"type:varchar(250)"`
+	Area          []Area `json:"areas" gorm:"foreignKey:Id_Uni"`
 }

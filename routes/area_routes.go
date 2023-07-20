@@ -16,5 +16,5 @@ func SetAreasRoutes(route *mux.Router) {
 	//r.HandleFunc("/areas/{id}", DeleteArea).Methods("DELETE")
 
 	subRoute.HandleFunc("/areas/uni/{id}", controllers.GetAreaByUni).Methods("GET")
-	subRoute.HandleFunc("/areas/uni/{id}/carreras", controllers.GetAreaCarrerasByUni).Methods("GET")
+	subRoute.HandleFunc("/areas/uni/carreras/", controllers.GetAreaCarrerasByUni).Methods("GET")
 }
