@@ -57,7 +57,7 @@ func GetAreaByUni(w http.ResponseWriter, req *http.Request) {
 // GetAreaCarrerasByUni retorna todas las areas de una "universidad" incluido las carreras de sus areas
 func GetAreaCarrerasByUni(w http.ResponseWriter, req *http.Request) {
 	type Result2 struct {
-		Page  string                 `json:"page"`
+		Page  int                    `json:"page"`
 		Prev  bool                   `json:"prev"`
 		Next  bool                   `json:"next"`
 		Total int                    `json:"total"`
@@ -110,7 +110,7 @@ func GetAreaCarrerasByUni(w http.ResponseWriter, req *http.Request) {
 		}
 	}
 
-	result2.Page = page
+	result2.Page = pageInt
 	result2.Next = true
 	if pageInt == 1 {
 		result2.Prev = false
