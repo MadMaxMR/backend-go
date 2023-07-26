@@ -3,6 +3,7 @@ package controllers
 import (
 	"fmt"
 	"math"
+	"time"
 
 	"net/http"
 	"strconv"
@@ -173,6 +174,7 @@ func GetPreguntasExamenByArea(w http.ResponseWriter, req *http.Request) {
 }
 
 func GetPoints(w http.ResponseWriter, req *http.Request) {
+	historial := modelos.MisExamenes{}
 	points := modelos.Result{Resultado: make(map[string]string), Solucion: make(map[string]uint)}
 	result := map[string]interface{}{}
 	var solution, answers string
@@ -203,6 +205,7 @@ func GetPoints(w http.ResponseWriter, req *http.Request) {
 			if result["id_respuesta"+val] == float64(respuesta.ID) {
 				db.Model(&pregunta).Where("id = ? ", result["id_pregunta"+val]).Find(&pregunta)
 				db.Model(&examen).Where("id = ? ", pregunta.ExamensId).Find(&examen)
+
 				db.Model(&ponderado).Where("cursos_id = ? and cod_area = ?", pregunta.CursosId, examen.AreasId).Find(&ponderado)
 				points.Resultado["pregunta"+val] = "Correcto"
 				points.Solucion["pregunta"+val] = respuesta.ID
@@ -218,14 +221,27 @@ func GetPoints(w http.ResponseWriter, req *http.Request) {
 			points.Solucion["pregunta"+val] = respuesta.ID
 			incorrect++
 		}
-		// respuesta.ID = 0
+		// respuesta.ID =
+
+		historial.AreasId = examen.AreasId
+		historial.UniversidadsId = examen.Id_Uni
+		historial.ExamensId = examen.ID
 	}
 	points.Correct = correct
 	points.Incorrect = incorrect
 	points.Nota = math.Round(((note*20)/50)*100) / 100
+
+	historial.Fecha_Examen = time.Now()
+	historial.Nota = points.Nota
+	if points.Nota < 10.5 {
+		historial.Condicion = "Desaprobado"
+	}
+	historial.Condicion = "Aprobado"
+
 	fmt.Println("answers: ", answers)
 	fmt.Println("solution: ", solution)
 	fmt.Println("Nota general", note)
+
 	handler.SendSuccess(w, req, http.StatusOK, points)
 }
 

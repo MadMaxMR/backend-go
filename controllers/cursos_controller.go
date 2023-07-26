@@ -16,14 +16,17 @@ import (
 )
 
 func GetAllCursos(w http.ResponseWriter, req *http.Request) {
-	curso := []modelos.Cursos{}
-	page := req.URL.Query().Get("page")
-	modelo, err := database.GetAll(&curso, page)
-	if err != nil {
-		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
+	cursos := []modelos.Cursos{}
+
+	db := database.GetConnection()
+	defer db.Close()
+	result := db.Preload("Temas").Find(&cursos)
+
+	if result.RowsAffected == 0 {
+		handler.SendFail(w, req, http.StatusNotFound, "No se encontraron registros")
 		return
 	}
-	handler.SendSuccess(w, req, http.StatusOK, modelo)
+	handler.SendSuccess(w, req, http.StatusOK, cursos)
 }
 
 func GetCurso(w http.ResponseWriter, req *http.Request) {

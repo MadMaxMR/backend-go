@@ -1,6 +1,10 @@
 package modelos
 
-import "gorm.io/datatypes"
+import (
+	"time"
+
+	"gorm.io/datatypes"
+)
 
 type HistorialExamens struct {
 	ID             uint           `json:"id" gorm:"primary_key;auto_increment"`
@@ -11,4 +15,14 @@ type HistorialExamens struct {
 	Nota_Tentativa float64        `json:"nota_tentativa" gorm:"type:float"`
 	Respuestas     string         `json:"respuestas"`
 	Solucion       string         `json:"solucion"`
+}
+
+type MisExamenes struct {
+	UsuarioId      uint      `json:"id_usuario"`
+	UniversidadsId string    `json:"id_universidad"`
+	ExamensId      uint      `json:"id_examen"`
+	AreasId        string    `json:"id_area"`
+	Nota           float64   `json:"nota"`
+	Condicion      string    `json:"condicion"`
+	Fecha_Examen   time.Time `json:"last_login" gorm:"type:timestamp"`
 }
