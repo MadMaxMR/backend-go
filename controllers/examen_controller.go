@@ -16,7 +16,7 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-//SaveExamens controller para crear y guardar un nuevo examen con preguntas y respuestas
+// SaveExamens controller para crear y guardar un nuevo examen con preguntas y respuestas
 func SaveExamens(w http.ResponseWriter, req *http.Request) {
 	examen := modelos.Examens{}
 	err := auth.ValidateBody(req, &examen)
@@ -174,25 +174,40 @@ func GetPreguntasExamenByArea(w http.ResponseWriter, req *http.Request) {
 }
 
 func GetPoints(w http.ResponseWriter, req *http.Request) {
+
+	tk, _, _, err := auth.ValidateToken(req.Header.Get("Authorization"))
+	if err != nil {
+		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
+		return
+	}
+
 	historial := modelos.MisExamenes{}
 	points := modelos.Result{Resultado: make(map[string]string), Solucion: make(map[string]uint)}
 	result := map[string]interface{}{}
 	var solution, answers string
+	idExamen := req.URL.Query().Get("examen")
+	if idExamen == "" {
+		idExamen = "2"
+	}
+	idExamenInt, _ := strconv.Atoi(idExamen)
 
 	db := database.GetConnection()
 	defer db.Close()
 	correct, incorrect, note := 0, 0, 0.0
 
-	err := auth.ValidateBody(req, &result)
+	err = auth.ValidateBody(req, &result)
 	if err != nil {
 		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
 	}
+
+	examen := modelos.Examens{}
+	db.Model(&examen).Where("id = ? ", idExamenInt).Find(&examen)
 
 	for i := 1; i < (len(result)/2 + 1); i++ {
 		respuesta := modelos.RespuestaExs{}
 		ponderado := modelos.Ponderacion{}
 		pregunta := modelos.PreguntaExamens{}
-		examen := modelos.Examens{}
+
 		val := strconv.Itoa(i)
 		rest := db.Model(&respuesta).Where("pregunta_examens_id = ? and valor = 'true'", result["id_pregunta"+val]).Find(&respuesta)
 		if rest.RowsAffected == 0 {
@@ -204,7 +219,6 @@ func GetPoints(w http.ResponseWriter, req *http.Request) {
 		if result["id_respuesta"+val] != float64(0) {
 			if result["id_respuesta"+val] == float64(respuesta.ID) {
 				db.Model(&pregunta).Where("id = ? ", result["id_pregunta"+val]).Find(&pregunta)
-				db.Model(&examen).Where("id = ? ", pregunta.ExamensId).Find(&examen)
 
 				db.Model(&ponderado).Where("cursos_id = ? and cod_area = ?", pregunta.CursosId, examen.AreasId).Find(&ponderado)
 				points.Resultado["pregunta"+val] = "Correcto"
@@ -225,18 +239,24 @@ func GetPoints(w http.ResponseWriter, req *http.Request) {
 
 		historial.AreasId = examen.AreasId
 		historial.UniversidadsId = examen.Id_Uni
-		historial.ExamensId = examen.ID
+
 	}
 	points.Correct = correct
 	points.Incorrect = incorrect
-	points.Nota = math.Round(((note*20)/50)*100) / 100
+	points.Nota = math.Round(((note*20)/float64(examen.LimitePreguntas))*100) / 100
 
+	historial.ExamensId = uint(idExamenInt)
 	historial.Fecha_Examen = time.Now()
 	historial.Nota = points.Nota
 	if points.Nota < 10.5 {
 		historial.Condicion = "Desaprobado"
 	}
 	historial.Condicion = "Aprobado"
+
+	iduser, _ := strconv.Atoi(tk.Id_Usuario)
+	historial.UsuarioId = uint(iduser)
+
+	db.Create(&historial)
 
 	fmt.Println("answers: ", answers)
 	fmt.Println("solution: ", solution)
@@ -251,7 +271,7 @@ func GetPoints(w http.ResponseWriter, req *http.Request) {
 // 		fmt.Print("\n valor ", i, ":", cadena[i])
 // 	}
 
-//GetExamensPregByArea retorna todos los examenes de un area con sus preguntas y alternativas
+// GetExamensPregByArea retorna todos los examenes de un area con sus preguntas y alternativas
 func GetExamensPregByArea(w http.ResponseWriter, req *http.Request) {
 	preguntas := []modelos.PreguntaExamens{}
 	examen := modelos.Examens{}
