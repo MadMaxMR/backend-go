@@ -250,8 +250,9 @@ func GetPoints(w http.ResponseWriter, req *http.Request) {
 	historial.Nota = points.Nota
 	if points.Nota < 10.5 {
 		historial.Condicion = "Desaprobado"
+	} else {
+		historial.Condicion = "Aprobado"
 	}
-	historial.Condicion = "Aprobado"
 
 	iduser, _ := strconv.Atoi(tk.Id_Usuario)
 	historial.UsuarioId = uint(iduser)

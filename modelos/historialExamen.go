@@ -26,3 +26,12 @@ type MisExamenes struct {
 	Condicion      string    `json:"condicion"`
 	Fecha_Examen   time.Time `json:"last_login" gorm:"type:timestamp"`
 }
+
+type ResMisExamen struct {
+	ExamensId   string  `json:"id_examen"`
+	UsuarioId   uint    `json:"id_usuario"`
+	Universidad string  `json:"universidad"`
+	Area        string  `json:"area"`
+	Nota        float64 `json:"nota"`
+	Condicion   string  `json:"condicion"`
+}

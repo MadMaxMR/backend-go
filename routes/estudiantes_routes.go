@@ -15,4 +15,7 @@ func SetStudentRoutes(router *mux.Router) {
 	subRoute.HandleFunc("/student/{id}", middlew.ValidToken(middlew.UserExist(controllers.GetStudent))).Methods("GET")
 	subRoute.HandleFunc("/student/{id}", middlew.ValidToken(middlew.UserExist(controllers.UpdateStudent))).Methods("PUT")
 	//subRoute.HandleFunc("/student/{id}", controllers.DeleteUsuario).Methods("DELETE")
+
+	//OBTENER HISTORIAL EXAMEN
+	subRoute.HandleFunc("/historial/examen/", controllers.GetMisExamens).Methods("GET")
 }
