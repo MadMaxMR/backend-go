@@ -8,25 +8,19 @@ import (
 	"github.com/MadMaxMR/backend-go/handler"
 	"github.com/MadMaxMR/backend-go/modelos"
 
-	//"io"
-	//"log"
 	"net/http"
 	"strconv"
 
-	//"os"
-	//"strings"
-	//"time"
-
 	"github.com/gorilla/mux"
-	//"golang.org/x/crypto/bcrypt"
 )
 
 func GetStudent(w http.ResponseWriter, req *http.Request) {
-
+	user := modelos.Usuarios{}
 	student := modelos.Estudiantes{}
 	id := mux.Vars(req)["id"]
 	db := database.GetConnection()
-	defer db.Close()
+	dbc, _ := db.DB()
+	defer dbc.Close()
 	tk, _, _, err := auth.ValidateToken(req.Header.Get("Authorization"))
 	if err != nil {
 		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
@@ -42,18 +36,22 @@ func GetStudent(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	err = db.Model(&student).Related(&student.Usuarios).Find(&student).Error
+	err = db.Where("id = ?", id).First(&user).Error
 	if err != nil {
 		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
 		return
 	}
+
+	student.Usuarios = user
+
 	handler.SendSuccess(w, req, http.StatusOK, student)
 }
 
 func GetAllStudent(w http.ResponseWriter, req *http.Request) {
 	students := []modelos.Estudiante{}
 	db := database.GetConnection()
-	defer db.Close()
+	dbc, _ := db.DB()
+	defer dbc.Close()
 	page := req.URL.Query().Get("page")
 	modelo, err := database.GetAll(&students, page)
 	if err != nil {
@@ -114,7 +112,8 @@ func UpdateStudent(w http.ResponseWriter, req *http.Request) {
 	usuario := modelos.Usuarios{}
 	estudiante := modelos.Estudiante{}
 	db := database.GetConnection()
-	defer db.Close()
+	dbc, _ := db.DB()
+	defer dbc.Close()
 	id := mux.Vars(req)["id"]
 	tk, _, _, err := auth.ValidateToken(req.Header.Get("Authorization"))
 	if err != nil {
@@ -148,7 +147,7 @@ func UpdateStudent(w http.ResponseWriter, req *http.Request) {
 		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
 		return
 	}
-	err = db.Model(&estudiante).Where("usuarios_id = ?", id).Update(&estudiante).Error
+	err = db.Model(&estudiante).Where("usuarios_id = ?", id).Updates(&estudiante).Error
 	if err != nil {
 		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
 		return

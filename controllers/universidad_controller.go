@@ -5,14 +5,16 @@ import (
 	"github.com/MadMaxMR/backend-go/handler"
 	"github.com/MadMaxMR/backend-go/modelos"
 
-	"github.com/gorilla/mux"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 func GetAllUniversidads(w http.ResponseWriter, req *http.Request) {
 	universidads := []modelos.Universidads{}
 	db := database.GetConnection()
-	defer db.Close()
+	dbc, _ := db.DB()
+	defer dbc.Close()
 	page := req.URL.Query().Get("page")
 	modelo, err := database.GetAll(&universidads, page)
 	if err != nil {

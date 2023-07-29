@@ -7,16 +7,15 @@ import (
 	"github.com/MadMaxMR/backend-go/auth"
 	"github.com/MadMaxMR/backend-go/database"
 	"github.com/MadMaxMR/backend-go/handler"
-	"github.com/MadMaxMR/backend-go/modelos"
 )
 
-func GetMisExamens(w http.ResponseWriter, req *http.Request) {
-	//var results []map[string]interface{}
-
-	result := []modelos.ResMisExamen{}
+func GetHistorialExamen(w http.ResponseWriter, req *http.Request) {
+	var result []map[string]interface{}
+	//result2 := []modelos.ResMisExamen{}
 
 	db := database.GetConnection()
-	defer db.Close()
+	dbc, _ := db.DB()
+	defer dbc.Close()
 
 	tk, _, _, err := auth.ValidateToken(req.Header.Get("Authorization"))
 	if err != nil {
@@ -25,9 +24,11 @@ func GetMisExamens(w http.ResponseWriter, req *http.Request) {
 	}
 	iduser, _ := strconv.Atoi(tk.Id_Usuario)
 
-	db.Raw("SELECT mex.usuario_id,mex.examens_id,uni.nombre_uni as universidad,ar.nombre_area as area ,mex.nota,mex.condicion"+
-		" from mis_examenes mex inner join universidads uni on uni.id = mex.universidads_id inner"+
-		" join areas ar on ar.id = mex.areas_id where usuario_id = ?", iduser).Scan(&result)
+	db.Table("mis_examenes mex").
+		Select("mex.usuario_id,mex.examens_id,uni.nombre_uni as universidad,ar.nombre_area as area ,mex.nota,mex.condicion").
+		Joins(" inner join universidads uni on uni.id = mex.universidads_id").
+		Joins(" inner join areas ar on ar.id = mex.areas_id").
+		Where("usuario_id = ?", iduser).Find(&result)
 
 	if len(result) == 0 {
 		handler.SendFail(w, req, http.StatusNotFound, "No hay registradas")
@@ -35,4 +36,8 @@ func GetMisExamens(w http.ResponseWriter, req *http.Request) {
 	}
 
 	handler.SendSuccess(w, req, http.StatusOK, result)
+}
+
+func GetHistorialExamenDetalle(w http.ResponseWriter, req *http.Request) {
+
 }

@@ -17,5 +17,6 @@ func SetStudentRoutes(router *mux.Router) {
 	//subRoute.HandleFunc("/student/{id}", controllers.DeleteUsuario).Methods("DELETE")
 
 	//OBTENER HISTORIAL EXAMEN
-	subRoute.HandleFunc("/historial/examen/", controllers.GetMisExamens).Methods("GET")
+	subRoute.HandleFunc("/historial/examen/", controllers.GetHistorialExamen).Methods("GET")
+	subRoute.HandleFunc("/historial/examen/detalle/", controllers.GetHistorialExamenDetalle).Methods("GET")
 }

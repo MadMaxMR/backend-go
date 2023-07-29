@@ -147,7 +147,8 @@ func GetAllPreguntas(w http.ResponseWriter, req *http.Request) {
 	}
 
 	db := database.GetConnection()
-	defer db.Close()
+	dbc, _ := db.DB()
+	defer dbc.Close()
 
 	resultQ := db.Model(&preguntas).Select("DISTINCT pregunta_examens.id,pregunta_examens.enunciado1,pregunta_examens.nivel,pregunta_examens.tipo, cursos.nombre_curso,temas.nombre_tema").
 		Joins("LEFT JOIN temas on pregunta_examens.temas_id = temas.id").
@@ -193,7 +194,8 @@ func GetPreguntasForExamen(w http.ResponseWriter, req *http.Request) {
 	result2 := Result2{}
 
 	db := database.GetConnection()
-	defer db.Close()
+	dbc, _ := db.DB()
+	defer dbc.Close()
 	resultQ := db.Model(&preguntas).Select("DISTINCT pregunta_examens.id,pregunta_examens.enunciado1,pregunta_examens.nivel, cursos.nombre_curso,temas.nombre_tema").
 		Joins("INNER JOIN temas on pregunta_examens.temas_id = temas.id").
 		Joins("INNER JOIN cursos on pregunta_examens.cursos_id = cursos.id").
@@ -263,7 +265,8 @@ func GetPreguntasOfExamen(w http.ResponseWriter, req *http.Request) {
 	result2 := Result2{}
 
 	db := database.GetConnection()
-	defer db.Close()
+	dbc, _ := db.DB()
+	defer dbc.Close()
 
 	resultQ := db.Model(&preguntas).Select("DISTINCT examen_preguntas.id,pregunta_examens.enunciado1,pregunta_examens.nivel, cursos.nombre_curso,temas.nombre_tema").
 		Joins("LEFT JOIN temas on pregunta_examens.temas_id = temas.id").
@@ -322,7 +325,8 @@ func GetPreguntasCursoTema(w http.ResponseWriter, req *http.Request) {
 	result := []Result{}
 
 	db := database.GetConnection()
-	defer db.Close()
+	dbc, _ := db.DB()
+	defer dbc.Close()
 
 	resultQ := db.Model(&preguntas).Select("DISTINCT pregunta_examens.id,pregunta_examens.enunciado1,pregunta_examens.nivel, cursos.nombre_curso,temas.nombre_tema").
 		Joins("LEFT JOIN temas on pregunta_examens.temas_id = temas.id").
@@ -341,7 +345,8 @@ func GetPregunta(w http.ResponseWriter, req *http.Request) {
 	id := mux.Vars(req)["id"]
 
 	db := database.GetConnection()
-	defer db.Close()
+	dbc, _ := db.DB()
+	defer dbc.Close()
 
 	result := db.Model(&preguntas).Where("id = ?", id).Preload("RespuestaExs").Find(&preguntas)
 
@@ -365,7 +370,8 @@ func UpdatePreguntaRespuestas(w http.ResponseWriter, req *http.Request) {
 	}
 
 	db := database.GetConnection()
-	defer db.Close()
+	dbc, _ := db.DB()
+	defer dbc.Close()
 
 	db.Model(&respuestas).Where("pregunta_examens_id  = ?", id).Find(&respuestas)
 
@@ -431,7 +437,8 @@ func DeletePreguntaRespuestas(w http.ResponseWriter, req *http.Request) {
 	id := mux.Vars(req)["id"]
 
 	db := database.GetConnection()
-	defer db.Close()
+	dbc, _ := db.DB()
+	defer dbc.Close()
 
 	result := modelos.ExamenPreguntas{}
 
@@ -481,7 +488,8 @@ func SavePreguntasExamen(w http.ResponseWriter, req *http.Request) {
 	data := map[string]interface{}{}
 
 	db := database.GetConnection()
-	defer db.Close()
+	dbc, _ := db.DB()
+	defer dbc.Close()
 
 	err := auth.ValidateBody(req, &data)
 	if err != nil {
@@ -547,7 +555,8 @@ func DeletePreguntaExamen(w http.ResponseWriter, req *http.Request) {
 	id := mux.Vars(req)["idPregunta"]
 
 	db := database.GetConnection()
-	defer db.Close()
+	dbc, _ := db.DB()
+	defer dbc.Close()
 
 	_, err := database.Delete(&examen_preg, id)
 	if err != nil {

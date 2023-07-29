@@ -8,7 +8,7 @@ import (
 	"github.com/MadMaxMR/backend-go/database"
 	"github.com/MadMaxMR/backend-go/handler"
 	"github.com/MadMaxMR/backend-go/modelos"
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 
 	"github.com/gorilla/mux"
 )
@@ -59,7 +59,8 @@ func DeleteTema(w http.ResponseWriter, req *http.Request) {
 	id := mux.Vars(req)["id"]
 
 	db := database.GetConnection()
-	defer db.Close()
+	dbc, _ := db.DB()
+	defer dbc.Close()
 
 	type Result struct {
 		Response string
@@ -79,20 +80,20 @@ func DeleteTema(w http.ResponseWriter, req *http.Request) {
 func UpdateTema(w http.ResponseWriter, req *http.Request) {
 	tema := modelos.Temas{}
 	id := mux.Vars(req)["id"]
-	
+
 	err := auth.ValidateBody(req, &tema)
 	if err != nil {
 		handler.SendFail(w, req, http.StatusInternalServerError, err.Error())
 		return
 	}
-	
+
 	_, err = database.Update(&tema, id)
 	if err != nil {
 		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
 		return
 	}
-	
-	idInt,_ := strconv.Atoi(id)
+
+	idInt, _ := strconv.Atoi(id)
 	tema.ID = uint(idInt)
 	handler.SendSuccess(w, req, http.StatusOK, tema)
 }
@@ -104,7 +105,8 @@ func GetTemaByCurso(w http.ResponseWriter, req *http.Request) {
 	id := mux.Vars(req)["id"]
 
 	db := database.GetConnection()
-	defer db.Close()
+	dbc, _ := db.DB()
+	defer dbc.Close()
 
 	_, err := database.Get(&curso, id)
 	if err != nil {
@@ -127,7 +129,8 @@ func GetTemasVideos(w http.ResponseWriter, req *http.Request) {
 	id := mux.Vars(req)["id"]
 
 	db := database.GetConnection()
-	defer db.Close()
+	dbc, _ := db.DB()
+	defer dbc.Close()
 
 	_, err := database.Get(&curso, id)
 	if err != nil {

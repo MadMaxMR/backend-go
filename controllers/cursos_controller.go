@@ -19,7 +19,8 @@ func GetAllCursos(w http.ResponseWriter, req *http.Request) {
 	cursos := []modelos.Cursos{}
 
 	db := database.GetConnection()
-	defer db.Close()
+	dbc, _ := db.DB()
+	defer dbc.Close()
 	result := db.Preload("Temas").Find(&cursos)
 
 	if result.RowsAffected == 0 {
@@ -65,7 +66,8 @@ func DeleteCurso(w http.ResponseWriter, req *http.Request) {
 	db := database.GetConnection()
 	id := mux.Vars(req)["id"]
 
-	defer db.Close()
+	dbc, _ := db.DB()
+	defer dbc.Close()
 
 	type Result struct {
 		Response string
@@ -103,7 +105,8 @@ func UploadImage(w http.ResponseWriter, req *http.Request) {
 	curso := modelos.Cursos{}
 
 	db := database.GetConnection()
-	defer db.Close()
+	dbc, _ := db.DB()
+	defer dbc.Close()
 
 	id := mux.Vars(req)["id"]
 
@@ -166,7 +169,8 @@ func GetCursoByArea(w http.ResponseWriter, req *http.Request) {
 	id := mux.Vars(req)["id"]
 
 	db := database.GetConnection()
-	defer db.Close()
+	dbc, _ := db.DB()
+	defer dbc.Close()
 
 	result := db.Model(&cursos).Select("DISTINCT cursos.id as id,cursos_universidades.cod_area, cursos.nombre_curso").
 		Joins("inner join cursos_universidades ON cursos.id = cursos_universidades.id_curso").
@@ -186,7 +190,8 @@ func GetCursosStudent(w http.ResponseWriter, req *http.Request) {
 	cursoStudent := []modelos.CursosStudent{}
 
 	db := database.GetConnection()
-	defer db.Close()
+	dbc, _ := db.DB()
+	defer dbc.Close()
 	tk, _, _, err := auth.ValidateToken(req.Header.Get("Authorization"))
 	if err != nil {
 		handler.SendFail(w, req, http.StatusBadRequest, err.Error())

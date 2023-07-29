@@ -6,7 +6,7 @@ import (
 	"github.com/MadMaxMR/backend-go/database"
 	"github.com/MadMaxMR/backend-go/handler"
 	"github.com/MadMaxMR/backend-go/modelos"
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 
 	"net/http"
 
@@ -16,7 +16,8 @@ import (
 func GetAllAreas(w http.ResponseWriter, req *http.Request) {
 	areas := []modelos.Areas{}
 	db := database.GetConnection()
-	defer db.Close()
+	dbc, _ := db.DB()
+	defer dbc.Close()
 	page := req.URL.Query().Get("page")
 	modelo, err := database.GetAll(&areas, page)
 	if err != nil {
@@ -44,7 +45,8 @@ func GetAreaByUni(w http.ResponseWriter, req *http.Request) {
 	id := mux.Vars(req)["id"]
 
 	db := database.GetConnection()
-	defer db.Close()
+	dbc, _ := db.DB()
+	defer dbc.Close()
 
 	result := db.Where("id_uni = ?", id).Find(&areas)
 	if result.Error != nil {
@@ -91,7 +93,8 @@ func GetAreaCarrerasByUni(w http.ResponseWriter, req *http.Request) {
 	}
 
 	db := database.GetConnection()
-	defer db.Close()
+	dbc, _ := db.DB()
+	defer dbc.Close()
 
 	result := db.Where("id LIKE ?", idUniversidad).Preload("Area", "id LIKE ?", idArea).Preload("Area.Carreras", "id::text LIKE ?", idCarrera, func(db *gorm.DB) *gorm.DB {
 		return db.Order("Carreras.nombre_carr ASC")

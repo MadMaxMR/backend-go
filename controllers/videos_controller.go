@@ -38,7 +38,8 @@ func GetVideoByTema(w http.ResponseWriter, req *http.Request) {
 	video := []modelos.Videos{}
 	id := mux.Vars(req)["id"]
 	db := database.GetConnection()
-	defer db.Close()
+	dbc, _ := db.DB()
+	defer dbc.Close()
 	result := db.Where("Temas_Id = ?", id).Find(&video)
 	if result.RowsAffected == 0 {
 		handler.SendFail(w, req, http.StatusBadRequest, "No se encontró videos para el tema : "+id)
@@ -71,7 +72,8 @@ func GetVideoBySubTema(w http.ResponseWriter, req *http.Request) {
 	videos := []modelos.Videos{}
 	id := mux.Vars(req)["id"]
 	db := database.GetConnection()
-	defer db.Close()
+	dbc, _ := db.DB()
+	defer dbc.Close()
 	result := db.Where("sub_temas_id = ?", id).Find(&videos)
 	if result.RowsAffected == 0 {
 		handler.SendFail(w, req, http.StatusBadRequest, "No se encontró videos para el subtema : "+id)

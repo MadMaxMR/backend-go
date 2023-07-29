@@ -7,8 +7,8 @@ import (
 
 	"github.com/MadMaxMR/backend-go/modelos"
 
-	"github.com/jinzhu/gorm"
-	_ "github.com/lib/pq"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
 func initConnection() *gorm.DB {
@@ -23,7 +23,7 @@ func initConnection() *gorm.DB {
 	/*Conecciòn por .env*/
 	dbURI := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s", host, port, user, dbname, password)
 	//connStr := "host='" + PGHOST + "' port=5432 user=postgres dbname='" + PGDATABASE + "' password='" + PGPASSWORD + "' sslmode=disable"
-	db, err := gorm.Open("postgres", dbURI)
+	db, err := gorm.Open(postgres.Open(dbURI), &gorm.Config{})
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -32,7 +32,9 @@ func initConnection() *gorm.DB {
 
 func Migrate() {
 	db := GetConnection()
-	defer db.Close()
+
+	dbc, _ := db.DB()
+	defer dbc.Close()
 
 	log.Printf("Migrando base de datos")
 

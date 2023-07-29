@@ -7,7 +7,8 @@ import (
 func Delete(modelo interface{}, id string) (message string, err error) {
 
 	db := GetConnection()
-	defer db.Close()
+	dbc, _ := db.DB()
+	defer dbc.Close()
 	result := db.Find(modelo, id)
 	if result.RowsAffected != 0 {
 		err := db.Delete(modelo, id).Error

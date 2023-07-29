@@ -13,7 +13,7 @@ import (
 	"github.com/MadMaxMR/backend-go/handler"
 	"github.com/MadMaxMR/backend-go/modelos"
 	"github.com/gorilla/mux"
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 // SaveExamens controller para crear y guardar un nuevo examen con preguntas y respuestas
@@ -54,7 +54,8 @@ func GetAllExamens(w http.ResponseWriter, req *http.Request) {
 	pageSize, _ := strconv.Atoi(pageSizes)
 
 	db := database.GetConnection()
-	defer db.Close()
+	dbc, _ := db.DB()
+	defer dbc.Close()
 
 	type Result struct {
 		Page     string
@@ -100,7 +101,8 @@ func GetExamenById(w http.ResponseWriter, req *http.Request) {
 	id := mux.Vars(req)["id"]
 
 	db := database.GetConnection()
-	defer db.Close()
+	dbc, _ := db.DB()
+	defer dbc.Close()
 
 	result := db.Model(&examen).Where("id = ?", id).Preload("PreguntaExamens", func(db *gorm.DB) *gorm.DB {
 		return db.Order("pregunta_examens.id ASC")
@@ -139,7 +141,8 @@ func DeleteExamen(w http.ResponseWriter, req *http.Request) {
 
 	db := database.GetConnection()
 
-	defer db.Close()
+	dbc, _ := db.DB()
+	defer dbc.Close()
 
 	db.Raw("SELECT * FROM examen_preguntas where examens_id = ?", id).Scan(&examenPreguntas)
 	if len(examenPreguntas) != 0 {
@@ -159,7 +162,8 @@ func GetPreguntasExamenByArea(w http.ResponseWriter, req *http.Request) {
 	id := mux.Vars(req)["id"]
 
 	db := database.GetConnection()
-	defer db.Close()
+	dbc, _ := db.DB()
+	defer dbc.Close()
 
 	result := db.Model(&examen).Where("areas_id = ?", id).Preload("PreguntaExamens", func(db *gorm.DB) *gorm.DB {
 		return db.Order("pregunta_examens.id ASC")
@@ -192,7 +196,8 @@ func GetPoints(w http.ResponseWriter, req *http.Request) {
 	idExamenInt, _ := strconv.Atoi(idExamen)
 
 	db := database.GetConnection()
-	defer db.Close()
+	dbc, _ := db.DB()
+	defer dbc.Close()
 	correct, incorrect, note := 0, 0, 0.0
 
 	err = auth.ValidateBody(req, &result)
@@ -279,7 +284,8 @@ func GetExamensPregByArea(w http.ResponseWriter, req *http.Request) {
 	id := mux.Vars(req)["id"]
 
 	db := database.GetConnection()
-	defer db.Close()
+	dbc, _ := db.DB()
+	defer dbc.Close()
 
 	resultQ := db.Model(&examen).Where("id = ?", id).Find(&examen)
 	if resultQ.RowsAffected == 0 {
@@ -321,7 +327,8 @@ func GetModalidad(w http.ResponseWriter, req *http.Request) {
 	modalidad := []Modalidades{}
 
 	db := database.GetConnection()
-	defer db.Close()
+	dbc, _ := db.DB()
+	defer dbc.Close()
 
 	db.Raw("SELECT name,code FROM modalidades").Scan(&modalidad)
 	if len(modalidad) == 0 {
@@ -341,7 +348,8 @@ func GetExamensbyAnio(w http.ResponseWriter, req *http.Request) {
 	examenes := make(map[string]interface{})
 
 	db := database.GetConnection()
-	defer db.Close()
+	dbc, _ := db.DB()
+	defer dbc.Close()
 
 	db.Raw("SELECT anio FROM examens WHERE areas_id = $1 GROUP BY anio ", id).Scan(&años)
 	if len(años) == 0 {
@@ -369,7 +377,8 @@ func GetFastTest(w http.ResponseWriter, req *http.Request) {
 	}
 	totalInt, _ := strconv.Atoi(total)
 	db := database.GetConnection()
-	defer db.Close()
+	dbc, _ := db.DB()
+	defer dbc.Close()
 
 	err := db.Preload("RespuestaExs").Scopes(func(db *gorm.DB) *gorm.DB {
 		if idTema == "" && idCurso != "" {

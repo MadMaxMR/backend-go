@@ -82,7 +82,8 @@ func UpdateUsuario(w http.ResponseWriter, req *http.Request) {
 	usuario := modelos.Usuarios{}
 	estudiante := modelos.Estudiante{}
 	db := database.GetConnection()
-	defer db.Close()
+	dbc, _ := db.DB()
+	defer dbc.Close()
 	id := mux.Vars(req)["id"]
 	err := auth.ValidateBody2(req, &usuario, &estudiante)
 	if err != nil {
@@ -97,7 +98,7 @@ func UpdateUsuario(w http.ResponseWriter, req *http.Request) {
 		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
 		return
 	}
-	err = db.Model(&estudiante).Where("usuarios_id = ?", id).Update(&estudiante).Error
+	err = db.Model(&estudiante).Where("usuarios_id = ?", id).Updates(&estudiante).Error
 	if err != nil {
 		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
 		return
@@ -157,7 +158,8 @@ func SignIn(email string, password string) (string, uint, string, error) {
 	var err error
 	usuario := modelos.Usuarios{}
 	db := database.GetConnection()
-	defer db.Close()
+	dbc, _ := db.DB()
+	defer dbc.Close()
 
 	err = db.Where("email = ?", email).Find(&usuario).Error
 
@@ -181,7 +183,8 @@ func UpdateAvatar1(w http.ResponseWriter, req *http.Request) {
 	usuario := modelos.Usuarios{}
 
 	db := database.GetConnection()
-	defer db.Close()
+	dbc, _ := db.DB()
+	defer dbc.Close()
 
 	id := mux.Vars(req)["id"]
 	db.Find(&usuario, id)

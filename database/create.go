@@ -6,7 +6,8 @@ import (
 
 func Create(modelo interface{}) (mod interface{}, err error) {
 	db := GetConnection()
-	defer db.Close()
+	dbc, _ := db.DB()
+	defer dbc.Close()
 	err = db.Create(modelo).Error
 	if err != nil {
 		return nil, errors.New("Error al guardar - " + err.Error())

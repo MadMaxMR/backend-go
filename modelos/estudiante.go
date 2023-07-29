@@ -10,7 +10,7 @@ type Estudiantes struct {
 	//Grad_Acad    string   `json:"grad_acad" gorm:"type:varchar(250)"`
 	//Lugar_Proc   string   `json:"lugar_proc" gorm:"type:varchar(250)"`
 	UsuariosId uint     `json:"usuario_id" gorm:"type:int REFERENCES usuarios(id);unique"`
-	Usuarios   Usuarios `json:"usuario" gorm:"foreignkey:usuariosid"`
+	Usuarios   Usuarios `json:"usuario"`
 }
 
 type Estudiante struct {

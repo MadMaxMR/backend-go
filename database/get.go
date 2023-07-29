@@ -8,7 +8,8 @@ import (
 
 func GetAll(modelo interface{}, page string) (mod interface{}, err error) {
 	db := GetConnection()
-	defer db.Close()
+	dbc, _ := db.DB()
+	defer dbc.Close()
 	pageInt, _ := strconv.Atoi(page)
 	if page == "" {
 		db.Order("id ASC").Find(modelo)
@@ -33,7 +34,8 @@ func GetAll(modelo interface{}, page string) (mod interface{}, err error) {
 
 func Get(modelo interface{}, id string) (mod interface{}, err error) {
 	db := GetConnection()
-	defer db.Close()
+	dbc, _ := db.DB()
+	defer dbc.Close()
 	result := db.Where("id = ?", id).First(modelo)
 	if result.RowsAffected != 0 {
 		return modelo, nil

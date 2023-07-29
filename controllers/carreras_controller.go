@@ -13,7 +13,8 @@ import (
 func GetAllCarreras(w http.ResponseWriter, req *http.Request) {
 	carreras := []modelos.Carreras{}
 	db := database.GetConnection()
-	defer db.Close()
+	dbc, _ := db.DB()
+	defer dbc.Close()
 	page := req.URL.Query().Get("page")
 	modelo, err := database.GetAll(&carreras, page)
 	if err != nil {
@@ -41,7 +42,8 @@ func GetCarreraByArea(w http.ResponseWriter, req *http.Request) {
 	id := mux.Vars(req)["id"]
 
 	db := database.GetConnection()
-	defer db.Close()
+	dbc, _ := db.DB()
+	defer dbc.Close()
 
 	result := db.Where("cod_area = ?", id).Find(&carreras)
 	if result.Error != nil {
@@ -56,7 +58,8 @@ func GetCarreraUni(w http.ResponseWriter, req *http.Request) {
 	id := mux.Vars(req)["id"]
 
 	db := database.GetConnection()
-	defer db.Close()
+	dbc, _ := db.DB()
+	defer dbc.Close()
 
 	result := db.Where("id_uni = ?", id).Find(&carreras)
 	if result.Error != nil {
