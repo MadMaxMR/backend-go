@@ -12,6 +12,6 @@ type Examens struct {
 	CantidadPreguntas int               `json:"cantidad_preguntas" gorm:"type:int "`
 	Anio              string            `json:"anio" gorm:"type:string "`
 	TipoExamen        string            `json:"tipo_examen" gorm:"type:string "`
-	FechaCreacion     time.Time         `json:"fecha_creacion" gorm:"type:timestamp"`
+	FechaCreacion     time.Time         `json:"fecha_creacion" gorm:"type:date"`
 	PreguntaExamens   []PreguntaExamens `json:"preguntas"`
 }
