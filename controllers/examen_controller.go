@@ -29,7 +29,7 @@ func SaveExamens(w http.ResponseWriter, req *http.Request) {
 		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
 		return
 	}
-	examen.LimitePreguntas = 50
+	examen.FechaCreacion = time.Now()
 	_, err = database.Create(&examen)
 	if err != nil {
 		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
@@ -224,7 +224,6 @@ func GetPoints(w http.ResponseWriter, req *http.Request) {
 		if result["id_respuesta"+val] != float64(0) {
 			if result["id_respuesta"+val] == float64(respuesta.ID) {
 				db.Model(&pregunta).Where("id = ? ", result["id_pregunta"+val]).Find(&pregunta)
-
 				db.Model(&ponderado).Where("cursos_id = ? and cod_area = ?", pregunta.CursosId, examen.AreasId).Find(&ponderado)
 				points.Resultado["pregunta"+val] = "Correcto"
 				points.Solucion["pregunta"+val] = respuesta.ID

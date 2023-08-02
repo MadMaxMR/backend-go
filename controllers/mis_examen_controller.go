@@ -39,5 +39,6 @@ func GetHistorialExamen(w http.ResponseWriter, req *http.Request) {
 }
 
 func GetHistorialExamenDetalle(w http.ResponseWriter, req *http.Request) {
+	//var result []map[string]interface{}
 
 }
