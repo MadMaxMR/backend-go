@@ -74,7 +74,12 @@ func GetHistorialExamen(w http.ResponseWriter, req *http.Request) {
 		Joins(" inner join universidads uni on uni.id = mex.universidads_id").
 		Joins(" inner join areas ar on ar.id = mex.areas_id").
 		Where("usuario_id = ?", iduser).
-		Limit(25).Offset((pageInt - 1) * 25).Order("fecha_examen DESC").Find(&result)
+		Limit(pageSize).Offset((pageInt - 1) * pageSize).Order("fecha_examen DESC").Find(&result)
+
+	if len(result) == 0 {
+		handler.SendFail(w, req, http.StatusNotFound, "No hay registros")
+		return
+	}
 
 	result2.Historial = result
 
