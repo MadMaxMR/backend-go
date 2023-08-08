@@ -29,7 +29,7 @@ func SaveExamens(w http.ResponseWriter, req *http.Request) {
 		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
 		return
 	}
-	examen.FechaCreacion = time.Now()
+	examen.FechaCreacion = time.Now().Add(time.Hour - 6)
 	_, err = database.Create(&examen)
 	if err != nil {
 		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
@@ -250,7 +250,7 @@ func GetPoints(w http.ResponseWriter, req *http.Request) {
 	points.Nota = math.Round(((note*20)/float64(examen.LimitePreguntas))*100) / 100
 
 	historial.ExamensId = uint(idExamenInt)
-	historial.Fecha_Examen = time.Now()
+	historial.Fecha_Examen = time.Now().Add(time.Hour - 6)
 	historial.Nota = points.Nota
 	if points.Nota < 10.5 {
 		historial.Condicion = "Desaprobado"

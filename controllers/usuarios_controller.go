@@ -172,7 +172,7 @@ func SignIn(email string, password string) (string, uint, string, error) {
 		err = errors.New("credenciales incorrectas")
 		return "", 0, "", err
 	}
-	Last_Login := time.Now()
+	Last_Login := time.Now().Add(time.Hour - 6)
 	db.Model(&usuario).Update("last_login", Last_Login)
 
 	jwtKey, err := auth.CreateToken(usuario.ID, usuario.UserTipeID)

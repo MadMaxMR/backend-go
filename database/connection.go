@@ -38,7 +38,7 @@ func Migrate() {
 
 	log.Printf("Migrando base de datos")
 
-	db.AutoMigrate(&modelos.MisExamenes{})
+	db.AutoMigrate(&modelos.Examens{})
 
 	// db.AutoMigrate(&modelos.Modulos{}, &modelos.Universidads{}, &modelos.Areas{}, &modelos.PermisoAccesos{}, &modelos.PerfilUsuarios{},
 	// 	&modelos.Usuarios{}, &modelos.Plans{}, &modelos.Estudiantes{}, &modelos.Pagos{}, &modelos.Administradors{},
