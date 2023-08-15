@@ -2,19 +2,18 @@ package modelos
 
 import (
 	"time"
-
-	"gorm.io/datatypes"
 )
 
 type HistorialExamens struct {
-	ID             uint           `json:"id" gorm:"primary_key;auto_increment"`
-	Id_Examen      uint           `json:"id_examen" gorm:"type:int REFERENCES examens(id) "`
-	Fecha_Exame    datatypes.Date `json:"fecha_exame" gorm:"type:date"`
-	Nota_Max       float64        `json:"nota_max" gorm:"type:float"`
-	Nota_Min       float64        `json:"nota_min" gorm:"type:float"`
-	Nota_Tentativa float64        `json:"nota_tentativa" gorm:"type:float"`
-	Respuestas     string         `json:"respuestas"`
-	Solucion       string         `json:"solucion"`
+	ID             uint      `json:"id" gorm:"primary_key;auto_increment"`
+	UsuarioId      uint      `json:"id_usuario" gorm:"REFERENCES usuarios(id) "`
+	Fecha_Examen   time.Time `json:"last_login" gorm:"type:timestamp"`
+	Nota_Max       float64   `json:"nota_max" gorm:"type:float"`
+	Nota_Min       float64   `json:"nota_min" gorm:"type:float"`
+	Nota_Tentativa float64   `json:"nota_tentativa" gorm:"type:float"`
+	Respuestas     string    `json:"respuestas"`
+	Solucion       string    `json:"solucion"`
+	Id_Examen      uint      `json:"id_examen" gorm:"REFERENCES examens(id) "`
 }
 
 type MisExamenes struct {

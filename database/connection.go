@@ -5,8 +5,6 @@ import (
 	"log"
 	"os"
 
-	"github.com/MadMaxMR/backend-go/modelos"
-
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -39,7 +37,7 @@ func Migrate() {
 
 	log.Printf("Migrando base de datos")
 
-	db.AutoMigrate(&modelos.Examens{})
+	//db.AutoMigrate(&modelos.HistorialExamens{})
 
 	// db.AutoMigrate(&modelos.Modulos{}, &modelos.Universidads{}, &modelos.Areas{}, &modelos.PermisoAccesos{}, &modelos.PerfilUsuarios{},
 	// 	&modelos.Usuarios{}, &modelos.Plans{}, &modelos.Estudiantes{}, &modelos.Pagos{}, &modelos.Administradors{},

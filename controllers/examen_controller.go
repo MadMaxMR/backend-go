@@ -189,7 +189,7 @@ func GetPoints(w http.ResponseWriter, req *http.Request) {
 	points := modelos.Result{Resultado: make(map[string]string), Solucion: make(map[string]uint)}
 	result := map[string]interface{}{}
 	var solution, answers string
-	idExamen := req.URL.Query().Get("examen")
+	idExamen := req.URL.Query().Get("idExamen")
 	if idExamen == "" {
 		idExamen = "2"
 	}
@@ -239,16 +239,13 @@ func GetPoints(w http.ResponseWriter, req *http.Request) {
 			points.Solucion["pregunta"+val] = respuesta.ID
 			incorrect++
 		}
-		// respuesta.ID =
-
-		historial.AreasId = examen.AreasId
-		historial.UniversidadsId = examen.Id_Uni
-
 	}
 	points.Correct = correct
 	points.Incorrect = incorrect
 	points.Nota = math.Round(((note*20)/float64(examen.LimitePreguntas))*100) / 100
 
+	historial.AreasId = examen.AreasId
+	historial.UniversidadsId = examen.Id_Uni
 	historial.ExamensId = uint(idExamenInt)
 	historial.Fecha_Examen = time.Now().Add(time.Hour - 6)
 	historial.Nota = points.Nota
@@ -262,10 +259,10 @@ func GetPoints(w http.ResponseWriter, req *http.Request) {
 	historial.UsuarioId = uint(iduser)
 
 	db.Create(&historial)
-
-	fmt.Println("answers: ", answers)
-	fmt.Println("solution: ", solution)
-	fmt.Println("Nota general", note)
+	//fmt.Println("answers: ", answers)	fmt.Println("solution: ", solution)
+	db.Save(&modelos.HistorialExamens{UsuarioId: uint(iduser), Id_Examen: uint(idExamenInt),
+		Fecha_Examen: time.Now().Add(time.Hour - 6), Nota_Max: points.Nota,
+		Respuestas: answers, Solucion: solution})
 
 	handler.SendSuccess(w, req, http.StatusOK, points)
 }
