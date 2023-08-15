@@ -387,10 +387,9 @@ func GetFastTest(w http.ResponseWriter, req *http.Request) {
 		} else {
 			return db.Where("cursos_id <> 0")
 		}
-	}).Select("pregunta_examens.id,ex.examens_id,pregunta_examens.enunciado1,pregunta_examens.grafico," +
-		"pregunta_examens.enunciado2,pregunta_examens.enunciado3,row_number() OVER () AS num_question," +
+	}).Select("pregunta_examens.id,pregunta_examens.enunciado1,pregunta_examens.grafico," +
+		"pregunta_examens.enunciado2,pregunta_examens.enunciado3,row_number() OVER (order by random()) AS num_question," +
 		"pregunta_examens.cursos_id,pregunta_examens.temas_id,pregunta_examens.nivel").
-		Joins("INNER JOIN examen_preguntas ex on ex.pregunta_examens_id = pregunta_examens.id").
 		Limit(totalInt).Order("random()").
 		Find(&preguntas).Error
 	if err != nil {

@@ -23,7 +23,8 @@ func initConnection() *gorm.DB {
 	/*Conecciòn por .env*/
 	dbURI := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s", host, port, user, dbname, password)
 	//connStr := "host='" + PGHOST + "' port=5432 user=postgres dbname='" + PGDATABASE + "' password='" + PGPASSWORD + "' sslmode=disable"
-	db, err := gorm.Open(postgres.Open(dbURI), &gorm.Config{ /*Logger: logger.Default.LogMode(logger.Silent)*/ })
+	//Logger: logger.Default.LogMode(logger.Silent)
+	db, err := gorm.Open(postgres.Open(dbURI), &gorm.Config{})
 	if err != nil {
 		log.Fatal(err)
 	}
