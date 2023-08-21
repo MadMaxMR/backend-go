@@ -1,12 +1,9 @@
 package controllers
 
 import (
-	"strconv"
-
 	"github.com/MadMaxMR/backend-go/database"
 	"github.com/MadMaxMR/backend-go/handler"
 	"github.com/MadMaxMR/backend-go/modelos"
-	"gorm.io/gorm"
 
 	"net/http"
 
@@ -54,91 +51,4 @@ func GetAreaByUni(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	handler.SendSuccess(w, req, http.StatusOK, areas)
-}
-
-// GetAreaCarrerasByUni retorna todas las areas de una "universidad" incluido las carreras de sus areas
-func GetAreaCarrerasByUni(w http.ResponseWriter, req *http.Request) {
-	type Result2 struct {
-		Page  int                    `json:"page"`
-		Prev  bool                   `json:"prev"`
-		Next  bool                   `json:"next"`
-		Total int                    `json:"total"`
-		Data  []modelos.Universidads `json:"data"`
-	}
-	result2 := Result2{}
-
-	universidads := []modelos.Universidads{}
-	idCarrera := req.URL.Query().Get("idCarrera")
-	idArea := req.URL.Query().Get("idArea")
-	idUniversidad := req.URL.Query().Get("idUniversidad")
-	page := req.URL.Query().Get("page")
-	pageSizes := req.URL.Query().Get("pageSize")
-	if page == "" {
-		page = "1"
-	}
-	if pageSizes == "" {
-		pageSizes = "20"
-	}
-	pageInt, _ := strconv.Atoi(page)
-	pageSize, _ := strconv.Atoi(pageSizes)
-
-	if idUniversidad == "" {
-		idUniversidad = "%"
-	}
-	if idArea == "" {
-		idArea = "%"
-	}
-	if idCarrera == "" {
-		idCarrera = "%"
-	}
-
-	db := database.GetConnection()
-	dbc, _ := db.DB()
-	defer dbc.Close()
-
-	result := db.Where("id LIKE ?", idUniversidad).Preload("Area", "id LIKE ?", idArea).Preload("Area.Carreras", "id::text LIKE ?", idCarrera, func(db *gorm.DB) *gorm.DB {
-		return db.Order("Carreras.nombre_carr ASC")
-	}).Preload("Area.Carreras.PerfilPostulante").Find(&universidads)
-
-	if result.RowsAffected == 0 {
-		handler.SendFail(w, req, http.StatusInternalServerError, "No se encontró areas para la universidad solicitada")
-		return
-	}
-	var totpep int
-	for _, universidad := range universidads {
-		for _, area := range universidad.Area {
-			for _, carrera := range area.Carreras {
-				totpep = totpep + len(carrera.PerfilPostulante)
-			}
-		}
-	}
-
-	result2.Page = pageInt
-	result2.Next = true
-	if pageInt == 1 {
-		result2.Prev = false
-	}
-	if pageInt > 1 {
-		result2.Prev = true
-	}
-
-	if int(totpep)%pageSize == 0 {
-		result2.Total = int(totpep) / pageSize
-	} else {
-		result2.Total = (int(totpep) / pageSize) + 1
-	}
-
-	if pageInt == result2.Total {
-		result2.Next = false
-	}
-
-	db.Debug().Where("id LIKE ?", idUniversidad).Preload("Area", "id LIKE ?", idArea).Preload("Area.Carreras", "id::text LIKE ?", idCarrera, func(db *gorm.DB) *gorm.DB {
-		return db.Order("id ASC")
-	}).Preload("Area.Carreras.PerfilPostulante", func(db *gorm.DB) *gorm.DB {
-		return db.Limit(pageSize).Offset((pageInt - 1) * pageSize).Order("carreras_id ASC")
-	}).Find(&universidads)
-
-	result2.Data = universidads
-
-	handler.SendSuccess(w, req, http.StatusOK, result2)
 }

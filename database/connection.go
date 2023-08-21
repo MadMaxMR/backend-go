@@ -7,6 +7,7 @@ import (
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 func initConnection() *gorm.DB {
@@ -22,7 +23,7 @@ func initConnection() *gorm.DB {
 	dbURI := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s", host, port, user, dbname, password)
 	//connStr := "host='" + PGHOST + "' port=5432 user=postgres dbname='" + PGDATABASE + "' password='" + PGPASSWORD + "' sslmode=disable"
 	//Logger: logger.Default.LogMode(logger.Silent)
-	db, err := gorm.Open(postgres.Open(dbURI), &gorm.Config{})
+	db, err := gorm.Open(postgres.Open(dbURI), &gorm.Config{Logger: logger.Default.LogMode(logger.Info)})
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -37,7 +38,7 @@ func Migrate() {
 
 	log.Printf("Migrando base de datos")
 
-	//db.AutoMigrate(&modelos.HistorialExamens{})
+	//db.AutoMigrate(&modelos.PonderacionFastest{})
 
 	// db.AutoMigrate(&modelos.Modulos{}, &modelos.Universidads{}, &modelos.Areas{}, &modelos.PermisoAccesos{}, &modelos.PerfilUsuarios{},
 	// 	&modelos.Usuarios{}, &modelos.Plans{}, &modelos.Estudiantes{}, &modelos.Pagos{}, &modelos.Administradors{},

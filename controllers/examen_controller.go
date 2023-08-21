@@ -203,6 +203,7 @@ func GetPoints(w http.ResponseWriter, req *http.Request) {
 	err = auth.ValidateBody(req, &result)
 	if err != nil {
 		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
+		return
 	}
 
 	examen := modelos.Examens{}
@@ -336,10 +337,8 @@ func GetModalidad(w http.ResponseWriter, req *http.Request) {
 }
 
 func GetExamensbyAnio(w http.ResponseWriter, req *http.Request) {
-	type Año struct {
-		Anio string
-	}
-	años := []Año{}
+
+	var años []map[string]interface{}
 	id := mux.Vars(req)["id"]
 	examenes := make(map[string]interface{})
 
@@ -347,16 +346,19 @@ func GetExamensbyAnio(w http.ResponseWriter, req *http.Request) {
 	dbc, _ := db.DB()
 	defer dbc.Close()
 
-	db.Raw("SELECT anio FROM examens WHERE areas_id = $1 GROUP BY anio ", id).Scan(&años)
+	db.Table("examens").Select("anio").Where("areas_id = ?", id).Group("anio").Find(&años)
+
 	if len(años) == 0 {
 		handler.SendFail(w, req, http.StatusNotFound, "No se encontró examenes para el area seleccionada")
 		return
 	}
 
 	for _, v := range años {
+		var anio string
+		anio = v["anio"].(string)
 		var Examens []modelos.Examens
-		db.Where("anio= $1 and areas_id = $2", v.Anio, id).Find(&Examens)
-		examenes[v.Anio] = Examens
+		db.Where("anio= $1 and areas_id = $2 and limite_preguntas = cantidad_preguntas", anio, id).Find(&Examens)
+		examenes[anio] = Examens
 	}
 
 	handler.SendSuccess(w, req, http.StatusOK, examenes)
@@ -398,4 +400,78 @@ func GetFastTest(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	handler.SendSuccess(w, req, http.StatusOK, preguntas)
+}
+
+func GetPointsFastTest(w http.ResponseWriter, req *http.Request) {
+	tk, _, _, err := auth.ValidateToken(req.Header.Get("Authorization"))
+	if err != nil {
+		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	historial := modelos.MisExamenes{}
+	points := modelos.Result{Resultado: make(map[string]string), Solucion: make(map[string]uint)}
+	result := map[string]interface{}{}
+	var solution, answers string
+
+	db := database.GetConnection()
+	dbc, _ := db.DB()
+	defer dbc.Close()
+	correct, incorrect, note := 0, 0, 0.0
+
+	err = auth.ValidateBody(req, &result)
+	if err != nil {
+		handler.SendFail(w, req, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	for i := 1; i < (len(result)/2 + 1); i++ {
+		respuesta := modelos.RespuestaExs{}
+		ponderado := modelos.PonderacionFastest{}
+		pregunta := modelos.PreguntaExamens{}
+
+		val := strconv.Itoa(i)
+		rest := db.Model(&respuesta).Where("pregunta_examens_id = ? and valor = 'true'", result["id_pregunta"+val]).Find(&respuesta)
+		if rest.RowsAffected == 0 {
+			handler.SendFail(w, req, http.StatusBadRequest, "No hay alternativa correcta")
+			return
+		}
+		solution += strconv.Itoa(int(respuesta.ID)) + "-"
+		answers += fmt.Sprintf("%v", result["id_respuesta"+val]) + "-"
+		if result["id_respuesta"+val] != float64(0) {
+			if result["id_respuesta"+val] == float64(respuesta.ID) {
+				db.Model(&pregunta).Where("id = ? ", result["id_pregunta"+val]).Find(&pregunta)
+				db.Model(&ponderado).Where("cursos_id = ?", pregunta.CursosId).Find(&ponderado)
+				points.Resultado["pregunta"+val] = "Correcto"
+				points.Solucion["pregunta"+val] = respuesta.ID
+				note = note + ponderado.Ponderacion
+				correct++
+			} else {
+				points.Resultado["pregunta"+val] = "Incorrecto"
+				points.Solucion["pregunta"+val] = respuesta.ID
+				incorrect++
+			}
+		} else if result["id_respuesta"+val] == float64(0) {
+			points.Resultado["pregunta"+val] = "No contestada"
+			points.Solucion["pregunta"+val] = respuesta.ID
+			incorrect++
+		}
+	}
+	points.Correct = correct
+	points.Incorrect = incorrect
+	points.Nota = note
+
+	historial.Fecha_Examen = time.Now().Add(time.Hour - 6)
+	historial.Nota = points.Nota
+	if points.Nota < 10.5 {
+		historial.Condicion = "Desaprobado"
+	} else {
+		historial.Condicion = "Aprobado"
+	}
+
+	iduser, _ := strconv.Atoi(tk.Id_Usuario)
+	historial.UsuarioId = uint(iduser)
+
+	handler.SendSuccess(w, req, http.StatusOK, points)
+
 }

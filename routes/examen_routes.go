@@ -32,5 +32,6 @@ func SetExamenRoutes(router *mux.Router) {
 
 	//PREGUNTAS DE FASTEST
 	subRoute.HandleFunc("/fasttest/", controllers.GetFastTest).Methods("GET")
+	subRoute.HandleFunc("/fastest/puntos/", controllers.GetPointsFastTest)
 
 }
