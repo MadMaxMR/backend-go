@@ -215,6 +215,7 @@ func UpdateAvatar1(w http.ResponseWriter, req *http.Request) {
 		handler.SendSuccess(w, req, http.StatusOK, usuario)
 	} else {
 		handler.SendFail(w, req, http.StatusBadRequest, "Error al encontrar usuario")
+		return
 	}
 }
 

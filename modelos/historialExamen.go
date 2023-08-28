@@ -7,7 +7,7 @@ import (
 type HistorialExamens struct {
 	ID             uint      `json:"id" gorm:"primary_key;auto_increment"`
 	UsuarioId      uint      `json:"id_usuario" gorm:"REFERENCES usuarios(id) "`
-	Fecha_Examen   time.Time `json:"last_login" gorm:"type:timestamp"`
+	Fecha_Examen   time.Time `json:"fecha_examen" gorm:"type:timestamp"`
 	Nota_Max       float64   `json:"nota_max" gorm:"type:float"`
 	Nota_Min       float64   `json:"nota_min" gorm:"type:float"`
 	Nota_Tentativa float64   `json:"nota_tentativa" gorm:"type:float"`
@@ -26,11 +26,11 @@ type MisExamenes struct {
 	Fecha_Examen   time.Time `json:"last_login" gorm:"type:timestamp"`
 }
 
-type ResMisExamen struct {
-	ExamensId   string  `json:"id_examen"`
-	UsuarioId   uint    `json:"id_usuario"`
-	Universidad string  `json:"universidad"`
-	Area        string  `json:"area"`
-	Nota        float64 `json:"nota"`
-	Condicion   string  `json:"condicion"`
+type HistorialFastest struct {
+	ID           uint      `json:"id" gorm:"primary_key;auto_increment"`
+	UsuarioId    uint      `json:"id_usuario" gorm:"REFERENCES usuarios(id) "`
+	Fecha_Examen time.Time `json:"last_login" gorm:"type:timestamp"`
+	Nota         float64   `json:"nota" gorm:"type:float"`
+	TemasId      uint      `json:"id_tema" gorm:"REFERENCES temas(id) "`
+	CursosId     uint      `json:"id_curso" gorm:"REFERENCES cursos(id) "`
 }

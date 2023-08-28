@@ -90,3 +90,4 @@ func GetHistorialExamenDetalle(w http.ResponseWriter, req *http.Request) {
 	//var result []map[string]interface{}
 
 }
+

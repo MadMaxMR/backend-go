@@ -409,7 +409,7 @@ func GetPointsFastTest(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	historial := modelos.MisExamenes{}
+	historial := modelos.HistorialFastest{}
 	points := modelos.Result{Resultado: make(map[string]string), Solucion: make(map[string]uint)}
 	result := map[string]interface{}{}
 	var solution, answers string
@@ -456,6 +456,9 @@ func GetPointsFastTest(w http.ResponseWriter, req *http.Request) {
 			points.Solucion["pregunta"+val] = respuesta.ID
 			incorrect++
 		}
+
+		historial.TemasId = pregunta.TemasId
+		historial.CursosId = pregunta.CursosId
 	}
 	points.Correct = correct
 	points.Incorrect = incorrect
@@ -463,14 +466,10 @@ func GetPointsFastTest(w http.ResponseWriter, req *http.Request) {
 
 	historial.Fecha_Examen = time.Now().Add(time.Hour - 6)
 	historial.Nota = points.Nota
-	if points.Nota < 10.5 {
-		historial.Condicion = "Desaprobado"
-	} else {
-		historial.Condicion = "Aprobado"
-	}
-
 	iduser, _ := strconv.Atoi(tk.Id_Usuario)
 	historial.UsuarioId = uint(iduser)
+
+	db.Create(&historial)
 
 	handler.SendSuccess(w, req, http.StatusOK, points)
 

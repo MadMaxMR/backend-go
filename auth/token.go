@@ -41,7 +41,7 @@ func CreateTokenReset(email string, id uint) (string, error) {
 	claims := jwt.MapClaims{}
 	claims["id"] = id
 	claims["email"] = email
-	claims["exp"] = time.Now().Add(time.Second * 300).Unix()
+	claims["exp"] = time.Now().Add(time.Minute * 5).Unix()
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
 	tokenStr, err := token.SignedString([]byte("SECRET"))
