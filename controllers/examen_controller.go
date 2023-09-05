@@ -157,26 +157,6 @@ func DeleteExamen(w http.ResponseWriter, req *http.Request) {
 	handler.SendSuccessMessage(w, req, http.StatusOK, message)
 }
 
-func GetPreguntasExamenByArea(w http.ResponseWriter, req *http.Request) {
-	examen := []modelos.Examens{}
-	id := mux.Vars(req)["id"]
-
-	db := database.GetConnection()
-	dbc, _ := db.DB()
-	defer dbc.Close()
-
-	result := db.Model(&examen).Where("areas_id = ?", id).Preload("PreguntaExamens", func(db *gorm.DB) *gorm.DB {
-		return db.Order("pregunta_examens.id ASC")
-	}).Preload("PreguntaExamens.RespuestaExs", func(db *gorm.DB) *gorm.DB {
-		return db.Order("respuesta_exs.id ASC")
-	}).Find(&examen)
-	if result.RowsAffected == 0 {
-		handler.SendFail(w, req, http.StatusInternalServerError, "No se encontró examenes para el area: "+id)
-		return
-	}
-	handler.SendSuccess(w, req, http.StatusOK, examen)
-}
-
 func GetPoints(w http.ResponseWriter, req *http.Request) {
 
 	tk, _, _, err := auth.ValidateToken(req.Header.Get("Authorization"))
@@ -278,7 +258,7 @@ func GetPoints(w http.ResponseWriter, req *http.Request) {
 func GetExamensPregByArea(w http.ResponseWriter, req *http.Request) {
 	preguntas := []modelos.PreguntaExamens{}
 	examen := modelos.Examens{}
-	id := mux.Vars(req)["id"]
+	id := mux.Vars(req)["idExamen"]
 
 	db := database.GetConnection()
 	dbc, _ := db.DB()
@@ -339,17 +319,22 @@ func GetModalidad(w http.ResponseWriter, req *http.Request) {
 func GetExamensbyAnio(w http.ResponseWriter, req *http.Request) {
 
 	var años []map[string]interface{}
-	id := mux.Vars(req)["id"]
 	examenes := make(map[string]interface{})
+	id := mux.Vars(req)["id"]
+	tipex := req.URL.Query().Get("tipex")
+
+	if tipex == "" {
+		tipex = "Admision"
+	}
 
 	db := database.GetConnection()
 	dbc, _ := db.DB()
 	defer dbc.Close()
 
-	db.Table("examens").Select("anio").Where("areas_id = ?", id).Group("anio").Find(&años)
+	db.Table("examens").Select("anio").Where("areas_id = $1 and tipo_examen = $2", id, tipex).Group("anio").Find(&años)
 
 	if len(años) == 0 {
-		handler.SendFail(w, req, http.StatusNotFound, "No se encontró examenes para el area seleccionada")
+		handler.SendFail(w, req, http.StatusNotFound, "No se encontró examenes para el area o tipo ingresado")
 		return
 	}
 
@@ -357,8 +342,16 @@ func GetExamensbyAnio(w http.ResponseWriter, req *http.Request) {
 		var anio string
 		anio = v["anio"].(string)
 		var Examens []modelos.Examens
-		db.Where("anio= $1 and areas_id = $2 and limite_preguntas = cantidad_preguntas", anio, id).Find(&Examens)
+		res := db.Where("anio= $1 and areas_id = $2 and limite_preguntas = cantidad_preguntas", anio, id).Find(&Examens)
+		if res.RowsAffected == 0 {
+			continue
+		}
 		examenes[anio] = Examens
+	}
+
+	if len(examenes) == 0 {
+		handler.SendFail(w, req, http.StatusNotFound, "No se encontró examenes para el area o tipo ingresado")
+		return
 	}
 
 	handler.SendSuccess(w, req, http.StatusOK, examenes)

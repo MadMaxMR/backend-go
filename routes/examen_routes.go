@@ -19,7 +19,7 @@ func SetExamenRoutes(router *mux.Router) {
 	//Ruta para ver las preguntas de un examen en el administrador
 
 	//Ruta para ver las preguntas de un examen en el estudiante
-	subRoute.HandleFunc("/examen/preguntas/area/{id}", controllers.GetExamensPregByArea).Methods("GET")
+	subRoute.HandleFunc("/examen/preguntas/area/{idExamen}", controllers.GetExamensPregByArea).Methods("GET")
 
 	//Ruta para ver los examenes por año
 	subRoute.HandleFunc("/examen/anio/area/{id}", controllers.GetExamensbyAnio).Methods("GET")
@@ -27,11 +27,8 @@ func SetExamenRoutes(router *mux.Router) {
 	//Ruta para ver las modalidades de los examenes
 	subRoute.HandleFunc("/examen/modalidades/", controllers.GetModalidad).Methods("GET")
 
-	//No carga las preguntas ni las respuestas - Antiguo
-	subRoute.HandleFunc("/examen/preguntasRespuestas/{id}", controllers.GetPreguntasExamenByArea).Methods("GET")
-
 	//PREGUNTAS DE FASTEST
 	subRoute.HandleFunc("/fasttest/", controllers.GetFastTest).Methods("GET")
-	subRoute.HandleFunc("/fastest/puntos/", controllers.GetPointsFastTest)
+	subRoute.HandleFunc("/fastest/puntos/", controllers.GetPointsFastTest).Methods("POST")
 
 }
