@@ -199,7 +199,7 @@ func GetPreguntasForExamen(w http.ResponseWriter, req *http.Request) {
 	resultQ := db.Model(&preguntas).Select("DISTINCT pregunta_examens.id,pregunta_examens.enunciado1,pregunta_examens.nivel, cursos.nombre_curso,temas.nombre_tema").
 		Joins("INNER JOIN temas on pregunta_examens.temas_id = temas.id").
 		Joins("INNER JOIN cursos on pregunta_examens.cursos_id = cursos.id").
-		Where("pregunta_examens.id <> ALL (select pregunta_examens_id from examen_preguntas where examens_id =?)", idExamen).
+		Where("pregunta_examens.id not in (select distinct pregunta_examens_id from examen_preguntas where examens_id =?)", idExamen).
 		Scan(&result)
 
 	result2.Page = page
@@ -224,7 +224,7 @@ func GetPreguntasForExamen(w http.ResponseWriter, req *http.Request) {
 	resultQ = db.Model(&preguntas).Select("DISTINCT pregunta_examens.id,pregunta_examens.enunciado1,pregunta_examens.nivel, cursos.nombre_curso,temas.nombre_tema").
 		Joins("INNER JOIN temas on pregunta_examens.temas_id = temas.id").
 		Joins("INNER JOIN cursos on pregunta_examens.cursos_id = cursos.id").
-		Where("pregunta_examens.id <> ALL (select pregunta_examens_id from examen_preguntas where examens_id =?)", idExamen).
+		Where("pregunta_examens.id not in (select distinct pregunta_examens_id from examen_preguntas where examens_id =?)", idExamen).
 		Limit(pageSize).Offset((pageInt - 1) * pageSize).Order("id DESC").Scan(&result)
 	if resultQ.RowsAffected == 0 {
 		handler.SendFail(w, req, http.StatusBadRequest, "No se encontró preguntas")
@@ -483,7 +483,7 @@ func DeletePreguntaRespuestas(w http.ResponseWriter, req *http.Request) {
 }
 
 func SavePreguntasExamen(w http.ResponseWriter, req *http.Request) {
-	preguntaEx := modelos.ExamenPreguntas{}
+	examPreg := []modelos.ExamenPreguntas{}
 	examen := modelos.Examens{}
 	data := map[string]interface{}{}
 
@@ -497,26 +497,34 @@ func SavePreguntasExamen(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	idExamen := uint(data["id_examen"].(float64))
-	preguntaEx.ExamensId = idExamen
 	preguntas := data["preguntas"].([]interface{})
 
-	result := db.Model(&preguntaEx).Where("examens_id = ?", idExamen).Find(&preguntaEx)
+	db.Model(&examPreg).Where("examens_id = ?", idExamen).Find(&examPreg)
 	db.Model(&examen).Where("id = ?", idExamen).Find(&examen)
+	precre := len(preguntas)
 
-	if (len(preguntas) + int(result.RowsAffected)) > examen.LimitePreguntas {
+	if (precre + int(len(examPreg))) > examen.LimitePreguntas {
 		handler.SendFail(w, req, http.StatusBadRequest, "Las cantidad de preguntas superan el limite de preguntas del examen")
 		return
 	}
-
 	var wg sync.WaitGroup
 	wg.Add(len(preguntas))
 
 	for _, pregunta := range preguntas {
 		go func(pregunta interface{}) {
 			defer wg.Done()
+			var exist bool
 			preguntaEx := modelos.ExamenPreguntas{}
 			preguntaEx.ExamensId = idExamen
 			preguntaEx.PreguntaExamensId = uint(pregunta.(map[string]interface{})["id_pregunta"].(float64))
+			db.Table("examen_preguntas").Select("count(*)>0").
+				Where("examens_id = $1 and pregunta_examens_id = $2", idExamen, preguntaEx.PreguntaExamensId).
+				Find(&exist)
+			if exist {
+				fmt.Println("Exsite la pregunta", preguntaEx.PreguntaExamensId)
+				precre = precre - 1
+				return
+			}
 			err = db.Create(&preguntaEx).Error
 			if err != nil {
 				handler.SendFail(w, req, http.StatusBadRequest, "Error al guardar pregunta - "+err.Error())
@@ -526,9 +534,10 @@ func SavePreguntasExamen(w http.ResponseWriter, req *http.Request) {
 	}
 
 	wg.Wait()
-	db.Table("examens").Where("id = ?", idExamen).UpdateColumn("cantidad_preguntas", result.RowsAffected+int64(len(preguntas)))
 
-	handler.SendSuccessMessage(w, req, http.StatusOK, "Preguntas agregadas exitosamente")
+	db.Table("examens").Where("id = ?", idExamen).UpdateColumn("cantidad_preguntas", int64(len(examPreg))+int64(precre))
+
+	handler.SendSuccessMessage(w, req, http.StatusOK, "Se agregó "+strconv.Itoa(precre)+" preguntas")
 }
 
 func ChangePreguntaExamen(w http.ResponseWriter, req *http.Request) {
