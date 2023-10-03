@@ -1,17 +1,15 @@
 package routes
 
-import "net/http"
+import (
+	"github.com/MadMaxMR/backend-go/controllers"
+	"github.com/gorilla/mux"
+)
 
-func getIndicadores(w http.ResponseWriter, r *http.Request) {
+func SetExploramasRoutes(router *mux.Router) {
+	subRoute := router.PathPrefix("/v2").Subrouter()
 
-	return
+	//INDICADORES GRAFICO
+	subRoute.HandleFunc("/indicadores", controllers.GetIndicadores).Methods("GET")
 }
 
-/*
-select e.anio,e.id_uni,e.areas_id ,pe.cursos_id ,pe.temas_id,count(*) total from examens e
-		inner join examen_preguntas ep on ep.examens_id  = e.id
-		inner join pregunta_examens pe on pe.id = ep.pregunta_examens_id
-		where e.tipo_examen  = 'Admision' and e.cantidad_preguntas = e.limite_preguntas
-		group by e.anio, e.id_uni,e.areas_id,pe.cursos_id,pe.temas_id
-		order by  e.anio, pe.cursos_id,pe.temas_id
-*/
+//INDICADORES GRAFICO

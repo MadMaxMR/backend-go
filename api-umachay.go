@@ -40,6 +40,7 @@ func main() {
 	routes.SetExamenRoutes(router)
 	routes.SetImageRoute(router)
 	routes.SetPreguntasRoutes(router)
+	routes.SetExploramasRoutes(router)
 
 	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Servicios rest ACADEMIA-UMACHAY v1.2"))

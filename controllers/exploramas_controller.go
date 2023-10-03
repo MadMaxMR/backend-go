@@ -24,7 +24,7 @@ func GetAreaCarrerasByUni(w http.ResponseWriter, req *http.Request) {
 	idUniversidad := req.URL.Query().Get("idUniversidad")
 	page := req.URL.Query().Get("page")
 	pageSizes := req.URL.Query().Get("pageSize")
-	
+
 	if page == "" {
 		page = "1"
 	}
@@ -112,3 +112,50 @@ func GetInfoMas(w http.ResponseWriter, req *http.Request) {
 	// defer dbc.Close()
 
 }
+
+func GetIndicadores(w http.ResponseWriter, req *http.Request) {
+	data := []map[string]interface{}{}
+	idUni := req.URL.Query().Get("idUni")
+	idArea := req.URL.Query().Get("idArea")
+	idCurso := req.URL.Query().Get("idCurso")
+	lAnio := req.URL.Query().Get("lAnio")
+	rAnio := req.URL.Query().Get("rAnio")
+
+	if idUni == "" || idArea == "" || idCurso == "" || lAnio == "" || rAnio == "" {
+		handler.SendFail(w, req, http.StatusNotAcceptable, "Universidad, area, curso o años no pueden estar en blanco")
+		return
+	}
+
+	leAnio, _ := strconv.Atoi(lAnio)
+	riAnio, _ := strconv.Atoi(rAnio)
+
+	db := database.GetConnection()
+	dbc, _ := db.DB()
+	defer dbc.Close()
+
+	resultQ := db.Table("(?) as dat", db.Table("examens e").
+		Select("e.anio,e.id_uni,e.areas_id ,pe.cursos_id ,pe.temas_id,count(*) as total").
+		Joins("INNER JOIN examen_preguntas ep on ep.examens_id  = e.id").
+		Joins("INNER JOIN pregunta_examens pe on pe.id = ep.pregunta_examens_id").
+		Where("e.tipo_examen  = 'Admision' and e.cantidad_preguntas = e.limite_preguntas and e.id_uni = $1 and pe.cursos_id = $2 "+
+			" and e.areas_id = $3 and anio::integer between $4 and $5", idUni, idCurso, idArea, leAnio, riAnio).
+		Group("e.anio, e.id_uni,e.areas_id,pe.cursos_id,pe.temas_id").
+		Order("e.anio, pe.cursos_id,pe.temas_id")).
+		Select("*, SUM(dat.total) OVER (PARTITION BY dat.cursos_id) AS suma,(total/(SUM(dat.total) OVER (PARTITION BY dat.cursos_id)))*100 as prctje").
+		Order("dat.total ASC").
+		Scan(&data)
+
+	if resultQ.RowsAffected == 0 {
+		handler.SendFail(w, req, http.StatusNoContent, "No hay datos para el filtro seleccionado")
+	}
+	handler.SendSuccess(w, req, http.StatusOK, data)
+}
+
+/*
+select e.anio,e.id_uni,e.areas_id ,pe.cursos_id ,pe.temas_id,count(*) total from examens e
+		inner join examen_preguntas ep on ep.examens_id  = e.id
+		inner join pregunta_examens pe on pe.id = ep.pregunta_examens_id
+		where e.tipo_examen  = 'Admision' and e.cantidad_preguntas = e.limite_preguntas
+		group by e.anio, e.id_uni,e.areas_id,pe.cursos_id,pe.temas_id
+		order by  e.anio, pe.cursos_id,pe.temas_id
+*/
