@@ -103,7 +103,7 @@ func GetAreaCarrerasByUni(w http.ResponseWriter, req *http.Request) {
 	handler.SendSuccess(w, req, http.StatusOK, result2)
 }
 
-//GetInfoMas Devuelve la info adicional por carreras
+// GetInfoMas Devuelve la info adicional por carreras
 func GetInfoMas(w http.ResponseWriter, req *http.Request) {
 	// var result []map[string]interface{}
 
@@ -134,14 +134,15 @@ func GetIndicadores(w http.ResponseWriter, req *http.Request) {
 	defer dbc.Close()
 
 	resultQ := db.Table("(?) as dat", db.Table("examens e").
-		Select("e.anio,e.id_uni,e.areas_id ,pe.cursos_id ,pe.temas_id,count(*) as total").
+		Select("e.id_uni,e.areas_id ,pe.cursos_id ,pe.temas_id,count(*) as total").
 		Joins("INNER JOIN examen_preguntas ep on ep.examens_id  = e.id").
 		Joins("INNER JOIN pregunta_examens pe on pe.id = ep.pregunta_examens_id").
 		Where("e.tipo_examen  = 'Admision' and e.cantidad_preguntas = e.limite_preguntas and e.id_uni = $1 and pe.cursos_id = $2 "+
 			" and e.areas_id = $3 and anio::integer between $4 and $5", idUni, idCurso, idArea, leAnio, riAnio).
-		Group("e.anio, e.id_uni,e.areas_id,pe.cursos_id,pe.temas_id").
-		Order("e.anio, pe.cursos_id,pe.temas_id")).
-		Select("*, SUM(dat.total) OVER (PARTITION BY dat.cursos_id) AS suma,(total/(SUM(dat.total) OVER (PARTITION BY dat.cursos_id)))*100 as prctje").
+		Group(" e.id_uni,e.areas_id,pe.cursos_id,pe.temas_id").
+		Order("pe.cursos_id,pe.temas_id")).
+		Select("dat.*,te.nombre_tema as nom_tema, SUM(dat.total) OVER (PARTITION BY dat.cursos_id) AS suma,(total/(SUM(dat.total) OVER (PARTITION BY dat.cursos_id)))*100 as prctje").
+		Joins("LEFT join temas te on te.id = dat.temas_id").
 		Order("dat.total ASC").
 		Scan(&data)
 
